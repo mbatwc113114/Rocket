@@ -1,57 +1,127 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Model Rocketry</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- Google Font (bold, aerospace feel) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
-
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Advanced Model Rocketry - Engineering Excellence in Flight">
+    <meta name="theme-color" content="#050A1E">
+    <title>jm_space | Advanced Model Rocketry</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Navigation Bar -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">jm_space</div>
+            <ul class="nav-menu" id="navMenu">
+                <li class="nav-item"><a href="#projects" class="nav-link">Projects</a></li>
+                <li class="nav-item"><a href="#learn" class="nav-link">Learn</a></li>
+                <li class="nav-item"><a href="#about" class="nav-link">About Us</a></li>
+            </ul>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
 
-  <!-- NAVBAR -->
-  <nav class="navbar">
-    <div class="logo">jm_space</div>
-    <ul class="nav-links">
-      <li><a href="#projects">Projects</a></li>
-      <li><a href="#learn">Learn</a></li>
-      <li><a href="#about">About Us</a></li>
-    </ul>
-  </nav>
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="hero-background" style="background-image: url('assets/hero.jpg')"></div>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">Advanced Model Rocketry</h1>
+            <p class="hero-subtitle">Engineering excellence through precision flight</p>
+            <a href="#projects" class="cta-button">View Our Projects →</a>
+        </div>
+        <div class="scroll-indicator">
+            <div class="scroll-dot"></div>
+        </div>
+    </section>
 
-  <!-- HERO SECTION (Parallax) -->
-  <section class="hero">
-    <div class="hero-content">
-      <h1>Advanced Model<br>Rocketry</h1>
-      <a href="#projects" class="btn">View Our Projects →</a>
-    </div>
-  </section>
+    <!-- Projects Section -->
+    <section class="projects" id="projects">
+        <div class="section-container">
+            <h2 class="section-title">Our Rocket Lineup</h2>
+            <div class="projects-grid">
+                <div class="project-card" data-aos="fade-up">
+                    <div class="project-image" style="background-image: url('assets/rockets.png')"></div>
+                    <h3 class="project-name">Endeavor Series</h3>
+                    <p class="project-desc">High-altitude flight platform designed for advanced propulsion testing and atmospheric research.</p>
+                </div>
+                <div class="project-card" data-aos="fade-up">
+                    <div class="project-image" style="background-image: url('assets/rockets.png')"></div>
+                    <h3 class="project-name">Velocity X</h3>
+                    <p class="project-desc">Precision-engineered for speed trials, featuring composite airframes and advanced recovery systems.</p>
+                </div>
+                <div class="project-card" data-aos="fade-up">
+                    <div class="project-image" style="background-image: url('assets/rockets.png')"></div>
+                    <h3 class="project-name">Nexus Flight</h3>
+                    <p class="project-desc">Multi-stage experimental platform for payload deployment and data acquisition missions.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-  <!-- PROJECTS -->
-  <section id="projects" class="section">
-    <h2>Our Rocket Lineup</h2>
-    <img src="assets/rockets.png" class="rocket-img" alt="Rocket Lineup">
-  </section>
+    <!-- Learn Section -->
+    <section class="learn" id="learn">
+        <div class="section-container">
+            <h2 class="section-title">How We Build</h2>
+            <div class="learn-grid">
+                <div class="learn-card">
+                    <h3>Design</h3>
+                    <p>Leveraging computational fluid dynamics and structural analysis, we optimize every component for performance and reliability.</p>
+                </div>
+                <div class="learn-card">
+                    <h3>Simulation</h3>
+                    <p>Advanced modeling techniques predict flight characteristics, stability margins, and recovery dynamics before first flight.</p>
+                </div>
+                <div class="learn-card">
+                    <h3>Testing</h3>
+                    <p>Rigorous ground testing protocols validate all systems—from avionics to recovery mechanisms—ensuring mission success.</p>
+                </div>
+                <div class="learn-card">
+                    <h3>Launch</h3>
+                    <p>Strategic launch operations with real-time telemetry monitoring, data logging, and post-flight analysis capabilities.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-  <!-- LEARN -->
-  <section id="learn" class="section dark">
-    <h2>Learn Rocket Science</h2>
-    <p>Design • Simulate • Launch</p>
-  </section>
+    <!-- About Section -->
+    <section class="about" id="about">
+        <div class="section-container">
+            <h2 class="section-title">About jm_space</h2>
+            <div class="about-content">
+                <p>We are a collective of engineers, designers, and enthusiasts dedicated to pushing the boundaries of amateur rocketry. Our mission is to combine rigorous engineering practices with innovative design to achieve flight performance that rivals professional systems.</p>
+                <p>From initial concept through successful launch, every project represents a commitment to precision, safety, and excellence. We believe that advanced model rocketry is the perfect intersection of physics, engineering, and creative problem-solving.</p>
+                <div class="stats">
+                    <div class="stat">
+                        <span class="stat-number">150+</span>
+                        <span class="stat-label">Successful Flights</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">12</span>
+                        <span class="stat-label">Active Projects</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">8.4k ft</span>
+                        <span class="stat-label">Altitude Record</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-  <!-- ABOUT -->
-  <section id="about" class="section">
-    <h2>About Us</h2>
-    <p>
-      We build advanced model rockets and teach aerospace engineering
-      through hands-on projects.
-    </p>
-  </section>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="section-container">
+            <p>&copy; 2024 jm_space. All rights reserved.</p>
+            <p>Engineering the future, one flight at a time.</p>
+        </div>
+    </footer>
 
-  <script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
