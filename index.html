@@ -1,127 +1,213 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Advanced Model Rocketry - Engineering Excellence in Flight">
-    <meta name="theme-color" content="#050A1E">
-    <title>jm_space | Advanced Model Rocketry</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roketry</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Navigation Bar -->
-    <nav class="navbar" id="navbar">
-        <div class="nav-container">
-            <div class="nav-logo">jm_space</div>
-            <ul class="nav-menu" id="navMenu">
-                <li class="nav-item"><a href="#projects" class="nav-link">Projects</a></li>
-                <li class="nav-item"><a href="#learn" class="nav-link">Learn</a></li>
-                <li class="nav-item"><a href="#about" class="nav-link">About Us</a></li>
-            </ul>
-            <div class="hamburger" id="hamburger">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-        </div>
-    </nav>
 
-    <!-- Hero Section -->
-    <section class="hero" id="hero">
-        <div class="hero-background" style="background-image: url('assets/hero.jpg')"></div>
-        <div class="hero-overlay"></div>
-        <div class="hero-content">
-            <h1 class="hero-title">Advanced Model Rocketry</h1>
-            <p class="hero-subtitle">Engineering excellence through precision flight</p>
-            <a href="#projects" class="cta-button">View Our Projects →</a>
-        </div>
-        <div class="scroll-indicator">
-            <div class="scroll-dot"></div>
-        </div>
-    </section>
+<!-- ================= NAVBAR ================= -->
+<nav class="navbar navbar-expand-md bg-body-tertiary fixed-top">
+  <div class="container-fluid">
 
-    <!-- Projects Section -->
-    <section class="projects" id="projects">
-        <div class="section-container">
-            <h2 class="section-title">Our Rocket Lineup</h2>
-            <div class="projects-grid">
-                <div class="project-card" data-aos="fade-up">
-                    <div class="project-image" style="background-image: url('assets/rockets.png')"></div>
-                    <h3 class="project-name">Endeavor Series</h3>
-                    <p class="project-desc">High-altitude flight platform designed for advanced propulsion testing and atmospheric research.</p>
-                </div>
-                <div class="project-card" data-aos="fade-up">
-                    <div class="project-image" style="background-image: url('assets/rockets.png')"></div>
-                    <h3 class="project-name">Velocity X</h3>
-                    <p class="project-desc">Precision-engineered for speed trials, featuring composite airframes and advanced recovery systems.</p>
-                </div>
-                <div class="project-card" data-aos="fade-up">
-                    <div class="project-image" style="background-image: url('assets/rockets.png')"></div>
-                    <h3 class="project-name">Nexus Flight</h3>
-                    <p class="project-desc">Multi-stage experimental platform for payload deployment and data acquisition missions.</p>
-                </div>
-            </div>
-        </div>
-    </section>
+    <!-- Brand -->
+    <a class="navbar-brand fw-bold" href="#home">Roketry</a>
 
-    <!-- Learn Section -->
-    <section class="learn" id="learn">
-        <div class="section-container">
-            <h2 class="section-title">How We Build</h2>
-            <div class="learn-grid">
-                <div class="learn-card">
-                    <h3>Design</h3>
-                    <p>Leveraging computational fluid dynamics and structural analysis, we optimize every component for performance and reliability.</p>
-                </div>
-                <div class="learn-card">
-                    <h3>Simulation</h3>
-                    <p>Advanced modeling techniques predict flight characteristics, stability margins, and recovery dynamics before first flight.</p>
-                </div>
-                <div class="learn-card">
-                    <h3>Testing</h3>
-                    <p>Rigorous ground testing protocols validate all systems—from avionics to recovery mechanisms—ensuring mission success.</p>
-                </div>
-                <div class="learn-card">
-                    <h3>Launch</h3>
-                    <p>Strategic launch operations with real-time telemetry monitoring, data logging, and post-flight analysis capabilities.</p>
-                </div>
-            </div>
-        </div>
-    </section>
+    <!-- Hamburger Button (3 lines) -->
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#rokentryNavbar"
+      aria-controls="rokentryNavbar"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
 
-    <!-- About Section -->
-    <section class="about" id="about">
-        <div class="section-container">
-            <h2 class="section-title">About jm_space</h2>
-            <div class="about-content">
-                <p>We are a collective of engineers, designers, and enthusiasts dedicated to pushing the boundaries of amateur rocketry. Our mission is to combine rigorous engineering practices with innovative design to achieve flight performance that rivals professional systems.</p>
-                <p>From initial concept through successful launch, every project represents a commitment to precision, safety, and excellence. We believe that advanced model rocketry is the perfect intersection of physics, engineering, and creative problem-solving.</p>
-                <div class="stats">
-                    <div class="stat">
-                        <span class="stat-number">150+</span>
-                        <span class="stat-label">Successful Flights</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-number">12</span>
-                        <span class="stat-label">Active Projects</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-number">8.4k ft</span>
-                        <span class="stat-label">Altitude Record</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+    <!-- Collapsible Menu -->
+    <div class="collapse navbar-collapse" id="rokentryNavbar">
+      <ul class="navbar-nav ms-auto mb-2 mb-md-0">
+        <!-- <li class="nav-item">
+          <a class="nav-link" href="#home">Home</a>
+        </li> -->
+        <li class="nav-item">
+          <a class="nav-link" href="#projects">Projects</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#about">About</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#contact">Contact</a>
+        </li>
+      </ul>
+    </div>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="section-container">
-            <p>&copy; 2024 jm_space. All rights reserved.</p>
-            <p>Engineering the future, one flight at a time.</p>
-        </div>
-    </footer>
+  </div>
+</nav>
 
-    <script src="script.js"></script>
+<!-- ================= SCROLL SNAP CONTAINER ================= -->
+<div class="snap-container">
+
+  <!-- ================= HOME ================= -->
+  <section id="home" class="snap">
+    <div class="hero">
+
+      <!-- LEFT: TEXT -->
+      <div class="hero-text">
+        <h1 class="title">
+          The Roketry<br>
+          Start Here
+        </h1>
+
+        <p class="subtitle">
+          HERE WE BUILD THE FUTURE OF AEROSPACE — AN OPEN SOURCE COMMUNITY
+          FOR THE DEVELOPMENT OF ROCKETS.
+        </p>
+      </div>
+
+      <!-- RIGHT: IMAGE -->
+      <div class="hero-image">
+        <img src="rocket.png" alt="Rocket illustration">
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= PROJECTS ================= -->
+  <section id="projects" class="snap projects-section">
+    <div class="projects-layout">
+
+      <!-- LEFT -->
+      <div class="projects-info">
+        <h2 class="projects-title">Projects</h2>
+        <p class="projects-desc">
+          A collection of open-source aerospace, robotics, and experimental
+          engineering projects developed by the Roketry community.
+        </p>
+      </div>
+
+      <!-- RIGHT: HORIZONTAL SCROLL -->
+      <div class="projects-slider">
+
+        <div class="project-card">
+          <h3>Solid Rocket Motor</h3>
+          <p>Design and static testing of small-scale SRMs.</p>
+        </div>
+
+        <div class="project-card">
+          <h3>Avionics Stack</h3>
+          <p>Flight computer, telemetry, and recovery systems.</p>
+        </div>
+
+        <div class="project-card">
+          <h3>Launch Rail System</h3>
+          <p>Modular rail-based launch infrastructure.</p>
+        </div>
+
+        <div class="project-card">
+          <h3>CFD Simulation</h3>
+          <p>Aerodynamic analysis of rocket bodies.</p>
+        </div>
+
+        <div class="project-card more-card">
+          <span>View All Projects →</span>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ABOUT ================= -->
+  <section id="about" class="snap about-section">
+  <div class="about-layout">
+
+    <!-- LEFT -->
+    <div class="about-text">
+      <h2 class="about-title">About Roketry</h2>
+      <p class="about-desc">
+        Roketry is an open-source aerospace initiative focused on
+        hands-on learning, experimental engineering, and community-driven
+        development of rocket systems.
+      </p>
+
+      <p class="about-desc">
+        From propulsion and avionics to simulation and launch
+        infrastructure, we design, test, and share everything openly.
+      </p>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="about-stats">
+      <div class="stat">
+        <span class="stat-number">12+</span>
+        <span class="stat-label">Projects</span>
+      </div>
+
+      <div class="stat">
+        <span class="stat-number">5+</span>
+        <span class="stat-label">Launch Tests</span>
+      </div>
+
+      <div class="stat">
+        <span class="stat-number">30+</span>
+        <span class="stat-label">Contributors</span>
+      </div>
+
+      <div class="stat">
+        <span class="stat-number">Open</span>
+        <span class="stat-label">Source</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+  <!-- ================= CONTACT ================= -->
+  <section id="contact" class="snap contact-section">
+  <div class="contact-layout">
+
+    <!-- LEFT -->
+    <div class="contact-info">
+      <h2 class="contact-title">Contact</h2>
+      <p class="contact-desc">
+        Interested in collaborating, contributing, or launching
+        something together? Reach out.
+      </p>
+
+      <div class="contact-meta">
+        <p>Email: <span>roketry@opensource.dev</span></p>
+        <p>GitHub: <span>github.com/roketry</span></p>
+        <p>Location: <span>India</span></p>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <form class="contact-form">
+      <input type="text" placeholder="Your Name" required>
+      <input type="email" placeholder="Your Email" required>
+      <textarea rows="4" placeholder="Your Message"></textarea>
+      <button type="submit">Send Message</button>
+    </form>
+
+  </div>
+</section>
+
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
