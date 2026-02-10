@@ -80,7 +80,7 @@ html, body {
 
 .hero-image img {
   width: 100%;
-  max-width: 420px;
+  max-width: 720px;
   height: auto;
   object-fit: contain;
   filter: grayscale(100%);
