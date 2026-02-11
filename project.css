@@ -1,0 +1,139 @@
+/* ================= GLOBAL ================= */
+
+body {
+  font-family: 'Space Grotesk', sans-serif;
+  background: #ffffff;
+  color: #000;
+  margin: 0;
+  padding-top: 70px;
+}
+
+section {
+  padding: 6rem 1.5rem;
+}
+
+/* ================= NAVBAR ================= */
+
+.navbar-brand {
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+.nav-link {
+  font-weight: 600;
+  margin-left: 1.5rem;
+  color: #555 !important;
+  transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+  color: #000 !important;
+}
+
+/* ================= HERO ================= */
+
+.hero {
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.hero h1 {
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 800;
+}
+
+.hero p {
+  font-family: 'Space Mono', monospace;
+  margin-top: 1rem;
+  color: #666;
+}
+
+/* ================= TREE ================= */
+
+.tree-section {
+  background: #f7f7f7;
+}
+
+.tree-container {
+  max-width: 1100px;
+  margin: auto;
+  text-align: center;
+}
+
+.tree-row {
+  display: flex;
+  justify-content: center;
+  gap: 4rem;
+  margin-top: 3rem;
+  flex-wrap: wrap;
+}
+
+.tree-node {
+  padding: 1rem 2rem;
+  border: 1px solid #ddd;
+  background: #fff;
+  min-width: 180px;
+  font-weight: 600;
+  transition: all 0.25s ease;
+  cursor: pointer;
+}
+
+.tree-node:hover {
+  background: #000;
+  color: #fff;
+  border-color: #000;
+  transform: translateY(-6px);
+}
+
+.root {
+  font-size: 1.2rem;
+  font-weight: 800;
+  margin-bottom: 2rem;
+}
+
+.leaf {
+  background: #fafafa;
+}
+
+/* ================= ABOUT ================= */
+
+.about-section {
+  background: #ffffff;
+  text-align: center;
+}
+
+.about-content {
+  max-width: 800px;
+  margin: auto;
+}
+
+.about-content h2 {
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+}
+
+.about-content p {
+  font-family: 'Space Mono', monospace;
+  color: #444;
+  line-height: 1.6;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 768px) {
+  .tree-row {
+    gap: 1.5rem;
+  }
+
+  .tree-node {
+    min-width: 140px;
+    padding: 0.8rem 1.2rem;
+  }
+
+  .nav-link {
+    margin-left: 0;
+  }
+}

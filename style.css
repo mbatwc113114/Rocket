@@ -3,7 +3,7 @@
 :root {
   --font-display: 'Space Grotesk', system-ui, sans-serif;
   --font-mono: 'Space Mono', monospace;
-  --nav-height: 56px;
+  --nav-height: 76px;
   --text-muted: #333;
 }
 
@@ -13,10 +13,14 @@ html, body {
   margin: 0;
   padding: 0;
   height: 100%;
-  overflow: hidden;
   font-family: var(--font-display);
   background: #ffffff;
   color: #000;
+}
+
+/* Only lock scroll when snap mode is active */
+body.snap-mode {
+  overflow: hidden;
 }
 
 /* ================= SNAP CONTAINER ================= */
