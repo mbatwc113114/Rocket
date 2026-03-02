@@ -1,0 +1,2332 @@
+\documentclass[12pt]{report}
+\usepackage[a4paper, margin=0.5in]{geometry}
+\usepackage{graphicx, amsmath, amssymb, xcolor, listings, setspace, float, hyperref}
+
+
+\lstset{
+  language=Matlab,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue},
+  stringstyle=\color{orange},
+  commentstyle=\color{gray},
+  backgroundcolor=\color{gray!10},
+  numbers=left,
+  numberstyle=\tiny,
+  numbersep=10pt,
+  stepnumber=1,
+  frame=single,
+  breaklines=true,
+  captionpos=t,
+  showstringspaces=false,
+  literate={∠}{{$\angle$}}1
+}
+%\renewcommand{\familydefault}{\sfdefault}
+%\usepackage[scaled]{helvet}
+
+
+
+\begin{document}
+
+  % ======================= [COVER PAGE] ===================
+  \begin{center}
+    \textbf{\Large Laboratory Report} \\
+    \vspace{0.5cm}
+    \textit{\large for}\\
+    \vspace{0.5cm}
+    \textbf{\LARGE Digital Signal Processing} \\
+    \vspace{0.5cm}
+    \textit{\large using} \\
+    \vspace{0.5cm}
+    \includegraphics[width=0.2\textwidth]{matlab_logo.png} \\
+    \vspace{0.5cm}
+    \textit{\large by} \\
+    \vspace{0.5cm}
+    \textbf{\large Anirban Das [23EC009] \\ Supam Mondal [23EC054] \\ Gourab Panda [23EC025]} \\
+    \vspace{0.5cm}
+    \textit{\large submitted to the} \\
+    \vspace{0.45cm}
+    \textbf{\large Department of Electronics and Communication Engineering} \\
+    \vspace{0.5cm}
+    \textit{\large in partial fullfillment \\ of the degree of} \\
+    \vspace{0.45cm}
+    \textbf{\Large B. Tech}\\
+    \vspace{0.5cm}
+    \includegraphics[width=0.2\textwidth]{gsvlogo.png}\\
+    \vspace{0.5cm}
+    \textbf{\large GATI SHAKTI VISHWAVIDYALAYA} \\
+    Ministry of Railways, Govt. of India \\Vadodara, India - 390004
+  \end{center}
+  \newpage 
+  
+  \begin{center}
+    \textbf{\Large Acknowledgements}
+  \end{center}
+  \addcontentsline{toc}{section}{\large i. Acknowledgements}
+
+  \vspace{1cm} 
+  \noindent We would like to express our sincere gratitude to our course instructor for this course, \textbf{\textit{Dr. Sumantra Chaudhari}}, whose guidance throughout the semester has been unparalleled. The course content and materials provided by him were more than sufficient for the preparation of this report. \\
+
+  We say this with confidence because he went out of his way to teach us MATLAB from the basics—something well beyond the scope of this course—and we are truly grateful for that. \\
+
+Next, we would like to acknowledge OpenAI's ChatGPT, an AI assistant that was just as resourceful and important as Sir’s notes. From formatting the document to debugging code, ChatGPT played an integral role in the completion of this project.
+
+  \newpage
+
+  % ========================= [CONTENTS] ========================
+  \begin{spacing}{2}
+    \tableofcontents
+  \end{spacing}
+
+  % ========================= [EXPERIMENT-1] =====================
+  \newpage 
+  \begin{center}
+    \textbf{\LARGE Experiment 1} \\
+    \vspace{0.2cm}
+    \textbf{\large Introduction to MATLAB}
+  \end{center}
+  \addcontentsline{toc}{section}{\large 1. Introduction to MATLAB}
+
+  \noindent\textbf{AIM:} To implement Newton-Rhapson, Regula-Falsi, Secant methods of root-finding and evaluate error. \\ \\
+  \textbf{REQUIREMENTS:} MATLAB R2024B or above, high IQ. \\ \\
+  \textbf{THEORY:} 
+  \begin{enumerate}
+    \item Newton-Rhapson Algorithm. \\ \\ 
+      From a purely theoretical point of view, the Newton-Rhapson algorithm requries us to draw tangents on the curve of the graph of the function whose roots we want to derive. The point where the tangent meets the x-axis is the point from which we'll draw the next tangent. Initially we choose a point arbitrarily as per our liking (the closer to the roots we are, the better). But here is the catch, we can only find one root at a time, depending on our initial guess for $x_{0}$. Mathematically, the general formula of this algorithm is given by \[ x_{n+1} = x_{n} - \frac{f(x_{n})}{f^{'}(x_{n})} \]  
+
+    \item Regula-Falsi Algorithm. \\ \\
+      In this algorithm, we start with two guesses, \textit{a \& b} such that $f(a) \, . f(b) < 0$. This means that root lies between a and b since functions change sign. Now we draw a straight line from (a, f(a)) to (b, f(b)) and see weher the line touches x-axis. The intersection point c is given by \[ c = b - \frac{a.f(b) - b.f(a)}{f(b) - f(a)}\] Evaluate f(c) and depending on the sign of f(c), change the value of c with a or b. Repeat until $|f(c)| \, < \, tolerance$. \\ 
+    \item Secant Method. \\ \\
+      The main idea in this method is that, instead of computing the actual derivative like in Newton-Rhapson, it estimates the slope of the function using the formula of a straight line (secant) between two points: \[ f^{'}(x) = \approx \frac{f(x_{1}) - f(x_{0})}{x_{1} - x_{0}} \] Then it updates the guess using this approximation: \[ x_{n+1} = x_{n} + f(x_{n}). \frac{x_{n} - x_{n-1}}{f(x_{n}) - f(x_{n-1})} \] From a geometric intuition perspective, we basically draw a straight line (secant) between two points on the curve f(x). The point where this line cuts becomes my next new estimate of the root. \cite{chatgpt}\\
+  \end{enumerate}
+  \newpage
+  \noindent \textbf{MATLAB CODE:} 
+   
+  \begin{lstlisting}
+  clc, clearvars, clear all;
+  % Combined Code for implementing all three algorithms.
+  global f;
+  f = @(x) x^3 - x - 2;
+  fprintf('We are using the function f(x) = x^3 - x - 2. \n\nChoose the function you want to implement the code in: \n1. Newton-Rhapson \n2. Regula-Falsi \n3. Secant Method');
+  choice = input('\n\nEnter your choice (1-3):- ');
+
+  switch choice
+      case 1
+          fprintf('You chose Newton-Rhapson.\n');
+          newton_rhapson();
+
+      case 2
+          fprintf('You chose Regula-Falsi.\n');
+          regula_falsi();
+
+      case 3
+          fprintf('You chose Secant Method.\n');
+          secant_method();
+  end
+
+  function newton_rhapson()
+      global f;
+      fprintf('Running Newton-Rhapson... \n\n');
+      df = @(x) 3*x^2 - 1;          % derivative of f
+
+      % now we choose an arbitrary x value.. from intuition we can guess that the root will lie somewhere around 1
+      
+      % we need a for loop to iterate multiple times
+      iterations = 100;           % limit of for loop
+      x0 = 1;                     % initial guess
+      
+      % to check if the answer we get is accurate or not, we're gonna use a threshold for the error. if the error is below the threshold, then we'll consider the value to be fairly accurate and algorithm successful.
+      threshold = 1e-6;
+      
+      % now we'll go for the Newton-Rhapson iteration
+      for i=1:iterations
+          fx = f(x0);             % assigning the value to fx
+          dfx = df(x0);           % plugging same value in 1st derivative of f
+        
+          if abs(dfx) < 1e-10
+              error("Derivative is too small, might divide by zero.");
+              % the above condition is necessary so that we dont divide by zero even by mistake. 10^(-10) is really small and acts as zero.
+          end
+      
+          x1 = x0 - fx/dfx;
+      
+          % to see the values at each iteration
+          fprintf('%d\t %.6f\t %.6f\n', i, x1, f(x1));
+      
+          if abs(x1-x0) < threshold
+              fprintf('root is %.6f', x1);
+              break;
+          end
+          x0 = x1;                % changing the old x value to new x-value from which we take our derivative
+      end
+      
+      if i == iterations
+          fprintf('Maximum iterations have been reached. \n Last approzimation was x = %.6f', x1)
+      end
+  end
+
+  function regula_falsi()
+      global f;
+      fprintf('Running Regula-Falsi...\n \n');
+      % now we will guess two random integers... such that the corresponding
+      % y-values are positive and negative respectfully
+      a = 1;                  % f(1) = -2
+      b = 2;                  % f(2) = 4
+      
+      % I manually did a hit-and-trial to check if the initial guesses bracket a root... but just to be sure, we can set a condition.
+      if f(a)*f(b) > 0
+          error('Function does not change sign in [a,b]. Choose different values.');
+      end
+      
+      % now we'll iterate this
+      iterate = 100;          % can be any value also... we thought 100 was rational
+      fprintf('Iter\t a\t\t b\t\t c\t\t f(c)\n');
+      % to print the output in a table format
+      tolerance = 1e-6;       % a small number that appears to approach zero
+      
+      for i=1:iterate
+          % the formula for regula falsi
+          c = b - (f(b)*(b-a)) / (f(b) - f(a));
+          fc = f(c);          % stored the corresponding y-value of c in fc
+      
+          fprintf('%d\t %.6f\t %.6f\t %.6f\t %.6f\n', i, a, b, c, fc);
+          % our goal is to check for when f(c) = 0 or atleast approaches the number, so we'll compare the value of fc with a really small one since computers cannot hit absolute 0 for irrational values.
+          if abs(fc) < tolerance
+              fprintf('\nRoot found at x = %.6f after %d iterations\n', c, i);
+              break;
+          end
+      
+          % update the intervals
+          if f(a)*fc < 0
+              a = c;
+          else
+              b = c;
+          end
+      end
+      
+      if i == iterate
+          fprintf('Max. iterations reached. Last Approximated root is x = %.6f', c);
+      end
+  end
+
+  function secant_method()
+      global f;
+      fprintf('Running Secant Method...\n\n');
+      % initial guess
+      x0 = 1;
+      x1 = 2;
+      
+      % Evalutate initial function guess
+      f0 = f(x0);
+      f1 = f(x1);
+      
+      tolerance = 1e-6;           % acceptable margin for error
+      iterate = 100;
+      fprintf('Iter\t x0\t\t x1\t\t x2\t\t f(x2)\n');
+      
+      for i=1:iterate
+          % again, we wanna make sure we dont divide by zero, and since we're working with floating-points and probably irrational numbers, we cannot actually ever hit zero, so we'll compare with a very small one
+          if abs(x1 - x0) < 1e-12
+              if abs(f1) < tolerance
+                  fprintf('\nConverged! f(x1) is close to 0.\n');
+                  fprintf('Root found at x = %.6f\n', x1);
+                  break;
+              else
+                  warning('x0 and x1 have converged, but f(x) is not near zero. Stuck.');
+                  fprintf('Last best guess: x = %.6f, f(x) = %.6f\n', x1, f1);
+                  break;
+              end
+          end
+          % i ran into some errors in a previous test.. this was caused at iteration 18 when x1 and x0 are same. but the value of f1-f0 is not zero and it is stuck. this is a common error in secant method. to overcome this i added a simple check to see if the value of f1 is below tolerance, which means, if it is close to zero or not. if yes, then algorithm has converged, otherwise it is stuck in an infinite loop with all next values of f(x) being the same value.
+      
+          % secant method implementstion
+          x2 = x1 - f1 * (x1 - x0) / (f1 - f0);
+          f2 = f(x2);
+          fprintf('%d\t %.6f\t %.6f\t %.6f\t %.6f\n', i, x0, x1, x2, f2);
+          % to print it in a nice table format
+      
+          x0 = x1;
+          f0 = f1;
+      
+          x1 = x2;
+          f1 = f2;
+          % with these 4 lines above, i have tried to optimize the code by saving two function calls. we wont have to re-compute f1 and f0 everytime... thats why i defined f0 and f1 outside the for loop
+      
+          % checking for convergence
+          if abs(f2) < tolerance
+              fprintf('\nRoot found at x = %.6f after %d iterations\n', x2, i);
+              break;
+          end
+      end
+      
+      if i == iterate
+          fprintf('Max. iterations reached. Last approximation x = %.6f', x2)
+      end
+
+  end
+  \end{lstlisting}
+  \vspace{0.5cm}
+  \textbf{OUTPUTS:} \\
+  \begin{enumerate}
+    \item Newton-Rhapson Algorithm: 
+      \begin{verbatim} 
+        We are using the function f(x) = x^3 - x - 2. 
+
+        Choose the function you want to implement the code in: 
+        1. Newton-Rhapson 
+        2. Regula-Falsi 
+        3. Secant Method
+
+        Enter your choice (1-3):- 1
+        You chose Newton-Rhapson.
+        Running Newton-Rhapson... 
+
+        1	 2.000000	 4.000000
+        2	 1.636364	 0.745304
+        3	 1.530392	 0.053939
+        4	 1.521441	 0.000367
+        5	 1.521380	 0.000000
+        6	 1.521380	 0.000000
+        root is 1.521380 
+      \end{verbatim}
+    \item Regula-Falsi Algorithm: 
+      \begin{verbatim}
+        Enter your choice (1-3):- 2
+        You chose Regula-Falsi.
+        Running Regula-Falsi...
+        
+        Iter	  a		       b		       c		       f(c)
+        1	     1.000000	 2.000000	 1.333333	 -0.962963
+        2	     1.000000	 1.333333	 1.642857	 0.791181
+        3	     1.642857	 1.333333	 1.503251	 -0.106259
+        4	     1.503251	 1.333333	 1.524326	 0.017554
+        5	     1.524326	 1.333333	 1.520907	 -0.002808
+        6	     1.520907	 1.333333	 1.521456	 0.000452
+        7	     1.521456	 1.333333	 1.521367	 -0.000073
+        8	     1.521367	 1.333333	 1.521382	 0.000012
+        9	     1.521382	 1.333333	 1.521379	 -0.000002
+        10  	  1.521379	 1.333333	 1.521380	 0.000000
+
+        Root found at x = 1.521380 after 10 iterations
+      \end{verbatim}
+    \item Secant Method: 
+      \begin{verbatim}
+        Enter your choice (1-3):- 3
+        You chose Secant Method.
+        Running Secant Method...
+
+        Iter	  x0		      x1		      x2		      f(x2)
+        1	     1.000000	 2.000000	 1.333333	 -0.962963
+        2   	  2.000000	 1.333333	 1.462687	 -0.333339
+        3	     1.333333	 1.462687	 1.531169	 0.058626
+        4   	  1.462687	 1.531169	 1.520926	 -0.002693
+        5	     1.531169	 1.520926	 1.521376	 -0.000020
+        6	     1.520926	 1.521376	 1.521380	 0.000000
+
+        Root found at x = 1.521380 after 6 iterations
+      \end{verbatim}
+  \end{enumerate}
+  \textbf{RESULT:} \\
+
+  We have succesfully implemented Newton-Rhapson, Regula-Falsi and Secant Method algortihms in MATLAB.
+
+  % ======================= [2] ===========================
+  \newpage 
+  \begin{center}
+    \textbf{\LARGE Experiment 2} \\
+    \vspace{0.2cm}
+    \textbf{\large Sampling and Signal Reconstruction}
+  \end{center}
+  \addcontentsline{toc}{section}{\large 2. Sampling and Signal Reconstruction}
+
+  \noindent \textbf{AIM:} To implement sampling and signal reconstruction of periodic/aperiodic signals using MATLAB. \\ \\
+  \textbf{REQUIREMENTS:} MATLAB R2024B or above, high IQ. \\ \\
+  \textbf{THEORY:} \\
+  Sampling is the process of converting a continuous-time sequence x(t) to discrete-time sequence x(n). A band-limited signal with no frequency component higher than $\Omega_{n} \, (rad/s)$ or $f_n \, (Hz)$ may be recovered completely if the sampling frequency $\Omega_{s}$ is $\Omega_{s} \geq 2 \, \Omega_{n}$ or $f_{s} \geq 2\, f_{n}$. \cite{profnotes} \\
+
+  The minimum sampling rate is called Nyquist Rate and the reciprocal $T_{s} \, (= \frac{1}{f_{s}})$ is the Nyquist interval of the given continuous-time signal. We sample the signal by multiplying it with the impulse train \[ S(t) = \sum_{n = -\infty}^{\infty} \delta (t - n T_{s}) \] The sampled signal is then obtained as, \cite{profnotes}
+  \[\begin{aligned}
+    x_{\delta}(t) = x(t) \sum_{n = \infty}^{\infty} \delta(t - nT_{s})
+  \end{aligned} \]  The original signal can be reconstructed using an ideal low pass filter of gain $T_{s}$ and upper cut-off frequency of any value between $f_h \,\, and \,\, f_s - f_h $ (where $f_h$ denotes the value of highest frequency in x(t))... provided the Nyquist criteria is satisfied ($f_{s} \geq 2 \, f_{max}$). For reconstruction, we teake the CTFT of the sampled signal, and we get something like \[ X_{\delta}(f) = \sum_{n=-\infty}^{\infty} x(nT_{s}) \, e^{-j 2 \pi n f T_{s}} \] After due algebraic manipulations after taking the Inverse fourier transfrom, we can get the reconstructed signal, \cite{profnotes} \[ x(t) = \sum_{n = -\infty}^{\infty} x(n T_{s}) \, sinc \left[ \frac{(t - nT_s)}{T_s} \right] \]
+
+  \textbf{MATLAB CODE:}
+  \begin{lstlisting}
+  clc, clearvars, clear all;
+  % orginal signal
+  f = 10;                 % frequency of signal (Hz)
+  t = 0:0.001:0.2;        % time base (higher resolution)
+  x = sin(2*pi*f*t);      % continuous-time sinusoidal signal
+
+  % sampled signal
+  fs = 40;                % fs > 2*f 
+  Ts = 1/fs;              % sampling time period
+  n = 0:Ts:0.2;           % sampling times
+  xs = sin(2*pi*f*n);     % sampled signal
+
+  % reconstruction of sampled signal
+  t_recon = t;            % reconstructed time and original time bases will be same
+  x_recon = zeros(size(t_recon)); % initialize reconstructed signal
+
+  for k=1:length(n)
+      x_recon = x_recon + xs(k) * sinc((t_recon - n(k)) / Ts);
+      % we just used the definition of reconstructed signal from the theory. the sinc interpolation formula for an ideal reconstruction. note that xs(k) is not a function, rather the k-th index of xs. same goes for n(k). both are vectors
+  end
+
+  % now we'll plot these values.
+  figure;
+  subplot(3,1,1);
+  plot(t, x, 'b');
+  title('Original Signal (Analog)');
+  xlabel('Time (s)');
+  ylabel('Amplitude');
+  grid on;
+  subplot(3,1,2);
+  stem(n, xs, 'filled');
+  title('Sampled Signal');
+  xlabel('Time (s)');
+  ylabel('Amplitude');
+  grid on;
+  subplot(3,1,3);
+  plot(t_recon, x_recon, 'r');
+  title('Reconstructed Signal (Using sinc interpolation)');
+  xlabel('Time (s)');
+  ylabel('Amplitude');
+  grid on;
+  \end{lstlisting}
+  \vspace{0.5cm}
+  \textbf{OUTPUTS:}
+  \begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{originalsignal.png}
+    \label{fig:originalsignal} 
+  \end{figure}
+  \begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{sampledsignal.png}
+    \label{fig:sampledsignal} 
+  \end{figure}
+  \begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{reconsignal.png}
+    \label{fig:reconsignal} 
+  \end{figure}
+
+  % ======================= [3] ===========================
+  \newpage 
+  \begin{center}
+    \textbf{\LARGE Experiment 3} \\
+    \vspace{0.2cm}
+    \textbf{\large DTFT \& DFT Implementation in MATLAB}
+  \end{center}
+  \addcontentsline{toc}{section}{\large 3. DTFT \& DFT Implementation in MATLAB}
+  \textbf{AIM:} To implement the DTFT and DFT algorithms by following the instructions: 
+  \begin{enumerate}
+    \item Verify Gibb's Phenomenon
+    \item Create user defined MATLAB functions to compute DFT \& IDFT
+    \item Create user defined function to compute circular shifting 
+    \item Use 2. and 3. to compute circular convolution of two sequences.
+    \item Magnitude and phase plots of the resulting sequence in 4.
+  \end{enumerate}
+
+  \noindent \textbf{REQUIREMENTS:} MATLAB R2024B or above, very high IQ. \\ \\
+  \textbf{THEORY:} \\ \\
+  The DTFT is basically Z-Transform by just changing the  $z = e^{j \omega}$. If we have a discrete-time sequence x[n], then the DTFT is given by \cite{profnotes} \[ X_{N}(\omega) = \sum_{n = -N}^{N} x[n] \, e^{-j \omega n}  \]
+  \textbf{\textit{Gibb's Phenomenon}} happens when we try to approximate a sudden jump (like a square wave or step function) using Fourier series — which is made of smooth sine and cosine waves. But no matter how many terms we use, and overshoot happens just before the jump. This happens because sine waves are smooth and continuous and they can't match a sudden sharp edge. \cite{chatgpt} \\
+
+  So at N=1, we may get only a sine wave. But at N=70, we wil start getting a square-wave type pattern, but it wont be perfect... some ripples will be there. \\
+
+  \noindent \textbf{MATLAB CODE:} \\
+
+  \textbf{\textit{1. Verifying Gibb's Phenomenon}}
+  \begin{lstlisting}
+  clc, clearvars, close all;
+  % our continuous time axis for signal.. total period is 2*pi
+  t = linspace(-pi, pi, 1000);
+
+  % Number of terms in the Fourier series
+  N_values = [1, 3, 5, 10, 20, 50];  
+  % we have multiple values of N just to demonstrate the effect of gibb's phenomena
+
+  figure;
+  hold on;
+  % Plot approximations for different number of terms
+  for k = 1:length(N_values)
+      N = N_values(k);            % this will pick each value of N for each iteration
+      y = zeros(size(t));         % this is initialized to store the approximations 
+      
+      % Fourier series approximation of square wave
+      for n = 1:2:(2*N - 1)  % Only odd harmonics are being used, because square functions are odd functions
+          y = y + (1/n)*sin(n*t); % for each harmonic, we add a scaled sine wave.. scaled by a factor of 1/n
+      end
+      % the scaled factor comes from the bn term in the fourier series of sine function, for even harmonics, the integral becomes zero, and for odd harmonics, it is proportional to 1/n
+      y = (4/pi) * y;  % Fourier square wave formula
+
+      plot(t, y, 'DisplayName', sprintf('N = %d', N_values(k)));
+  end
+
+  % Plot ideal square wave for comparison
+  ideal = square(t);
+  plot(t, ideal, 'k--', 'LineWidth', 1.5, 'DisplayName', 'Ideal Square Wave');
+
+  title('Gibbs Phenomenon in Fourier Series Approximation');
+  xlabel('Time');
+  ylabel('Amplitude');
+  legend;
+  grid on;
+  hold off; 
+  \end{lstlisting}
+  \noindent \textbf{OUTPUT:}
+  We succesfully verified Gibbs Phenomenon. 
+  \begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.9\textwidth]{gibb.png}
+    \label{fig:gibb}
+  \end{figure}
+  We can see that as the value of N increases, the function takes up a square wave form, but it is not perfectly ideal. This happens because sine waves are smooth and continuous, and this is the crux of teh gibb's phenomenon. \\ \\ 
+
+  \textbf{\textit{2. Custom function to compute DFT and IDFT}} \\
+
+  Discrete Fourier Transform is given by, \[ X(k) = \sum_{n = 0}^{N-1} x(n) \, e^{-j \frac{2 \pi kn}{N}} \]
+  and IDFT is given by, \[ x(n) = \frac{1}{N}\sum_{k=0}^{N-1} X(k) \, e^{j \frac{2 \pi kn}{N}} \]
+
+  \noindent \textbf{MATLAB CODE:} \\
+
+  \textit{(i) User defined DFT function}
+  \begin{lstlisting}
+  % We want to avoid using for loops, because its not clean and it
+  % complicates stuff... so i tried changing the algorithm to use matrix
+  % multiplication, and it's faster for large signals also, instead of
+  % iterating thru loops.
+
+  function X = my_DFT(x)
+      X = exp((-1i * 2 * pi * (0:length(x)-1)' * (0:length(x)-1)) / length(x)) * x(:);
+      % above i just directly implemented the formula for the DFT, the above
+      % formula simplifies to X = W * x(:) where W = exp((-1i * 2 * pi * k * n)/ N) -> substitute the values to understand
+  end
+  \end{lstlisting}
+  \vspace{0.2cm}
+
+  \textit{(ii) User defined IDFT function}
+  \begin{lstlisting}
+  function x = my_IDFT(X)
+      x = (1 / (length(X))) * ((exp((1i * 2 * pi * (0:length(X)-1)' * (0:length(X)-1)) / length(X)))* X(:));
+  end
+
+  % same goes for this as well
+  % N = length(X)
+  % n = 0:N-1
+  % k = n'
+  % k is transpose of n so that vector multiplication rules agree (column matrix x row matrix is valid)  
+  \end{lstlisting}
+
+  \textbf{\textit{3. Custom function to compute Circular Shifting}} \\
+  Circular shifting is denoted by $x((n-m))_{N}$ and is given by \cite{chatgpt} \[ x((n-m))_{N} = x( mod(n-m, N) ) \]
+  This bascially means, if i shift the sequence by m, then circular shifting gives x((n-m) mod N), but this definition works when we are working in 0-index environments. MATLAB is a 1-index environment, which means indexing starts from 1 instead of 0. So we need to add +1 to the index of x() to get the desired outputs.
+  \begin{lstlisting}
+  % Circular shift 
+  function y = my_circshift(x, m)
+      % let us define the parameters
+      % x : the discrete time sequence
+      % m : times to shift (+ve = right shift ; -ve = left shift)
+      % y : final shifted output signal
+
+      N = length(x);
+      y = zeros(size(x));         % i want a zero vector as the same size and shape (row/column) as x ... this preserves that
+
+      for n=1:N
+          new_index = mod(n - 1 - m, N) + 1; 
+          % we do the circular shifting in a 0-base indexed environment. thats why n needs to start from 0, but i have started the loop from 1 because matlab indexed starts from 1. again, outside the mod i have added 1, because this value is an index, and matlab starts from 1
+
+          y(n) = x(new_index);
+      end
+  end
+  \end{lstlisting}
+  
+  \vspace{0.2cm}
+  \textbf{\textit{4. Use 2. and 3. to perform Circular Convolution}} \\
+
+  Circular Convolution of two sequences is given by \[ y(n) = \sum_{k=0}^{N-1} x(k) \, h((n - k))_{N}  \] But in frequency domain, it is simply the multiplication of two sequences. We can take the DFT of the two sequences and just multiply them. $ Y[k] = X[k] . H[k] $
+  \begin{lstlisting}
+  clc, clearvars, clear all;
+  % to perform circular convolution there are two ways to do this... either by directly multiplying the frequency domain representations of each sequence - ill take dft for that, or, i could just use the circular shfiting and then iterate that over 
+  % first i'll define the sequences
+  x = [1 2 3 4 5];
+  h = [5 6 7];
+
+  fprintf('We have predefined sequences \nx = [1 2 3 4 5] \nh = [5 6 7] \nHow would you like to find the circular convolution\n\n1. Using DFT\n2. Using Circular Shift\n');
+  choice = input('\nEnter your choice (1-2):- ');
+  switch choice
+      case 1
+          usingdft(x,h);
+
+      case 2
+          usingc_shift(x,h);
+  end
+
+  % using DFT
+  function usingdft(x,h)
+      N = max(length(x), length(h)); % taking the bigger length of the two
+      
+      % now ill make the length of both sequences the same
+      x = [x, zeros(1, N - length(x))];
+      h = [h, zeros(1, N - length(h))];
+      
+      X = my_DFT(x);
+      H = my_DFT(h);
+      
+      Y = X .* H; % pointwise multiplication since they're both matrices now
+      y = my_IDFT(Y);
+      % reconstructed my signal back and that is the circular shifting.
+      disp(y);
+      n = length(y)
+      k = 0:N-1;
+      subplot(2,1,1);
+      stem(k, abs(y), 'filled', 'LineWidth', 1.5);
+      title('Magnitude Spectrum', 'FontSize',15);
+      xlabel('k');
+      ylabel('|y(k)|');
+      grid on;
+      
+      % Plot Phase
+      subplot(2,1,2);
+      stem(k, angle(y), 'filled', 'LineWidth', 1.5);
+      title('Phase Spectrum', 'FontSize', 15);
+      xlabel('k');
+      ylabel('∠y(k) [rad]');
+      grid on;
+  end
+
+  % using circular shift 
+  function usingc_shift(x, h)
+      N = max(length(x), length(h));
+      % i need to make the lengths of both arrays same, or they'll cause conflicts while multiplying
+      x = [x, zeros(1, N - length(x))];
+      h = [h, zeros(1, N - length(h))];
+      y = zeros(size(x));
+      
+      for k=0:N-1
+          shifted_h = my_circshift(h, k); % performing circular shift
+          y(k+1) = sum(x .* shifted_h);
+          % array index starts from 1 not 0.. thats why y(k+1)
+      end
+      disp(y);
+      n = length(y)
+      k = 0:N-1;
+      subplot(2,1,1);
+      stem(k, abs(y), 'filled', 'LineWidth', 1.5);
+      title('Magnitude Spectrum', 'FontSize',15);
+      xlabel('k');
+      ylabel('|y(k)|');
+      grid on;
+      
+      % Plot Phase
+      subplot(2,1,2);
+      stem(k, angle(y), 'filled', 'LineWidth', 1.5);
+      title('Phase Spectrum', 'FontSize', 15);
+      xlabel('k');
+      ylabel('∠y(k) [rad]');
+      grid on;
+  end
+  \end{lstlisting}
+  \vspace{1cm}
+  \newpage
+  \textbf{OUTPUTS:} 
+  \begin{enumerate}
+    \item \textbf{Computing circular convolution using DFT}
+      \begin{verbatim}
+        We have predefined sequences
+        x = [1 2 3 4 5]
+        h = [5 6 7]
+        How would you like to find the circular convolution
+        1. Using DFT
+        2. Using Circular Shift
+        Enter your choice (1-2):- 1
+          63.0000 + 0.0000i
+          51.0000 + 0.0000i
+          34.0000 - 0.0000i
+          52.0000 - 0.0000i
+          70.0000 + 0.0000i
+      \end{verbatim}
+      \begin{figure}[h] 
+        \centering
+        \includegraphics[width=0.7\textwidth]{dft_magphase.png}
+        \label{fig:magphase}
+      \end{figure}
+    \item \textbf{Computing circular convolution using Circular shifting}
+      \begin{verbatim}
+      Enter your choice (1-2):- 2
+          38    56    74    57    45
+      \end{verbatim}
+      \begin{figure}[h] 
+        \centering
+        \includegraphics[width=0.7\textwidth]{cs_magphase.png}
+        \label{fig:magphase}
+      \end{figure}
+  \end{enumerate}
+  
+  % ======================= [4] ===========================
+  \newpage
+  \begin{center}
+    \textbf{\LARGE Experiment 4} \\
+    \vspace{0.2cm}
+    \textbf{\large Computation of Cross \& Auto Correlation}
+  \end{center}
+  \addcontentsline{toc}{section}{\large 4. Computation of Cross \& Auto Correlation}
+
+  \noindent \textbf{AIM:} To implement cross correlation and auto correlation in MATLAB. \\ \\
+  \textbf{REQUIREMENTS:} MATLAB R2024B or above, moderately high IQ. \\ \\
+  \textbf{THEORY:} Auto-correlation is a measure of how much a signal matches with a delayed version of itself. It shows how a signal correlates with itself over time. It is given by, \cite{profnotes} \[ r_{xx}(l) = \sum_{n = -\infty}^{\infty} x(n) . \, x(n-l) \] where $ l = 0, \, \pm 1, \, \pm 2, \cdots $. It is used to find repeating patterns (e.g., periodicity) in a signal. It helps in applications like signal detection, pattern recognition, and time delay estimation. \\ \\
+
+  Cross-correlation measures the similarity between two different signals as one is shifted in time relative to the other. It is given as, \[ r_{xy}(l) = \sum_{n = -\infty}^{\infty} x(n). \, y(n-l) \] where  $ l = 0, \, \pm 1, \, \pm 2, \cdots $. It is used to find how much two signals are alike, and at which delay. Useful in template matching, time delay estimation, and signal synchronization. If x = y, Cross-correlation becomes Auto-correlation. \cite{profnotes} \\ \\
+
+  \textbf{MATLAB CODE:}
+  \begin{lstlisting}
+  clc, clearvars, close all;
+  % --- Input signals ---
+  x = [1 2 3 4];
+  y = [4 3 2 1];  % for cross-correlation
+  N = max(length(x), length(y));
+
+  % making lengths of both sequences same
+  x = [x zeros(1, N - length(x))];
+  y = [y zeros(1, N - length(y))];
+
+  % acr of x
+  auto_corr = zeros(1, 2*N - 1);  % initializing 
+  for lag = -N+1:N-1
+      sum = 0;
+      for n = 1:N
+          if (n+lag >= 1) && (n+lag <= N)
+              sum = sum + x(n) * x(n + lag); % the auto-correlation formula, multiplying x(n) with shifted x(n+lag)
+          end
+      end
+      auto_corr(lag + N) = sum;
+  end
+
+  % ccr of x and y
+  cross_corr = zeros(1, 2*N - 1);
+  for lag = -N+1:N-1          % we are looping over all possible shifts from leftmost to rightmost.
+      sum = 0;                % correlation value for this particular iteration of lag
+      for n = 1:N
+          if (n+lag >= 1) && (n+lag <= N)     % makes sure that all shifted indexes stays within limits. prevents things like x(0) or x(N+1)
+              sum = sum + x(n) * y(n + lag);  % the cross-correlation formula
+          end
+      end
+      cross_corr(lag + N) = sum;
+  end
+
+  % --- Plotting ---
+  lags = -N+1:N-1; % we are shifting the signals over each other to check how well they overlap, and if they have any shifts or delays. -ve lag shifts to the right and +ve to the left.
+
+  subplot(2,1,1);
+  stem(lags, auto_corr, 'filled');
+  title('Auto-correlation of x','FontSize',16);
+  xlabel('Lag');
+  ylabel('Amplitude');
+  grid on;
+
+  subplot(2,1,2);
+  stem(lags, cross_corr, 'filled');
+  title('Cross-correlation of x and y','FontSize',16);
+  xlabel('Lag');
+  ylabel('Amplitude');
+  grid on;
+  \end{lstlisting}
+
+  \vspace{0.2cm}
+  \noindent \textbf{OUTPUTS:}
+  \begin{figure}[h] 
+    \centering
+    \includegraphics[width=0.9\textwidth]{acr_ccr.png}
+    \label{fig:acr_ccr}
+  \end{figure}
+
+  \noindent \textbf{RESULT:} We have succesfully implemented ACR and CCR in MATLAB.
+
+  % ======================= [5] ===========================
+  \newpage 
+  \begin{center}
+    \textbf{\LARGE Experiment 5} \\
+    \vspace{0.2cm}
+    \textbf{\large Implementation of FFT Algorithms}
+  \end{center}
+  \addcontentsline{toc}{section}{\large 5. Implementation of FFT Algorithms}
+
+  \noindent \textbf{AIM:} To implement Fast Fourier Transform (FFT) using
+  \begin{enumerate}
+    \item Decimation-In-Time (DIT) Algorithm
+    \item Decimation-In-Frequency (DIF) Algorithm
+  \end{enumerate}
+
+  \noindent \textbf{REQUIREMENTS:} MATLAB R2024B or above, moderately high IQ. \\ \\ 
+  \textbf{THEORY:} The Fast Fourier Transform is an efficient algorithm to compute the Discrete Fourier Transform (DFT). Instead of directly computing DFT, which has a time complexity of $O (N^2)$, FFT reduces the complexity to $ O(N logN) $. There are two main types of FFT algortihms:
+  \begin{enumerate}
+    \item \textbf{\textit{Decimation-In-Time (DIT):}} The input sequence is divided in time domain into even and odd indexed samples. It recursively computes smaller DFTs and combines them using butterfly operations. The recursion depth is defined by the log of the sequence length. If we have a sequence of length N, then it will take $log_2 (N)$ levels of recursion to break it down all the way. Below are the steps of computing DIT-FFT: \cite{profnotes}
+      \begin{itemize}
+        \item After taking DFT split the sequence x[n] into even and odd-indexed parts.
+        \item Compute FFT on each part recursively (meaning, break each part into even and odd parts again, do this recursively till we reach sub-sequences of size 1 [having only 1 element]).
+        \item Combine them using twiddle factors. 
+          \begin{gather*}
+            X(k) = X_{even} (k) + W_{N}^{k} . \, X_{odd} (k) \\ \\
+            X \left(k + \frac{N}{2} \right) = X_{even} (k) - W_{N}^{k} . \, X_{odd} (k) 
+          \end{gather*}
+        \item Input: \textbf{Bit-Reversed Order} \\ Output: \textbf{Natrual Order}
+      \end{itemize}
+    \item \textbf{\textit{Decimation-In-Frequency (DIF):}} Here the output spectrum is divided in frequency domain. It starts by combining the entire sequence, then breaks it down recursively. Below are the steps to compute it:
+      \begin{itemize}
+        \item Combine input samples in pairs using butterfly operations. 
+          \begin{gather*}
+            X(k) = x[n] + x \left[ n + \frac{N}{2} \right] \\ \\
+            X \left(k + \frac{N}{2} \right) = \left( x[n] - x \left[ n + \frac{N}{2} \right] \right) \, * \, W_{N}^{k}
+          \end{gather*}
+        \item Split the results into two smaller sequences.
+        \item Apply FFT recursively to each.
+        \item Input: \textbf{Natural Order} \\ Output: \textbf{Bit-Reversed Order}
+      \end{itemize}
+  \end{enumerate}
+  \vspace{0.5cm}
+  \newpage
+  \textbf{MATLAB CODE:}
+  \begin{lstlisting}[caption={Custom function for DIT-FFT.}]
+    % to compute the DIT algorithm, we have to use a recursive function... there is no better alternative, and if there is, i am unaware of that
+  function X = dit_fft(x)
+
+      N = length(x);          
+      
+      if N <= 1   % this is the base case. when the length of input sequence becomes less than one, it just returns the element itself. i did this to prevent the code from running infinite times.
+          X = x;
+      else
+          % Split input into even and odd indexed parts
+          x_even = x(1:2:end);    % skip the elements by two, cause we want only even
+          x_odd  = x(2:2:end);
+          % in matlab indexing starts from 1, but in conventional maths it would start from 0... so when we say x[1].. it is actually x[0], and it is an even index.. hence the indexing is done as such
+          
+          % Recursively compute FFT on both halves
+          X_even = dit_fft(x_even);
+          X_odd  = dit_fft(x_odd);
+          
+          % Combine the results using twiddle factors
+          X = zeros(1, N);    % initializing the fft sequence.
+          for k = 0:(N/2 - 1) % the total sequence length was N... half of that would be N/2 .. because we're starting from 0, we would go upto N/2 - 1. now.. why do we take half? thats because each sequence is being broken into halves. when we did the fft, it broke it down from N points to N/2 points... that is the beauty of it. it converted an N-point DFT into N/2-point DFT (decimating the time domain.. thats literally the name of the algorithm)... thereby reducing order of complexity 
+              W = exp(-2j * pi * k / N);  % Twiddle factor
+              X(k + 1) = X_even(k + 1) + W * X_odd(k + 1);
+              X(k + 1 + N/2) = X_even(k + 1) - W * X_odd(k + 1);
+              % again.. matlab indexing starts from 1, thats why we are taking k+1 
+          end
+      end
+  end
+  \end{lstlisting}
+  \begin{lstlisting}[caption={Custom function for DIF-FFT.}]
+  function dif_fft(x)
+    N = length(x);
+    
+    if N<=1
+        X = x;
+        return;
+    end
+
+    % First butterfly stage
+    X = zeros(1, N); % initialized the sequence for dft
+    for k = 1:N/2    % in dif, we first apply the butterfly, and then break the sequence into halves.
+        X(k) = x(k) + x(k + N/2);
+        X(k + N/2) = (x(k) - x(k + N/2)) * exp(-2i * pi * (k-1) / N);
+        %X(k) = temp;
+        %X(k + N/2) = temp2;
+    end
+
+    % Recursive calls on halves
+    X(1:N/2) = dif_fft(X(1:N/2));
+    X(N/2+1:N) = dif_fft(X(N/2+1:N));
+end
+  \end{lstlisting}
+
+  \begin{lstlisting}[caption={Code to call our functions}]
+  % to verify the custom functions vs the built-in functions
+  clc, clearvars, clear all;
+  x = [1 2 3 4 5 0 0 0];
+  % i just made up a function with zero-padded to make length = 8
+
+  X_builtin = fft(x); % the built-in fft function
+
+  X_custom_dit = dit_fft(x);      % custom dit-fft
+  X_custom_dif = dif_fft(x);      % custom dif-fft
+
+
+  N = length(X_builtin);          % the lenght of fft should be the same as the original sequence, and the same for our custom ffts, so we dont need to declare each one separately.
+  k = 0:N-1;
+
+  figure;
+  subplot(2,1,1);
+  stem(k, abs(X_builtin), 'filled');
+  title('Magnitude Spectrum (Built-In FFT)','FontSize',16);
+  xlabel('Frequency Index (k)','FontSize',14);
+  ylabel('|X(k)|','FontSize',14);
+  grid on;
+
+  subplot(2,1,2);
+  stem(k, angle(X_builtin)*180/pi, 'filled');
+  title('Phase Spectrum (Built-IN FFT)','FontSize',16);
+  xlabel('Frequency Index (k)','FontSize',14);
+  ylabel('∠X(k) [degrees]','FontSize',14);
+  grid on;
+
+
+  figure;
+  subplot(2,1,1);
+  stem(k, abs(X_custom_dit), 'filled');
+  title('Magnitude Spectrum (Custom DIT-FFT)','FontSize',16);
+  xlabel('Frequency Index (k)','FontSize',14);
+  ylabel('|X(k)|','FontSize',14);
+  grid on;
+
+  subplot(2,1,2);
+  stem(k, angle(X_custom_dit)*180/pi, 'filled');
+  title('Phase Spectrum (Custom DIT-FFT)','FontSize',16);
+  xlabel('Frequency Index (k)','FontSize',14);
+  ylabel('∠X(k) [degrees]','FontSize',14);
+  grid on;
+
+  figure;
+  subplot(2,1,1);
+  stem(k, abs(X_custom_dif), 'filled');
+  title('Magnitude Spectrum (Custom DIF-FFT)','FontSize',16);
+  xlabel('Frequency Index (k)','FontSize',14);
+  ylabel('|X(k)|','FontSize',14);
+  grid on;
+
+  subplot(2,1,2);
+  stem(k, angle(X_custom_dif)*180/pi, 'filled');
+  title('Phase Spectrum (Custom DIF-FFT)','FontSize',16);
+  xlabel('Frequency Index (k)','FontSize',14);
+  ylabel('∠X(k) [degrees]','FontSize',14);
+  grid on;
+  \end{lstlisting} 
+  \vspace{0.2in}
+  \textbf{CODE DISCUSSION:}
+  Here is a short summary of what we actualy did in this code:
+  \begin{enumerate}
+    \item \textbf{\textit{DIT-FFT:}} In this algorith, we first break the DFT Of a finite legnth sequence, into even and odd parts. and then we apply the butterfly formula, and then we break it into even smaller parts (recursively we call the fft function to implement this part). Our input does not matter so long as its a finite length sequrence, because in computers we dont have the liberty to generate infinite lenght sequences. The only thing to note is that the decimation in time takes bit reversed inputs and returns the output in the natural order.
+    \item \textbf{\textit{DIF-FFT:}} Here we did the opposite of DIT-FFT. We first applied the butterfly to the DFT Of a finite length sequence, and then we broke it inot small even and odd halves. Then recirsively called the fft to iterate the process. When there is only 1 element remaining, we return that element since we cannot break further. Decimation-In-Frequency takes natural order and returns bit reversed order. You can see this in the graphs we have provided. 
+  \end{enumerate}
+  \textbf{OUTPUTS:} 
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{builtin_fft_magphase.png}
+    \label{fig:}
+  \end{figure}
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{custom_ditfft_magphase.png}
+    \label{fig:}
+  \end{figure}
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{custom_ditfft_magphase.png}
+    \label{fig:}
+  \end{figure}
+  
+  \textbf{RESULT:} \\ \\
+  We have succesfully implemented the DIT-FFT and DIF-FFT algorithms in MATLAB using user defined functions.
+
+  % ======================= [6] ===========================
+  \newpage
+  \begin{center}
+    \textbf{\LARGE Experiment 6} \\
+    \vspace{0.2cm}
+    \textbf{\large Implementation of Goertzel Algorithm}
+  \end{center}
+  \addcontentsline{toc}{section}{\large 6. Implementation of Goertzel Algorithms}
+  \noindent \textbf{AIM:} To implement the Goertzel Algorithm in MATLAB. \\ \\
+  \textbf{REQUIREMENTS:} MATLAB R2024B or above, Heisenberg level IQ. \\ \\
+  \textbf{THEORY:} The idea is to find the DFT value at one particular k-value. Taking the FFT for this purpose would be overkill, and also resource-heavy. Goertzel Algorithm does that for us, and saves time and energy. We know that DFT is given by \[ X(k) = \sum_{m=0}^{N-1} x(n) \, . \, W_{N}^{km} \] Now we can manipulate this equation by multiplying $ W_{N}^{-kN} $ which is basically 1, to get \[ \approx \sum_{m = 0}^{N-1} x(m) \, W_{N}^{ -k (N - m)} \] this looks like a convolution of the form $y_k (n) = x(n) \circledast h_k (n) $ . Here $ h_k (n) = W_{N}^{-kn} . \, u(n) $, which is basically a filter. So we can safely say that $X(k) = y_k (n)$. \\ 
+
+  If we take the Z-Transform of $ h_k (n) $ we get $ H_k (z) = \frac{1}{1 - W_{N}^{-n} \, z^{-1}} $. We can rationalize this term for numerical stability, by multiplying numerator and denominator by the complex congujates, to get \[ H_k (z) = \frac{1 - W_{N}^{n} . \, z^{-1}}{1 - 2 \, z^{-1} \, cos \left( \frac{2 \pi n}{N} \right) + z^{-2}} \] This gives us a second order IIR filter with poles on unit circle at angles $ \pm \frac{2 \pi n}{N} $ and a zero at $ W_{N}^{k} $. Taking the IZT of the denominator (because we want the poles) to get a recurrence relation, we get the following relation \[ s[n] = x[n] + 2 cos(\omega_k) s[n-1] - s[n-2] \] The final DFT is computed after all samples are processed by the relation: \[ X(k) = s[N] - e^{-j \omega_k} \, s[N - 1] \] \textbf{\textit{In layman-terms}}, what we're doing is checking how much a certain frequency is present in our signal. We run our signal thru a filter that resonates at a certain frequency (k). This filter's internal energy builds up over time if the frequency is present - and that is what s[n] tracks. \cite{profnotes} \\ \\ 
+  \textbf{MATLAB CODE:}
+  \begin{lstlisting}
+  % to implement goertzel algo
+  % basically goertzel find out the DFT at one particular point inste
+  function Xk = goertzel_algo_fixed(x, k, N)
+  % x: input sequence (assume row vector)
+  % k: 1-based DFT bin index
+  % N: total DFT length (with padding if needed)
+
+  x = x(:);  % ensure column matrix, for our convienience we did this, so that no issue comes during matrix multiplication
+  if length(x) < N
+      x = [x; zeros(N - length(x), 1)];
+  end
+
+  omega = 2 * pi * (k - 1) / N;   % normalized angular frequency
+  coeff = 2 * cos(omega);         % coefficient of s_prev .. this is derived from taking the IZT Of the poles in the transfer function relation.
+
+  s_prev = 0;                     % initializing both to zero to avoid the conflicts of -1
+  s_prev2 = 0;
+
+  for n = 1:N
+      s = x(n) + coeff * s_prev - s_prev2;    % our recurrence relation
+      s_prev2 = s_prev;
+      s_prev = s;
+  end
+  
+  % this is our recurrence relation
+  Xk = s_prev - exp(-1i * omega) * s_prev2;
+  end
+  \end{lstlisting}
+  \begin{lstlisting}
+  clc, clearvars, clear all;
+  x = [1 2 3 4 5];     % example signal
+  N = 8;              % DFT length
+  k = 3;              % DFT bin index you want to compute (1-indexed)
+
+  Xk = goertzel_algo_fixed(x, k, N);
+  fprintf('X[%d] = %.4f + %.4fi\n', k-1, real(Xk), imag(Xk));
+
+  fprintf('Comparing it to the entire dft:\n');
+  my_Xk = my_DFT(x);
+  disp(my_Xk);
+  \end{lstlisting}
+  \vspace{0.2cm}
+  \textbf{CODE DISCUSSION:} Now there is an issue in this code that might not be visible at the first glance. We are computing the 8-point DFT using the Goertzel Algorithm, but my custom made $my_DFT()$ is computing the 5-point DFT (sequence length  = 5). That means the output wont be the same as expected. Also we need to keep in mind that MATLAB is 1-based indexed. So I added a (k-1) somewhere in the code to compensate for that. So that means when I give k=3 it is actually computing the DFT value at k=2.  \\ 
+
+  To fix this issue, we can do a zero padding before calling the functions, or directly call the functions with padding - to make the length same (i.e. an 8-point DFT). \textit{\tiny There is one small issue in our code tho. When we run goertzel algo, we get a complex value, and the DFT also gives us complex values, but a range of them (8 different values). The issue is that the real and imaginary parts of teh goertzel and DFT values at the index we want (k) are swapped. The magnitude comes out to be same (obviously) but this is something we can work on.}
+  \begin{lstlisting}
+  clc, clearvars, clear all;
+  x = [1 2 3 4 5];     % example signal
+  N = 8;              % DFT length
+  k = 3;              % DFT bin index you want to compute (1-indexed)
+
+  x_pad = [x, zeros(1, N - length(x))];
+
+  Xk = goertzel_algo_fixed(x_pad, k, N);
+  fprintf('Value of DFT at k = %d is %d \n', k);
+  disp(abs(Xk))
+
+
+  fprintf('Comparing it to the entire dft:\n');
+  my_Xk = my_DFT(x_pad);
+  disp(abs(my_Xk));
+
+  % Plot magnitude comparison
+  figure;
+  stem(0:N-1, abs(my_Xk), 'b', 'filled'); hold on;
+  stem(k-1, abs(Xk), 'r', 'filled'); % k-1 because MATLAB is 1-indexed
+  legend('Full DFT Magnitudes', 'Goertzel Output (Single Bin)');
+  xlabel('DFT Bin Index k');
+  ylabel('|X(k)|');
+  title('Goertzel vs Full DFT Magnitude Comparison');
+  grid on; 
+  \end{lstlisting}
+  \vspace{0.5cm}
+
+  \noindent \textbf{OUTPUTS:}
+  \begin{verbatim}
+  Value of DFT at k = 3 is     3.6056
+
+  Comparing it to the entire dft:
+    15.0000
+      9.0427
+      3.6056
+      2.8689
+      3.0000
+      2.8689
+      3.6056
+      9.0427
+  \end{verbatim}
+  \begin{figure}[H]
+    \centering 
+    \includegraphics[width=0.8\textwidth]{goertzel_magphase.png}
+  \end{figure}
+
+  \textbf{RESULT:} We can see that both the Goertzel and DFT algorithms give us the same magnitude plots for the index that we desire. Hence we succesfully implemented the algorithm in MATLAB.
+  % ======================= [7] ==========================
+  \newpage
+  \begin{center}
+    \textbf{\LARGE Experiment 7} \\
+    \vspace{0.2cm}
+    \textbf{\large Designing FIR Filters using Windowing Method}
+  \end{center}
+  \addcontentsline{toc}{section}{\large 7. Designing FIR Filters using Windowing Method}
+
+  \noindent \textbf{AIM:} To design an FIR filter, using windowing methods:
+  \begin{enumerate}
+    \item Generation of windows from definition and using MATLAB function - 
+      \begin{itemize}
+        \item Rectangular
+        \item Barlett 
+        \item Hanning 
+        \item Hamming 
+        \item Blackman
+      \end{itemize}
+    \item Design FIR filter using above windows
+  \end{enumerate}
+
+  \noindent \textbf{REQUIREMENTS:} MATLAB R2024B or above, genius IQ. \\ \\
+
+  \noindent \textbf{THEORY:} \\ \\
+  \textbf{\textit{FIR (Finite Impulse Response)}} filters are a class of digital filters with \textit{finite impulse response.} That means, when fed with an impulse (like a single ‘1’ followed by all zeroes), the filter’s output will die out after a finite number of samples. The general form of an FIR filter is: \[ y[n] = \sum_{k = 0}^{N-1} b_k \, . \, x[n - k] \] where $b_k$ are the filter coefficients, N is the filter order. \cite{chatgpt} \\ \\
+  \textbf{\textit{Windowing Method}} is a popular technique to design FIR filters. You start with an ideal (infinite) impulse response and then multiply it by a finite window function to truncate it. This reduces sidelobes and ripple effects (Gibbs phenomenon). The general formula becomes: \[ h[n] = h_{ideal} [n] \, . \, w[n] \] where $h_{ideal} [n]$ is an ideal (infinite) impulse reponse, and w[n] is our chosen window function. \\ Common window functions include:
+  \begin{enumerate}
+    \item \textbf{Rectangular Window} 
+      \begin{itemize}
+        \item No tampering at all -- just truncates. 
+        \item Sharp transitions but high sidelobes (bad stopband attenuation).\cite{chatgpt} \[ w[n] = 1 \quad for \quad 0 \leq n \leq N-1 \]
+
+      \end{itemize}  
+    \item \textbf{Barlett Window (Triangular)}
+      \begin{itemize}
+        \item Linear Tapering 
+        \item Lower sidelobes than rectangular. \cite{chatgpt}
+          \[ w[n] = 
+          \begin{cases}
+            \frac{2n}{N-1} , \quad 0 \leq n \leq \frac{N-1}{2} \\ 
+            2 - \frac{2n}{N-1}, \quad \\frac{N-1}{2} \leq n \leq N-1
+          \end{cases}\]
+      \end{itemize}
+    \item \textbf{Hanning Window}
+      \begin{itemize}
+        \item Raised cosine window 
+        \item good frequency resolution, low sidelobes.\cite{chatgpt} \[ w[n] = 0.5 \left( 1 - cos \left( \frac{2 \pi n}{N-1} \right) \right) \]
+      \end{itemize}
+    \item \textbf{Hamming Window} \\ Slightly wider main lobe, but even lower sidelobes. \[ w[n] = 0.54 - 0.46 \, cos \left( cos \left( \frac{2 \pi n}{N-1} \right) \right) \]
+    \item \textbf{Blackman Window} \\ More aggressive tapering; Great stopband attenuation, but more spread in the main lobe. 
+      \[ w[n] = 0.42 - 0.5 cos \left( \frac{2 \pi n}{N-1} \right) + 0.08 cos \left( \frac{4 \pi n}{N-1} \right) \]
+  \end{enumerate}
+  
+  \noindent \textbf{MATLAB CODE:} \\
+  \textbf{\textit{1. Generation of windows from definition}}
+  \begin{lstlisting}
+  clc, clearvars, close all;
+
+  % Parameters for the filter
+  fs = 1000;           % Sampling frequency in Hz
+  f1 = 100;            % Lower cutoff frequency (Hz)
+  f2 = 300;            % Upper cutoff frequency (Hz)
+  N = 51;              % Filter order (odd for symmetry)
+
+  % Design the band-pass filter using fir1 with a Hamming window
+  wc1 = f1 / (fs/2);   % Normalized lower cutoff frequency
+  wc2 = f2 / (fs/2);   % Normalized upper cutoff frequency
+  b = fir1(N-1, [wc1 wc2], 'bandpass', hamming(N));
+
+  % Plot the frequency response of the filter
+  figure;
+  freqz(b, 1, 1024, fs);
+  title('Frequency Response of the FIR Band-Pass Filter');
+
+  % Generate a causal sinusoidal input sequence
+  f_signal = 150;        % Frequency of the sinusoid (within the passband)
+  n = 0:199;             % Time indices (200 samples)
+  x = sin(2 * pi * f_signal * n / fs); % Causal sinusoid
+
+  % Apply the filter to the sinusoidal input
+  y = filter(b, 1, x);
+
+  % Plot the input and output signals
+  figure;
+  subplot(2,1,1);
+  plot(n, x);
+  xlabel('Sample Index (n)');
+  ylabel('Amplitude');
+  title('Input Causal Sinusoid');
+  grid on;
+
+  subplot(2,1,2);
+  plot(n, y);
+  xlabel('Sample Index (n)');
+  ylabel('Amplitude');
+  title('Filtered Output Signal');
+  grid on;
+  \end{lstlisting}
+   \vspace{0.5cm}
+  \noindent \textbf{OUTPUTS:}
+  \begin{figure}[H]
+    \centering 
+    \includegraphics[width=0.9\textwidth]{fir_1.png}
+    \label{fig:fir_1}
+  \end{figure}
+  \begin{figure}[H]
+    \centering 
+    \includegraphics[width=0.9\textwidth]{fir_2.png}
+    \label{fig:fir_2}
+  \end{figure}
+  \begin{figure}[H]
+    \centering 
+    \includegraphics[width=0.9\textwidth]{fir_3.png}
+    \label{fig:fir_3}
+  \end{figure}
+  \begin{figure}[H]
+    \centering 
+    \includegraphics[width=0.9\textwidth]{fir_4.png}
+    \label{fig:fir_4}
+  \end{figure}
+
+  \newpage
+  \textbf{\textit{2. Designing the FIR filters using above windows}} -- \emph{Disclaimer: the code given below was not written by us. The credit goes to our course instructor.}
+  \vspace{0.2cm}
+  \begin{lstlisting}
+  clc, clearvars, close all;
+      % Example parameters
+  fs = 1000;          % Sampling frequency (Hz)
+  f_low = 100;        % Lower cutoff frequency (Hz)
+  f_high = 200;       % Upper cutoff frequency (Hz)
+  filter_order = 100;  % Filter order (must be even)
+  t = 0:1/fs:1023/fs;        % Time stamps
+  L = length(t);          %Length of input sequence
+
+
+  choice = questdlg('Choose input','Input','Rect',...
+      'Bartlett','Hanning','Hamming');
+
+  % choice = questdlg('Choose input','Input',Rect','Hamming', 'Blackman', 'Hamming');
+  % choice = questdlg('Choose input','Input','Hanning','Hamming', 'Blackman', 'Hanning');
+
+
+
+  input_signal = sin(2*pi*50*t) + sin(2*pi*150*t) + sin(2*pi*750*t); % Test signal
+
+
+          
+  
+  % Design the filter
+  % Create the  input data sequence.
+  switch choice
+      case 'Rect'
+        [h_bp, filtered_sig] = bandpass_filter_rectangular(fs, f_low,...
+            f_high, filter_order, input_signal);
+      case 'Bartlett'
+                [h_bp, filtered_sig] = bandpass_filter_bartlett(fs, f_low,...
+            f_high, filter_order, input_signal);
+      case 'Hanning'
+            [h_bp, filtered_sig] = bandpass_filter_hanning(fs, f_low,...
+            f_high, filter_order, input_signal);
+      case 'Hamming'
+            [h_bp, filtered_sig] = bandpass_filter_hamming(fs, f_low,...
+            f_high, filter_order, input_signal);
+      case 'Blackman'
+            [h_bp, filtered_sig] = bandpass_filter_blackman(fs, f_low,...
+            f_high, filter_order, input_signal);
+  end
+
+  %[h_bp, filtered_sig] = bandpass_filter_hamming(fs, f_low, f_high, filter_order, input_signal);
+
+  % Analyze frequency response using our custom function
+  [H, f] = custom_freqz(h_bp, 1, 1024, fs);
+
+  N = filter_order;
+  filtered_signal = zeros(size(input_signal));
+  for k = 1:length(input_signal)
+              for m = 0:min(N, k-1)
+                  filtered_signal(k) = filtered_signal(k) + h_bp(m+1)*input_signal(k-m);
+              end
+  end
+          
+
+  % Plot results
+  figure;
+
+  % Frequency response magnitude
+  subplot(2,1,1);
+  plot(f, 20*log10(abs(H)));
+  grid on;
+  xlabel('Frequency (Hz)');
+  ylabel('Magnitude (dB)');
+  title('Custom Frequency Response Analysis');
+  xlim([0 fs/2]);
+
+  % Time domain signals
+  subplot(2,1,2);
+  plot(t, input_signal, 'b', t, filtered_sig, 'r');
+  legend('Input', 'Filtered');
+  xlabel('Time (s)');
+  ylabel('Amplitude');
+  title('Time Domain Signals');
+  xlim([0.1 0.2])
+
+  Y1 = sumantra_fft(input_signal);
+  Y2 = sumantra_fft(filtered_sig);
+  figure(2)
+  plot(1*fs/L*(-L/2:L/2-1),abs(fftshift(Y1)), 'r', 1*fs/L*(-L/2:L/2-1),abs(fftshift(Y2)), 'k')
+  legend('Input sequence','Filtered sequence');
+
+  title("Complex Magnitude of fft Spectrum")
+  xlabel("f (Hz)")
+  ylabel("|FFT(X)|")
+
+  % Plot the frequency response
+  function [H, f] = custom_freqz(b, a, npts, fs)
+      % Custom replacement for freqz function
+      % Computes frequency response of digital filter
+      %
+      % Inputs:
+      %   b - numerator coefficients
+      %   a - denominator coefficients (must be 1 for FIR filters)
+      %   npts - number of frequency points
+      %   fs - sampling frequency
+      %
+      % Outputs:
+      %   H - complex frequency response
+      %   f - frequency vector
+      
+      if nargin < 4, fs = 2*pi; end
+      if nargin < 3, npts = 512; end
+      
+      % For FIR filters (a=1), we can compute directly
+      f = linspace(0, fs/2, npts);
+      w = 2*pi*f/fs;
+      
+      H = zeros(1, npts);
+      for k = 1:npts
+          for n = 1:length(b)
+              H(k) = H(k) + b(n)*exp(-1i*w(k)*(n-1));
+          end
+      end
+      
+      % Only return up to Nyquist frequency
+      H = H(1:npts);
+      f = f(1:npts);
+  end
+
+  %%% RECTANGULAR WINDOW %%%
+  function [h_bandpass, filtered_signal] = bandpass_filter_rectangular(fs, f_low, f_high, filter_order, input_signal)
+      % Design and apply a strictly causal band-pass filter using custom Rectangular window
+      % Includes custom frequency response analysis and strictly causal processing
+      %
+      % Inputs:
+      %   fs - sampling frequency (Hz)
+      %   f_low - lower cutoff frequency (Hz)
+      %   f_high - upper cutoff frequency (Hz)
+      %   filter_order - order of the filter (must be even)
+      %   input_signal - input signal to filter (must be causal)
+      %
+      % Outputs:
+      %   h_bandpass - filter coefficients
+      %   filtered_signal - filtered output signal
+      
+      % Validate inputs
+      if filter_order <= 0 || mod(filter_order, 2) ~= 0
+          error('Filter order must be a positive even integer');
+      end
+      if f_low >= f_high
+          error('Lower cutoff frequency must be less than upper cutoff frequency');
+      end
+      if f_high >= fs/2
+          error('Upper cutoff frequency must be less than Nyquist frequency (fs/2)');
+      end
+  %     if nargin > 4 && ~isempty(input_signal) && any(input_signal(1:min(10,end)) ~= 0)
+  %         warning('Input signal appears non-causal. Forcing to strictly causal by prepending zeros.');
+  %         input_signal = [zeros(1,filter_order), input_signal];
+  %     end
+      
+      N = filter_order;
+      M = N/2;  % Half the filter order
+      
+      % Normalize frequencies
+      w_low = 2*pi*f_low/fs;
+      w_high = 2*pi*f_high/fs;
+      
+      % Create ideal bandpass filter impulse response (strictly causal)
+      h_ideal = zeros(1, N+1);
+      for n = 0:N
+          if n == M
+              h_ideal(n+1) = (w_high - w_low)/pi;
+          else
+              m = n - M;
+              h_ideal(n+1) = (sin(w_high*m) - sin(w_low*m))/(pi*m);
+          end
+      end
+      
+      % Create custom Rectangular window
+      rectangular_window = zeros(1, N+1);
+      for n = 0:N
+          rectangular_window(n+1) = 1;
+      end
+      
+      % Apply window to ideal filter response
+      h_bandpass = h_ideal .* rectangular_window;
+      
+      % Normalize the filter to have unity gain at center frequency
+      
+      %%% NOTE - %%% Take the geormetric mean of f_low and f_high, 
+      %%% as for log scales this translates to Arithmetic Mean
+      %%% This is also useful if the bands 
+      f_center = sqrt(f_low*f_high); 
+      w_center = 2*pi*f_center/fs;
+      freq_response = 0;
+      for n = 0:N
+          freq_response = freq_response + h_bandpass(n+1)*exp(-1i*w_center*n);
+      end
+      h_bandpass = h_bandpass / abs(freq_response);
+      
+      % Filter the input signal if provided
+      if nargin > 4 && ~isempty(input_signal)
+          filtered_signal = zeros(size(input_signal));
+          for k = 1:length(input_signal)
+              for m = 0:min(N, k-1)
+                  filtered_signal(k) = filtered_signal(k) + h_bandpass(m+1)*input_signal(k-m);
+              end
+          end
+      else
+          filtered_signal = [];
+      end
+  end
+
+
+  %%% BARTLETT WINDOW %%%
+
+  function [h_bandpass, filtered_signal] = bandpass_filter_bartlett(fs, f_low, f_high, filter_order, input_signal)
+      % Design and apply a strictly causal band-pass filter using custom Rectangular window
+      % Includes custom frequency response analysis and strictly causal processing
+      %
+      % Inputs:
+      %   fs - sampling frequency (Hz)
+      %   f_low - lower cutoff frequency (Hz)
+      %   f_high - upper cutoff frequency (Hz)
+      %   filter_order - order of the filter (must be even)
+      %   input_signal - input signal to filter (must be causal)
+      %
+      % Outputs:
+      %   h_bandpass - filter coefficients
+      %   filtered_signal - filtered output signal
+      
+      % Validate inputs
+      if filter_order <= 0 || mod(filter_order, 2) ~= 0
+          error('Filter order must be a positive even integer');
+      end
+      if f_low >= f_high
+          error('Lower cutoff frequency must be less than upper cutoff frequency');
+ clc 
+    clear variables 
+    close all
+    
+    % Example parameters
+fs = 1000;          % Sampling frequency (Hz)
+f_low = 100;        % Lower cutoff frequency (Hz)
+f_high = 200;       % Upper cutoff frequency (Hz)
+filter_order = 100;  % Filter order (must be even)
+t = 0:1/fs:1023/fs;        % Time stamps
+L = length(t);          %Length of input sequence
+
+
+choice = questdlg('Choose input','Input','Rect',...
+    'Bartlett','Hanning','Hamming');
+
+% choice = questdlg('Choose input','Input',Rect','Hamming', 'Blackman', 'Hamming');
+% choice = questdlg('Choose input','Input','Hanning','Hamming', 'Blackman', 'Hanning');
+
+
+
+input_signal = sin(2*pi*50*t) + sin(2*pi*150*t) + sin(2*pi*750*t); % Test signal
+
+
+        
+ 
+% Design the filter
+% Create the  input data sequence.
+switch choice
+    case 'Rect'
+       [h_bp, filtered_sig] = bandpass_filter_rectangular(fs, f_low,...
+           f_high, filter_order, input_signal);
+    case 'Bartlett'
+               [h_bp, filtered_sig] = bandpass_filter_bartlett(fs, f_low,...
+           f_high, filter_order, input_signal);
+    case 'Hanning'
+           [h_bp, filtered_sig] = bandpass_filter_hanning(fs, f_low,...
+           f_high, filter_order, input_signal);
+    case 'Hamming'
+           [h_bp, filtered_sig] = bandpass_filter_hamming(fs, f_low,...
+           f_high, filter_order, input_signal);
+    case 'Blackman'
+           [h_bp, filtered_sig] = bandpass_filter_blackman(fs, f_low,...
+           f_high, filter_order, input_signal);
+ end
+
+%[h_bp, filtered_sig] = bandpass_filter_hamming(fs, f_low, f_high, filter_order, input_signal);
+
+% Analyze frequency response using our custom function
+[H, f] = custom_freqz(h_bp, 1, 1024, fs);
+
+N = filter_order;
+filtered_signal = zeros(size(input_signal));
+for k = 1:length(input_signal)
+            for m = 0:min(N, k-1)
+                filtered_signal(k) = filtered_signal(k) + h_bp(m+1)*input_signal(k-m);
+            end
+end
+        
+
+% Plot results
+figure;
+
+% Frequency response magnitude
+subplot(2,1,1);
+plot(f, 20*log10(abs(H)));
+grid on;
+xlabel('Frequency (Hz)');
+ylabel('Magnitude (dB)');
+title('Custom Frequency Response Analysis');
+xlim([0 fs/2]);
+
+% Time domain signals
+subplot(2,1,2);
+plot(t, input_signal, 'b', t, filtered_sig, 'r');
+legend('Input', 'Filtered');
+xlabel('Time (s)');
+ylabel('Amplitude');
+title('Time Domain Signals');
+xlim([0.1 0.2])
+
+Y1 = sumantra_fft(input_signal);
+Y2 = sumantra_fft(filtered_sig);
+figure(2)
+plot(1*fs/L*(-L/2:L/2-1),abs(fftshift(Y1)), 'r', 1*fs/L*(-L/2:L/2-1),abs(fftshift(Y2)), 'k')
+legend('Input sequence','Filtered sequence');
+
+title("Complex Magnitude of fft Spectrum")
+xlabel("f (Hz)")
+ylabel("|FFT(X)|")
+
+% Plot the frequency response
+function [H, f] = custom_freqz(b, a, npts, fs)
+    % Custom replacement for freqz function
+    % Computes frequency response of digital filter
+    %
+    % Inputs:
+    %   b - numerator coefficients
+    %   a - denominator coefficients (must be 1 for FIR filters)
+    %   npts - number of frequency points
+    %   fs - sampling frequency
+    %
+    % Outputs:
+    %   H - complex frequency response
+    %   f - frequency vector
+    
+    if nargin < 4, fs = 2*pi; end
+    if nargin < 3, npts = 512; end
+    
+    % For FIR filters (a=1), we can compute directly
+    f = linspace(0, fs/2, npts);
+    w = 2*pi*f/fs;
+    
+    H = zeros(1, npts);
+    for k = 1:npts
+        for n = 1:length(b)
+            H(k) = H(k) + b(n)*exp(-1i*w(k)*(n-1));
+        end
+    end
+    
+    % Only return up to Nyquist frequency
+    H = H(1:npts);
+    f = f(1:npts);
+end
+
+%%% RECTANGULAR WINDOW %%%
+function [h_bandpass, filtered_signal] = bandpass_filter_rectangular(fs, f_low, f_high, filter_order, input_signal)
+    % Design and apply a strictly causal band-pass filter using custom Rectangular window
+    % Includes custom frequency response analysis and strictly causal processing
+    %
+    % Inputs:
+    %   fs - sampling frequency (Hz)
+    %   f_low - lower cutoff frequency (Hz)
+    %   f_high - upper cutoff frequency (Hz)
+    %   filter_order - order of the filter (must be even)
+    %   input_signal - input signal to filter (must be causal)
+    %
+    % Outputs:
+    %   h_bandpass - filter coefficients
+    %   filtered_signal - filtered output signal
+    
+    % Validate inputs
+    if filter_order <= 0 || mod(filter_order, 2) ~= 0
+        error('Filter order must be a positive even integer');
+    end
+    if f_low >= f_high
+        error('Lower cutoff frequency must be less than upper cutoff frequency');
+    end
+    if f_high >= fs/2
+        error('Upper cutoff frequency must be less than Nyquist frequency (fs/2)');
+    end
+%     if nargin > 4 && ~isempty(input_signal) && any(input_signal(1:min(10,end)) ~= 0)
+%         warning('Input signal appears non-causal. Forcing to strictly causal by prepending zeros.');
+%         input_signal = [zeros(1,filter_order), input_signal];
+%     end
+    
+    N = filter_order;
+    M = N/2;  % Half the filter order
+    
+    % Normalize frequencies
+    w_low = 2*pi*f_low/fs;
+    w_high = 2*pi*f_high/fs;
+    
+    % Create ideal bandpass filter impulse response (strictly causal)
+    h_ideal = zeros(1, N+1);
+    for n = 0:N
+        if n == M
+            h_ideal(n+1) = (w_high - w_low)/pi;
+        else
+            m = n - M;
+            h_ideal(n+1) = (sin(w_high*m) - sin(w_low*m))/(pi*m);
+        end
+    end
+         end
+      if f_high >= fs/2
+          error('Upper cutoff frequency must be less than Nyquist frequency (fs/2)');
+      end
+  %     if nargin > 4 && ~isempty(input_signal) && any(input_signal(1:min(10,end)) ~= 0)
+  %         warning('Input signal appears non-causal. Forcing to strictly causal by prepending zeros.');
+  %         input_signal = [zeros(1,filter_order), input_signal];
+  %     end
+      
+      N = filter_order;
+      M = N/2;  % Half the filter order
+      
+      % Normalize frequencies
+      w_low = 2*pi*f_low/fs;
+      w_high = 2*pi*f_high/fs;
+      
+      % Create ideal bandpass filter impulse response (strictly causal)
+      h_ideal = zeros(1, N+1);
+      for n = 0:N
+          if n == M
+              h_ideal(n+1) = (w_high - w_low)/pi;
+          else
+              m = n - M;
+              h_ideal(n+1) = (sin(w_high*m) - sin(w_low*m))/(pi*m);
+          end
+      end
+      
+      % Create custom Bartlett window
+      bartlett_window = zeros(1, N+1);
+  for k = 0:N
+          if k <= N/2
+              bartlett_window(k+1) = 2*k/N;
+          else
+              bartlett_window(k+1) = 2 - 2*k/N;
+          end
+  end
+      % Apply window to ideal filter response
+      h_bandpass = h_ideal .* bartlett_window;
+      
+      % Normalize the filter to have unity gain at center frequency
+      
+      %%% NOTE - %%% Take the geormetric mean of f_low and f_high, 
+      %%% as for log scales this translates to Arithmetic Mean
+      %%% This is also useful if the bands 
+      f_center = sqrt(f_low*f_high); 
+      w_center = 2*pi*f_center/fs;
+      freq_response = 0;
+      for n = 0:N
+          freq_response = freq_response + h_bandpass(n+1)*exp(-1i*w_center*n);
+      end
+      h_bandpass = h_bandpass / abs(freq_response);
+      
+      % Filter the input signal if provided
+      if nargin > 4 && ~isempty(input_signal)
+          filtered_signal = zeros(size(input_signal));
+          for k = 1:length(input_signal)
+              for m = 0:min(N, k-1)
+                  filtered_signal(k) = filtered_signal(k) + h_bandpass(m+1)*input_signal(k-m);
+              end
+          end
+      else
+          filtered_signal = [];
+      end
+  end
+
+
+  %%% HANNING WINDOW %%%
+
+  function [h_bandpass, filtered_signal] = bandpass_filter_hanning(fs, f_low, f_high, filter_order, input_signal)
+      % Design and apply a strictly causal band-pass filter using custom Hanning window
+      % Includes custom frequency response analysis and strictly causal processing
+      %
+      % Inputs:
+      %   fs - sampling frequency (Hz)
+      %   f_low - lower cutoff frequency (Hz)
+      %   f_high - upper cutoff frequency (Hz)
+      %   filter_order - order of the filter (must be even)
+      %   input_signal - input signal to filter (must be causal)
+      %
+      % Outputs:
+      %   h_bandpass - filter coefficients
+      %   filtered_signal - filtered output signal
+      
+      % Validate inputs
+      if filter_order <= 0 || mod(filter_order, 2) ~= 0
+          error('Filter order must be a positive even integer');
+      end
+      if f_low >= f_high
+          error('Lower cutoff frequency must be less than upper cutoff frequency');
+      end
+      if f_high >= fs/2
+          error('Upper cutoff frequency must be less than Nyquist frequency (fs/2)');
+      end
+  %     if nargin > 4 && ~isempty(input_signal) && any(input_signal(1:min(10,end)) ~= 0)
+  %         warning('Input signal appears non-causal. Forcing to strictly causal by prepending zeros.');
+  %         input_signal = [zeros(1,filter_order), input_signal];
+  %     end
+      
+      N = filter_order;
+      M = N/2;  % Half the filter order
+      
+      % Normalize frequencies
+      w_low = 2*pi*f_low/fs;
+      w_high = 2*pi*f_high/fs;
+      
+      % Create ideal bandpass filter impulse response (strictly causal)
+      h_ideal = zeros(1, N+1);
+      for n = 0:N
+          if n == M
+              h_ideal(n+1) = (w_high - w_low)/pi;
+          else
+              m = n - M;
+              h_ideal(n+1) = (sin(w_high*m) - sin(w_low*m))/(pi*m);
+          end
+      end
+      
+      % Create custom Hanning window
+      hanning_window = zeros(1, N+1);
+      for n = 0:N
+          hanning_window(n+1) = 0.50 - 0.50*cos(2*pi*n/N);
+      end
+      
+      % Apply window to ideal filter response
+      h_bandpass = h_ideal .* hanning_window;
+      
+      % Normalize the filter to have unity gain at center frequency
+      
+      %%% NOTE - %%% Take the geormetric mean of f_low and f_high, 
+      %%% as for log scales this translates to Arithmetic Mean
+      %%% This is also useful if the bands 
+      f_center = sqrt(f_low*f_high); 
+      w_center = 2*pi*f_center/fs;
+      freq_response = 0;
+      for n = 0:N
+          freq_response = freq_response + h_bandpass(n+1)*exp(-1i*w_center*n);
+      end
+      h_bandpass = h_bandpass / abs(freq_response);
+      
+      % Filter the input signal if provided
+      if nargin > 4 && ~isempty(input_signal)
+          filtered_signal = zeros(size(input_signal));
+          for k = 1:length(input_signal)
+              for m = 0:min(N, k-1)
+                  filtered_signal(k) = filtered_signal(k) + h_bandpass(m+1)*input_signal(k-m);
+              end
+          end
+      else
+          filtered_signal = [];
+      end
+  end
+
+  %%% HAMMING WINDOW %%%
+
+  function [h_bandpass, filtered_signal] = bandpass_filter_hamming(fs, f_low, f_high, filter_order, input_signal)
+      % Design and apply a strictly causal band-pass filter using custom Hamming window
+      % Includes custom frequency response analysis and strictly causal processing
+      %
+      % Inputs:
+      %   fs - sampling frequency (Hz)
+      %   f_low - lower cutoff frequency (Hz)
+      %   f_high - upper cutoff frequency (Hz)
+      %   filter_order - order of the filter (must be even)
+      %   input_signal - input signal to filter (must be causal)
+      %
+      % Outputs:
+      %   h_bandpass - filter coefficients
+      %   filtered_signal - filtered output signal
+      
+      % Validate inputs
+      if filter_order <= 0 || mod(filter_order, 2) ~= 0
+          error('Filter order must be a positive even integer');
+      end
+      if f_low >= f_high
+          error('Lower cutoff frequency must be less than upper cutoff frequency');
+      end
+      if f_high >= fs/2
+          error('Upper cutoff frequency must be less than Nyquist frequency (fs/2)');
+      end
+  %     if nargin > 4 && ~isempty(input_signal) && any(input_signal(1:min(10,end)) ~= 0)
+  %         warning('Input signal appears non-causal. Forcing to strictly causal by prepending zeros.');
+  %         input_signal = [zeros(1,filter_order), input_signal];
+  %     end
+      
+      N = filter_order;
+      M = N/2;  % Half the filter order
+      
+      % Normalize frequencies
+      w_low = 2*pi*f_low/fs;
+      w_high = 2*pi*f_high/fs;
+      
+      % Create ideal bandpass filter impulse response (strictly causal)
+      h_ideal = zeros(1, N+1);
+      for n = 0:N
+          if n == M
+              h_ideal(n+1) = (w_high - w_low)/pi;
+          else
+              m = n - M;
+              h_ideal(n+1) = (sin(w_high*m) - sin(w_low*m))/(pi*m);
+          end
+      end
+      
+      % Create custom Hamming window
+      hamming_window = zeros(1, N+1);
+      for n = 0:N
+          hamming_window(n+1) = 0.54 - 0.46*cos(2*pi*n/N);
+      end
+      
+      % Apply window to ideal filter response
+      h_bandpass = h_ideal .* hamming_window;
+      
+      % Normalize the filter to have unity gain at center frequency
+      
+      %%% NOTE - %%% Take the geormetric mean of f_low and f_high, 
+      %%% as for log scales this translates to Arithmetic Mean
+      %%% This is also useful if the bands 
+      f_center = sqrt(f_low*f_high); 
+      w_center = 2*pi*f_center/fs;
+      freq_response = 0;
+      for n = 0:N
+          freq_response = freq_response + h_bandpass(n+1)*exp(-1i*w_center*n);
+      end
+      h_bandpass = h_bandpass / abs(freq_response);
+      
+      % Filter the input signal if provided
+      if nargin > 4 && ~isempty(input_signal)
+          filtered_signal = zeros(size(input_signal));
+          for k = 1:length(input_signal)
+              for m = 0:min(N, k-1)
+                  filtered_signal(k) = filtered_signal(k) + h_bandpass(m+1)*input_signal(k-m);
+              end
+          end
+      else
+          filtered_signal = [];
+      end
+  end
+
+
+  %%% BLACKMAN WINDOW %%%
+
+  function [h_bandpass, filtered_signal] = bandpass_filter_blackman(fs, f_low, f_high, filter_order, input_signal)
+      % Design and apply a strictly causal band-pass filter using custom Blackman window
+      % Includes custom frequency response analysis and strictly causal processing
+      %
+      % Inputs:
+      %   fs - sampling frequency (Hz)
+      %   f_low - lower cutoff frequency (Hz)
+      %   f_high - upper cutoff frequency (Hz)
+      %   filter_order - order of the filter (must be even)
+      %   input_signal - input signal to filter (must be causal)
+      %
+      % Outputs:
+      %   h_bandpass - filter coefficients
+      %   filtered_signal - filtered output signal
+      
+      % Validate inputs
+      if filter_order <= 0 || mod(filter_order, 2) ~= 0
+          error('Filter order must be a positive even integer');
+      end
+      if f_low >= f_high
+          error('Lower cutoff frequency must be less than upper cutoff frequency');
+      end
+      if f_high >= fs/2
+          error('Upper cutoff frequency must be less than Nyquist frequency (fs/2)');
+      end
+  %     if nargin > 4 && ~isempty(input_signal) && any(input_signal(1:min(10,end)) ~= 0)
+  %         warning('Input signal appears non-causal. Forcing to strictly causal by prepending zeros.');
+  %         input_signal = [zeros(1,filter_order), input_signal];
+  %     end
+      
+      N = filter_order;
+      M = N/2;  % Half the filter order
+      
+      % Normalize frequencies
+      w_low = 2*pi*f_low/fs;
+      w_high = 2*pi*f_high/fs;
+      
+      % Create ideal bandpass filter impulse response (strictly causal)
+      h_ideal = zeros(1, N+1);
+      for n = 0:N
+          if n == M
+              h_ideal(n+1) = (w_high - w_low)/pi;
+          else
+              m = n - M;
+              h_ideal(n+1) = (sin(w_high*m) - sin(w_low*m))/(pi*m);
+          end
+      end
+      
+      % Create custom Hamming window
+      blackman_window = zeros(1, N+1);
+      for n = 0:N
+          blackman_window(n+1) = 0.42 -0.5*cos(2*pi*n/(N-1))- 0.08*cos(4*pi*n/(N-1));
+      end
+      
+      % Apply window to ideal filter response
+      h_bandpass = h_ideal .* blackman_window;
+      
+      % Normalize the filter to have unity gain at center frequency
+      
+      %%% NOTE - %%% Take the geormetric mean of f_low and f_high, 
+      %%% as for log scales this translates to Arithmetic Mean
+      %%% This is also useful if the bands 
+      f_center = sqrt(f_low*f_high); 
+      w_center = 2*pi*f_center/fs;
+      freq_response = 0;
+      for n = 0:N
+          freq_response = freq_response + h_bandpass(n+1)*exp(-1i*w_center*n);
+      end
+      h_bandpass = h_bandpass / abs(freq_response);
+      
+      % Filter the input signal if provided
+      if nargin > 4 && ~isempty(input_signal)
+          filtered_signal = zeros(size(input_signal));
+          for k = 1:length(input_signal)
+              for m = 0:min(N, k-1)
+                  filtered_signal(k) = filtered_signal(k) + h_bandpass(m+1)*input_signal(k-m);
+              end
+          end
+      else
+          filtered_signal = [];
+      end
+  end
+  \end{lstlisting}
+
+  \vspace{0.5cm}
+  \noindent \textbf{OUTPUTS:}
+  \begin{enumerate}
+    \item Rectangular 
+      \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.9\textwidth]{untitled6.png}
+        \label{fig:untitled6}
+      \end{figure}
+
+      \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.9\textwidth]{untitled7.png}
+        \label{fig:untitled7}
+      \end{figure}
+
+      \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.9\textwidth]{untitled8.png}
+        \label{fig:untitled8}
+      \end{figure}
+
+      \newpage
+    \item Bartlett
+      \begin{figure}[H]
+        \centering
+        \includegraphics[width=1\textwidth]{untitled9.png}
+        \label{fig:untitled9}
+      \end{figure}
+
+      \begin{figure}[H]
+        \centering
+        \includegraphics[width=1\textwidth]{untitled10.png}
+        \label{fig:untitled10}
+      \end{figure}
+
+      \begin{figure}[H]
+        \centering
+        \includegraphics[width=1\textwidth]{untitled11.png}
+        \label{fig:untitled11}
+      \end{figure}
+
+      \newpage
+    \item Hanning
+      \begin{figure}[H]
+        \centering
+        \includegraphics[width=1\textwidth]{untitled12.png}
+        \label{fig:untitled12}
+      \end{figure}
+
+      \begin{figure}[H]
+        \centering
+        \includegraphics[width=1\textwidth]{untitled13.png}
+        \label{fig:untitled13}
+      \end{figure}
+
+      \begin{figure}[H]
+        \centering
+        \includegraphics[width=1\textwidth]{untitled14.png}
+        \label{fig:untitled14}
+      \end{figure}
+
+  \end{enumerate}
+
+  \textbf{RESULT:} We have succesfully designed our own FIR filter using our own custom-defined window functions.
+ 
+  % ======================= [8] ===========================
+  \newpage 
+  \begin{center}
+    \textbf{\LARGE Experiment 8} \\
+    \vspace{0.2cm}
+    \textbf{\large Gibb's Phenomenon}
+  \end{center}
+  \addcontentsline{toc}{section}{\large 8. Gibb's Phenomenon}
+  \noindent \textbf{AIM:} To stimulate and visualize the Gibb's Phenomenon in MATLAB by approximating a discontinuous signal using a finite no. of terms in it's Fourier Series expansion. \\ \\
+  \textbf{REQUIREMENTS:} MATLAB R2024B or above. \\ \\
+  \textbf{THEORY:} This code demonstrates the Gibbs Phenomenon by reconstructing a square wave from its discrete samples using ideal sinc interpolation. A continuous-time square wave is generated as a reference using the sign of a sinusoid: \[ x(t) = sign(sin(2 \pi Ft)) \] where sign() refers to the signum function. This wave is then sampled at a finite rate $F_s$ (sampling frequency), resulting in a dsicrete time sequence x[n] = x(nT),  where $T = \frac{1}{F_s}$. The reconstruction of the signal is performed using the ideal interpolation formula: \[ \hat x (t) = \sum_{n = -\infty}^{\infty} x[n] . \, sinc (F_s (t - nT)) \] This method theoretically recovers the original signal exactly for band-limited inputs, but due to the discontinuous nature of the square wave (not band-limited), the reconstructed waveform exhibits ripples near edges—an artifact known as the Gibbs Phenomenon. These persistent overshoots illustrate the limitations of Fourier-based approximations in capturing sharp transitions. \cite{chatgpt}\\ \\
+  \textbf{MATLAB CODE:}
+  \begin{lstlisting}
+  clc
+  clear variables 
+  close all
+
+  % Simple Gibbs Phenomenon Demonstration
+  Fs = 50;               % Sampling frequency (Hz)
+  F = 2;                  % Square wave frequency (Hz)
+  duration = 1;           % Signal duration (seconds)
+  N = 1000;               % Number of reconstruction points
+
+  % Generate ideal square wave (continuous reference)
+  t_cont = linspace(0, duration, 10000);
+
+  %%% === The following line generates a square wave by thresholding a sine wave. 
+
+  % sin(2*pi*F*t_cont)
+  % 
+  %  a.) Generates a sine wave with frequency F Hz.% 
+  %  b.) t_cont is a time vector (e.g., 0:0.001:1 for 1 second at 1 ms resolution).
+
+  % The sign function returns:
+  % 
+  %    a.) +1 when the sine wave is positive% 
+  %    b.) -1 when the sine wave is negative% 
+  %    c.) 0 when the sine wave crosses zero
+
+  square_wave = sign(sin(2*pi*F*t_cont));
+
+  % Sample the square wave
+  t_sampled = 0:1/Fs:duration;
+  sampled_wave = sign(sin(2*pi*F*t_sampled));
+
+  % Sinc reconstruction (ideal low-pass filtering)
+  t_recon = linspace(0, duration, N);
+  recon_wave = zeros(size(t_recon));
+
+  for n = 1:length(t_sampled)
+      sinc_pulse = sinc(Fs*(t_recon - t_sampled(n)));
+      recon_wave = recon_wave + sampled_wave(n)*sinc_pulse;
+  end
+
+  % Plot results
+  figure;
+  subplot(3,1,1);
+  plot(t_cont, square_wave, 'b', 'LineWidth', 1.5);
+  title('Original Square Wave');
+  xlim([0 duration]); ylim([-1.5 1.5]);
+
+  subplot(3,1,2);
+  stem(t_sampled, sampled_wave, 'r', 'MarkerSize', 4);
+  title('Sampled Signal');
+  xlim([0 duration]); ylim([-1.5 1.5]);
+
+  subplot(3,1,3);
+  plot(t_recon, recon_wave, 'g', 'LineWidth', 1.5);
+  hold on;
+  plot(t_cont, square_wave, 'b--', 'LineWidth', 1);
+  title('Reconstructed Signal (Gibbs Phenomenon Visible)');
+  xlim([0 duration]); ylim([-1.5 1.5]);
+  legend('Reconstructed', 'Original');
+  grid on;
+  \end{lstlisting}
+
+  \vspace{0.5in}
+
+  \textbf{CODE DISCUSSION:} We'll go into the details to explain what happens in the code:
+  \begin{enumerate}
+    \item \texttt{square\_wave = sign(sin(2*pi*F*t\_cont));} \\ \\This line generates an ideal square wave sequence. This gives +1 when the sine is positive, -1 when it’s negative. \texttt{t\_cont} has very high resolution (10,000 points) so the square wave looks smooth and perfect. \cite{chatgpt}
+    \item \texttt{t\_sampled = 0:1/Fs:duration; \\
+sampled\_wave = sign(sin(2*pi*F*t\_sampled));} \\ \\ We’re now sampling that square wave at 50 Hz over 1 second. We grab only a few values—this simulates how real systems digitize analog signals.\cite{chatgpt}
+    \item \texttt{for n = 1:length(t\_sampled) \\
+      .\hspace{0.2cm} sinc\_pulse = sinc(Fs*(t\_recon - t\_sampled(n))); \\
+       .\hspace{0.2cm} recon\_wave = recon\_wave + sampled\_wave(n)*sinc\_pulse; \\
+      end}\\ \\ You're adding sinc pulses centered at each sample point. The sinc function   $sinc(x) = \frac{sin \pi x}{ \pi x}$ is the ideal reconstruction filter in theory (brick-wall low pass filter).
+    \item After this we reconstruct the full signal by: \[ \hat x (t) = \sum_{n = -\infty}^{\infty} x[n] . \, sinc (f_s (t - nT)) \] This mimcs how an \textbf{\textit{ideal DAC}} (Digital-to-Analog Converter) works.
+
+  \end{enumerate}
+  \vspace{0.5cm}
+  \noindent \textbf{OUTPUTS:}
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{gibbphen1.png}
+    \label{fig:gibbphen1}
+  \end{figure}
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{gibbphen2.png}
+    \label{fig:gibbphen2}
+  \end{figure}
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{gibbphen3.png}
+    \label{fig:gibbphen3}
+  \end{figure}
+  \vspace{0.5cm}
+
+  \noindent \textbf{LIMITATIONS OF THE CODE:} \\ \\
+  There are a couple of limitations in the above code, even tho it works. 
+  \begin{enumerate}
+    \item The first one being the fact that all our assumptions are ideal. They dont work in real life. We're using ideal sinc interpolation for reconstruction — which assumes a perfect brick-wall low-pass filter. The problem? -- Real-world systems can’t actually do that. The sinc goes on forever, and in real-time DSP, we can’t compute infinite tails.
+    \item The second issue is Gibbs. The reconstruction overshoots near discontinuities -- \textbf{\textit{ALWAYS!}} We can't get rid of it no matter hwo many waves we take or how high the value of N is, because sine waves are smooth and continuous. Not even an ideal sinc could remove that. \cite{chatgpt}
+    \item The third one is truncation of sinc pulses. We're computing the full sinc for all sample points, but again, sinc has infinite support. This is: \textit{inefficient, unrealistic, \& overkill} for large signals.\cite{chatgpt}
+    \item No Anti-Aliasing Filter When Sampling. We're directly sampling the square wave. But square waves have infinite frequency content — ideally, we should low-pass filter it before sampling. Otherwise: 
+      \begin{itemize}
+        \item we get aliasing 
+        \item the reconstructionll never match the original
+      \end{itemize}
+    \item Fixed sampling rate. We're currently using $F_s = 50$ for a F = 2Hz square wave. That's fine for now, but the quality of reconstruction is very dependent on $\frac{F_s}{F}$. It'd be better to parameterize this or explore the effect of varying $F_s$. \cite{chatgpt}
+  \end{enumerate}
+  \vspace{0.5in}
+  \noindent \textbf{RESULT:} \\ \\
+
+  Thus we succesfully implemented the Gibb's Phenomenon by approximating a discontinuous signal using a finite no. of terms in it’s Fourier Series expansion.
+  % ======================= [9] ===========================
+  \newpage 
+  \begin{center}
+    \textbf{\LARGE Experiment 9} \\
+    \vspace{0.2cm}
+    \textbf{\large Linear Congruential Generator (LCG)}
+  \end{center}
+  \addcontentsline{toc}{section}{\large 9. Linear Congruential Generator (LCG)}
+
+  \noindent \textbf{AIM:} To implement a Linear Congruential Generator (LCG) from scratch in MATLAB and analyze the statistical properties of the generated pseudo-random numbers. \\ \\
+  \textbf{REQUIREMENTS:} MATLAB R2024B or above, genius IQ. \\ \\
+  \textbf{THEORY:} The Linear Congruential Generator (LCG) is a simple algorithm for generating a sequence of pseudo-random numbers using the recurrence relation: \[ X_{n+1} = (a X_n + c) mod {m} \] where $X_n$ is the current state (or seed), \textit{a} is the multiplier, \textit{c} is the increment, and \textit{m} is the modulus. This method ensures deterministic but seemingly random output, which is then scaled to a desired range using the transformation: \[ rand_n = min + (max - min) \, . \, \frac{X_n}{m} \] to produce values within [min,max]. The quality of the randomness depends heavily on the choice of parameters a, c and m.\cite{chatgpt} \\ \\ To evaluate the \textit{statistical independence} of the generated numbers, the Autocorrelation Function (ACF) is computed. It quantifies the similarity between a signal and a lagged version of itself. Mathematically, for lag \textit{k}, it is given by: \[ R(k) = \frac{1}{N} \sum_{i = 1}^{N - k} (X_i - \mu) \, (X_{i+k} - \mu) \] normalized by R(0) to ensure R(0) = 1. Ideally, for a good pseudo-random sequence, all R ($k>0$) values should be close to zero, indicating low correlation and high randomness. \cite{profnotes} \\ \\
+  \textbf{MATLAB CODE:}
+  \begin{lstlisting}
+  %%% RANDOM NUMBER - LINEAR CONGRUENTIAL GENERATOR %%%
+
+  clc
+  clear variables 
+  close all
+
+
+
+  seed = 12345; % Choose any initial seed
+  num_samples = 100; % Generate a specified number of random numbers
+  a = 123456789;
+  b = 2345678;
+
+  lb = 0;          % Lower bound
+  ub = 1;          % Upper bound
+
+  %%% === Calling the function to produce random numbers ===%%%
+  rand_nums = myRand(num_samples,lb, ub, seed,a,b);
+
+
+  % Display results
+  disp('Generated Random Numbers:');
+  disp(rand_nums);
+
+  %%% ACR Test %%%
+  autocorrelation_simple(rand_nums, num_samples);
+
+
+  % Display results
+  disp('Generated Random Numbers:');
+  disp(rand_nums);
+
+  %%% ACR Test %%%
+  autocorrelation_simple(rand_nums, num_samples);
+
+  %%% === Function to generate uniformly distributed random numbers === %%%
+
+  function random_numbers = myRand(n, min_val, max_val, seed, multiplier, increment)
+      % myRand: Generate n pseudo-random numbers without using rand()
+      % n     : Number of random numbers to generate
+      % seed  : Initial seed value
+
+      % Parameters for the Linear Congruential Generator (LCG)
+      a1 = multiplier;      % Multiplier
+      c1 = increment;   % Increment
+      m = 9973;         % Modulus (to ensure values are in range)
+
+      
+      % Array to store random numbers
+      random_numbers = zeros(1, n);
+      
+      % Generate random numbers using LCG
+      for i = 1:n
+          seed = mod(a1 * seed + c1, m); % LCG formula
+          random_numbers(i) = min_val + (max_val - min_val) * (seed / m); % Scale to range
+      end
+  end
+
+
+  function R = autocorrelation_simple(X, max_lag)
+      N = length(X);         % Length of the sequence
+      mu = mean(X);          % Compute mean
+      R = zeros(1, max_lag + 1);  % Initialize autocorrelation array
+
+      for k = 0:max_lag
+          % Compute the sum of (X(i) - mean) * (X(i+k) - mean)
+          sum_corr = sum((X(1:N-k) - mu) .* (X(1+k:N) - mu));
+          R(k + 1) = sum_corr / N;  % Normalize by sequence length
+      end
+
+      R = R / R(1);  % Normalize so that R(0) = 1
+
+      % Plot the autocorrelation function
+      stem(0:max_lag, R, 'filled');
+      xlabel('Lag');
+      ylabel('Autocorrelation');
+      title('Autocorrelation Function','FontSize',20);
+      grid on;
+  end
+  \end{lstlisting}
+
+  \vspace{0.5cm}
+  \noindent \textbf{OUTPUT:}
+  \begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{autocorr.png}
+    \label{fig:autocorr}
+  \end{figure}
+
+  \textbf{CODE DISCUSSION:} We are gonna discuss the algorithm in detail:
+  \begin{enumerate}
+    \item \texttt{seed = 12345; \\
+          num\_samples = 100; \\
+          a = 123456789; \\
+          b = 2345678; \\
+          lb = 0; \\
+          ub = 1;} \\ \\ The \texttt{seed} is the starting value for the LCG (our initial randomness injection). \texttt{num\_samples} is the number of numbers we want. \texttt{a \& b} are the multiplier and increment for the LCG.  \texttt{lb \& ub} lower and upper bound for scaling the final values between 0 and 1.
+        \item \texttt{rand\_nums = myRand(num\_samples, lb, ub, seed, a, b); } \\ \\ Calls the myRand function, which uses the LCG formula  \[ X_{n+1} = (aX_n + c) \quad \mathrm{mod}[m] \]. Then scaled each value to \[ min + (max - min) \, . \, \frac{X_n}{m} \].
+        \item \texttt{autocorrelation\_simple(rand\_nums, num\_samples);} - This is the \textbf{\textit{autocorrelation check}}, and it checks \textit{how random} our numbers actually are. Ideally, if our numbers are uncorrelated (i.e., truly random), autocorrelation at non-zero lags should be close to zero.
+        \item \texttt{function random\_numbers = myRand(n, min\_val, max\_val, seed, multiplier, increment)} \\ \\ Initializes m = 9973, a prime number used for modulus. Uses: \[ seed  = (a \cdot seed + c) \quad \mathrm{mod}[m] \], then scales it between [min\_val, max\_val];
+        \item \texttt{sum\_corr = sum((X(1:N-k) - mu) .* (X(1+k:N) - mu));\\        R(k + 1) = sum\_corr / N;} \\ \\ Basically built upon the formula \[ R(k+1) = \frac{1}{N} \sum_{i=1}^{N-k} (X_i - \mu)(X_{i+k} - \mu) \] this function checks if our chaos (randomness) is too predictable or not. It Compares each value in the sequence to its future versions (lagged versions), then normalizes it so that R(0) = 1, and then plots the autocorrelation. \cite{chatgpt}
+  \end{enumerate}
+
+  \vspace{0.5cm}
+  \noindent \textbf{POTENTIAL IMPROVEMENTS:} \\ \\ Even tho the code works, ther can be some potential improvements. For example, we could -
+  \begin{enumerate}
+    \item choose a larger \texttt{m} value to improve randomness range.
+    \item Check for spectral tests or chi-square tests to further validate randomness.
+    \item Replace the constant 9973 with something dynamic or user-defined.
+    \item Add a seed output, in case you want reproducibility across sessions. \cite{chatgpt}
+  \end{enumerate}
+  \vspace{0.5cm}
+  \noindent \textbf{RESULT:} \\ \\  We have succe succesfully implemented a Linear Congruential Generator from scratch and analyzed the statistical properties of the generated pseudo-random numbers.
+
+  % ======================= [10] ===========================
+  \newpage 
+  \begin{center}
+    \textbf{\LARGE Experiment 10} \\
+    \vspace{0.2cm}
+    \textbf{\large Monte-Carlo Integration}
+  \end{center}
+  \addcontentsline{toc}{section}{\large 10. Monte-Carlo Integration}
+  \noindent \textbf{AIM:} To estimate the value of a definite integral using the \textbf{Monte- Monte-Carlo Integration} method in MATLAB by utilizing it's \textit{built-in random number generators.} \\ \\
+  \textbf{REQUIREMENTS:} MAT MATLAB R2024B or above, oppenheim level IQ. \\ \\
+  \textbf{THEORY:} Monte Carlo Integration is a numerical technique used to estimate the definite integral of a function using randomness. Instead of relying on analytical methods or deterministic numerical techniques like trapezoidal or Simpson’s rule, this method evaluates the function at random points in the domain and uses the average value to approximate the integral. \cite{chatgpt}\\ \\ 
+  \textbf{\textit{Our Implementation Plan}}
+  \begin{enumerate}
+    \item Define the function $f(x) = x^2$ to integrate.
+    \item Set the integration interval a = 0, b = 1.
+    \item Store the exact solution for comparison. Since: \[ \int_{0}^{1} x^2 \, dx = \left[ \frac{x^3}{3} \right]_{0}^{1} = \frac{1}{3} \]
+    \item Loop through different sample sizes: 1k, 10k, 100k, 1M, 10M.
+    \item For each sample size:
+      \begin{itemize}
+        \item generate random x values between a and b.
+        \item evaluate f(x) at those points. 
+        \item Estimate the integral using the Monte Carlo formula.
+        \item Print the error between estimate and exact value.
+      \end{itemize}
+  \end{enumerate}
+
+  \vspace{0.5cm}
+  \noindent \textbf{MATLAB CODE:}
+  \begin{lstlisting}
+  clc, clearvars, close all;
+  f = @(x) x.^2;  % Function to integrate
+  a = 0;          % Lower bound
+  b = 1;          % Upper bound
+
+  % Exact solution for comparison ($x^3 /3$ from 0 to 1 = 1/3)
+  exact = 1/3; 
+
+  % Run Monte Carlo with different sample sizes
+  for n = [1e3, 1e4, 1e5, 1e6 1e7]
+      estimate = monte_carlo_integration(f, a, b, n);
+      error = abs(estimate - exact);
+      fprintf('Error: %.6f\n', error);
+  end
+
+
+  function estimated_area = monte_carlo_integration(f, a, b, num_samples)
+      % MONTE_CARLO_INTEGRATION Estimates integral using Monte Carlo method
+      %
+      % Inputs:
+      %   f           - Function handle to integrate (e.g., @(x) x.^2)
+      %   a, b        - Integration limits [a, b]
+      %   num_samples - Number of random points to use
+      %
+      % Output:
+      %   estimated_area - Approximation of integral from a to b of f(x)dx
+
+      % Generate random points uniformly in [a,b]
+      x_samples = a + (b-a)*rand(num_samples, 1);
+      
+      % Evaluate function at these points
+      y_samples = f(x_samples);
+      
+      % Calculate average height and multiply by width (b-a)
+      estimated_area = (b-a) * mean(y_samples);
+      
+      % Display results
+      fprintf('Monte Carlo estimate with %d samples: %.6f\n', ...
+              num_samples, estimated_area);
+  end
+  \end{lstlisting}
+
+  \vspace{0.5cm}
+  \textbf{OUTPUT:} 
+  \begin{verbatim}
+        Monte Carlo estimate with 1000 samples: 0.308261
+        Error: 0.025073
+        Monte Carlo estimate with 10000 samples: 0.334604
+        Error: 0.001270
+        Monte Carlo estimate with 100000 samples: 0.332053
+        Error: 0.001281
+        Monte Carlo estimate with 1000000 samples: 0.333380
+        Error: 0.000047
+        Monte Carlo estimate with 10000000 samples: 0.333359
+        Error: 0.000026
+  \end{verbatim}
+
+  \textbf{LIMITATIONS AND SCOPE FOR IMPROVEMENTS:}
+  \begin{enumerate}
+    \item Slow convergence - Error drops at a rate of  $O \left( \frac{1}{ \sqrt n} \right)$, so you need millions of samples for high accuracy.
+    \item No Vectorization for Performance -- While the code is vectorized well for $f(x) = x^2$, if we used a more complex function or multiple variables, it could get sluggish.
+    \item No Error Handling -- What if $a > b$ or \texttt{num\_samples} is zero or negative?
+  \end{enumerate}
+  Here are some methods to improve it:
+  \begin{enumerate}
+    \item Error checks -- \\ \texttt{if a >= b || num\_samples <= 0 \\
+    error("Invalid bounds or sample size");\\
+end
+}
+  \end{enumerate}
+
+  \textbf{RESULT:} We have succesfully implemented Monte-Carlo Integration by using built-in random number generators.
+
+  \newpage 
+  \begin{center}
+    \textbf{\LARGE Conclusion} \\
+    \vspace{0.2cm}
+  \end{center}
+  \addcontentsline{toc}{section}{\large 11. Conclusion}
+  Throughout the course of this lab work and report, we’ve gained not only hands-on experience with MATLAB but also a much deeper understanding of the fundamental concepts that form the bedrock of signal processing, numerical methods, and algorithmic thinking. \\
+
+Starting with the basics of MATLAB, we gradually became more comfortable navigating its environment, writing cleaner code, and using in-built functions more efficiently. As the experiments progressed, we noticed a shift — from simply following instructions to actually understanding why each step was taken, and how each method contributed to solving the larger problem at hand.\\
+
+Working on various simulations, filters, transforms, and random number generation techniques gave us exposure to real-world applications and challenges. Whether it was analyzing signals in the frequency domain, implementing FFT algorithms, or applying Monte Carlo methods for numerical integration, each experiment pushed our understanding further and helped build confidence in approaching technical problems from both theoretical and practical angles.\\
+
+One of the most rewarding aspects of this journey was witnessing the link between mathematical concepts and their computational implementation. Seeing abstract formulas come to life through plots and outputs in MATLAB felt empowering — like we were beginning to speak a language that bridges theory and reality.\\
+
+Overall, this report marks a significant step forward in our growth as engineers. It has laid a strong foundation not just in MATLAB \cite{matlabdoc} programming, but in problem-solving, algorithm design, and analytical thinking — skills that we know will stay with us far beyond the boundaries of this coursework.
+
+\bibliographystyle{ieeetr} % or "plain", "apalike", etc.
+\bibliography{refs.bib}        % 'refs.bib' is your .bib file name
+
+\end{document}

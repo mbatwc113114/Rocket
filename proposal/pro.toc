@@ -1,0 +1,6 @@
+\contentsline {section}{\large i. \textbf {Statement of Purpose}}{1}{Doc-Start}%
+\contentsline {section}{\large ii. \textbf {Acknowledgements}}{2}{Doc-Start}%
+\contentsline {section}{\large 1. \textbf {PHASE - I :} Baseline Rocket Validation (Propellant + Stability Test)}{4}{chapter*.1}%
+\contentsline {section}{\large 2. \textbf {PHASE - II :} Recovery System Integration (Parachute + Ejection)}{7}{figure.0.1}%
+\contentsline {section}{\large 3. \textbf {PHASE - III :} Avionics \& Telemetry Deployment (GPS + Ground Station)}{9}{section*.10}%
+\contentsline {section}{\large 4. \textbf {PHASE - IV :} Thrust Vector Control Implementation (Nozzle Steering)}{11}{section*.10}%
