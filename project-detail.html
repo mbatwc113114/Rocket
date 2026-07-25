@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Documentation | Roketry</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- MathJax for LaTeX Render -->
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+</head>
+<body class="standalone-page">
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-md bg-white fixed-top border-bottom">
+  <div class="container-fluid">
+    <a class="navbar-brand fw-bold" href="index.html">Roketry</a>
+
+    <button class="navbar-toggler" type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNav"
+      aria-controls="navbarNav"
+      aria-expanded="false"
+      aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto align-items-md-center">
+        <li class="nav-item">
+          <a class="nav-link" href="index.html">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="project.html">Projects</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="roadmap.html">Roadmap</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="about.html">About</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="join.html">Join</a>
+        </li>
+      </ul>
+      <div id="auth-nav-widget" class="d-flex align-items-center ms-md-3"></div>
+      <button class="theme-toggle-btn" type="button"><span>🌙</span> Dark</button>
+    </div>
+  </div>
+</nav>
+
+<!-- TECHNICAL DOCUMENTATION HEADER (NOTION-STYLE WITH RIGHT SKETCH SHOWCASE) -->
+<section class="doc-header-section page-section bg-white-theme" style="padding-bottom: 2.5rem;">
+  <div class="container-centered">
+    
+    <div class="doc-header-layout">
+
+      <!-- LEFT: TITLE & METADATA -->
+      <div class="doc-header-left">
+        <div class="doc-meta-bar">
+          <span class="doc-category-badge" id="doc-badge"><span class="skeleton-box" style="height: 14px; width: 60px; display: inline-block;"></span></span>
+          <span class="doc-id-badge" id="doc-id"><span class="skeleton-box" style="height: 14px; width: 80px; display: inline-block;"></span></span>
+          <span class="doc-date">Updated: Oct 2024</span>
+        </div>
+
+        <h1 class="doc-main-title" id="doc-title"><span class="skeleton-box" style="height: 38px; width: 70%; display: block;"></span></h1>
+        <p class="doc-main-subtitle" id="doc-subtitle"><span class="skeleton-box" style="height: 18px; width: 90%; display: block;"></span></p>
+
+        <div class="doc-actions-bar">
+          <a href="join.html" class="repo-action-btn primary-btn">📥 Download Documentation (PDF)</a>
+          <a href="join.html" class="repo-action-btn">🚀 STEP CAD Files</a>
+        </div>
+      </div>
+
+      <!-- RIGHT: NOTION-STYLE FEATURED SKETCH IMAGE SHOWCASE -->
+      <div class="doc-header-right">
+        <div class="doc-sketch-box">
+          <img id="doc-sketch-img" src="https://images.unsplash.com/photo-1517976487492-5750f3195933?w=800&auto=format&fit=crop&q=80" alt="Engineering System Sketch">
+          <span class="sketch-caption">FIG 1.0 — Technical Assembly Sketch</span>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+<!-- MAIN DOCUMENTATION ARTICLE & SIDEBAR (2-COLUMN LAPTOP, 1-COLUMN MOBILE) -->
+<section class="page-section bg-gray-theme" style="padding-top: 2.5rem;">
+  <div class="container-centered">
+    
+    <div class="repo-detail-layout">
+
+      <!-- LEFT MAIN DOCUMENTATION ARTICLE -->
+      <article class="doc-main-article">
+        
+        <!-- SECTION 1: OVERVIEW & OBJECTIVES -->
+        <div class="doc-section-card" id="overview">
+          <h2 class="doc-section-heading">1. System Overview & Objectives</h2>
+          <p id="doc-overview-p1">
+            <span class="skeleton-box mb-2" style="height: 16px; width: 100%;"></span>
+            <span class="skeleton-box mb-2" style="height: 16px; width: 95%;"></span>
+            <span class="skeleton-box" style="height: 16px; width: 80%;"></span>
+          </p>
+          <p id="doc-overview-p2"></p>
+        </div>
+
+        <!-- SECTION 2: TECHNICAL SPECIFICATIONS TABLE -->
+        <div class="doc-section-card" id="specifications">
+          <h2 class="doc-section-heading">2. Technical Specifications</h2>
+          <p>Comprehensive engineering parameters measured across ground static test firings and CFD simulations:</p>
+          
+          <div class="specs-table-wrapper">
+            <table class="specs-table">
+              <thead>
+                <tr>
+                  <th>Engineering Parameter</th>
+                  <th>Metric Value</th>
+                  <th>Design Margin / Notes</th>
+                </tr>
+              </thead>
+              <tbody id="doc-specs-body">
+                <tr>
+                  <td>Total Impulse</td>
+                  <td>1,280 Ns (K-Class)</td>
+                  <td>K550 Equivalent Class</td>
+                </tr>
+                <tr>
+                  <td>Peak Thrust</td>
+                  <td>820 N</td>
+                  <td>Occurs at t = 0.45s ignition phase</td>
+                </tr>
+                <tr>
+                  <td>Burn Duration</td>
+                  <td>2.35 Seconds</td>
+                  <td>Neutral BATES grain geometry</td>
+                </tr>
+                <tr>
+                  <td>Chamber Pressure</td>
+                  <td>4.2 MPa (610 PSI)</td>
+                  <td>6061-T6 Aluminum (Safety factor 2.2)</td>
+                </tr>
+                <tr>
+                  <td>Nozzle Expansion Ratio</td>
+                  <td>6.25:1</td>
+                  <td>Optimized for sea-level to 10k ft</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- SECTION 3: SYSTEM ARCHITECTURE & DIAGRAM -->
+        <div class="doc-section-card" id="architecture">
+          <h2 class="doc-section-heading">3. System Architecture & Diagram</h2>
+          <p>The mechanical and electronic subsystem architecture balances passive pressure containment with active telemetry feedback.</p>
+          
+          <div class="diagram-box">
+            <div class="diagram-title">SYSTEM FLOW DIAGRAM</div>
+            <pre class="code-block">
++-------------------------------------------------------------------+
+|                     GROUND CONTROL COMMAND                        |
++-------------------------------------------------------------------+
+                                  | (915MHz Encrypted LoRa Link)
+                                  v
++-------------------------------------------------------------------+
+|                    IGNITION & SAFETY INTERLOCK                     |
+|  [Hardware Safety Key] ---> [Relay Driver] ---> [Igniter Pyro]   |
++-------------------------------------------------------------------+
+                                  | (Flame Front Ignition)
+                                  v
++-------------------------------------------------------------------+
+|                    SOLID MOTOR PROPULSION SYSTEM                  |
+|  [BATES Grains] --> [Combustion Chamber (4.2MPa)] --> [De Laval]  |
++-------------------------------------------------------------------+
+                                  | (High-Freq Sample 80Hz)
+                                  v
++-------------------------------------------------------------------+
+|                   GROUND TEST LOAD CELL SENSOR                    |
+|  [S-Type 1000kg Sensor] --> [HX711 Amp] --> [SD Data Logging]    |
++-------------------------------------------------------------------+
+            </pre>
+          </div>
+        </div>
+
+        <!-- SECTION 4: FIRMWARE & CIRCUIT DIAGRAM -->
+        <div class="doc-section-card" id="circuit-code">
+          <h2 class="doc-section-heading">4. Circuit Schematics & Control Firmware</h2>
+          <p>Below is the micro-controller firmware script used for sensor calibration, safety arming, and high-frequency static test data capture:</p>
+          
+          <div class="code-editor-box">
+            <div class="code-header">
+              <span>main_test_stand_controller.cpp</span>
+              <span>C++17 • Arduino / ESP32 Platform</span>
+            </div>
+            <pre class="code-block">
+<span class="code-keyword">#include</span> &lt;Arduino.h&gt;
+<span class="code-keyword">#include</span> &lt;HX711.h&gt;
+<span class="code-keyword">#include</span> &lt;SPI.h&gt;
+<span class="code-keyword">#include</span> &lt;SD.h&gt;
+
+<span class="code-comment">// Pin Definitions</span>
+<span class="code-keyword">const int</span> LOADCELL_DOUT = 16;
+<span class="code-keyword">const int</span> LOADCELL_SCK  = 17;
+<span class="code-keyword">const int</span> PYRO_ARM_PIN  = 22;
+<span class="code-keyword">const int</span> PYRO_FIRE_PIN = 23;
+
+HX711 scale;
+File dataFile;
+
+<span class="code-keyword">void</span> setup() {
+  Serial.begin(115200);
+  pinMode(PYRO_ARM_PIN, INPUT_PULLDOWN);
+  pinMode(PYRO_FIRE_PIN, OUTPUT);
+  digitalWrite(PYRO_FIRE_PIN, LOW);
+
+  scale.begin(LOADCELL_DOUT, LOADCELL_SCK);
+  scale.set_scale(2280.f); <span class="code-comment">// Load cell calibration factor</span>
+  scale.tare();
+
+  <span class="code-keyword">if</span> (!SD.begin(5)) {
+    Serial.println(<span class="code-string">"[ERROR] SD Card Initialization Failed!"</span>);
+  }
+  Serial.println(<span class="code-string">"[SYSTEM READY] Awaiting Arming Signal..."</span>);
+}
+
+<span class="code-keyword">void</span> loop() {
+  <span class="code-keyword">if</span> (digitalRead(PYRO_ARM_PIN) == HIGH) {
+    <span class="code-keyword">float</span> force_N = scale.get_units() * 9.81f;
+    uint32_t t_ms = millis();
+
+    <span class="code-comment">// Stream telemetry over serial & log to SD</span>
+    Serial.printf(<span class="code-string">"T=%dms, Force=%.2fN\n"</span>, t_ms, force_N);
+  }
+}
+            </pre>
+          </div>
+        </div>
+
+        <!-- SECTION 5: ENGINEERING JOURNAL & TEST LOGS -->
+        <div class="doc-section-card" id="journal">
+          <h2 class="doc-section-heading">5. Engineering Journal & Test Logs</h2>
+          
+          <div class="journal-entry">
+            <div class="journal-date">OCTOBER 14, 2024 • STATIC FIRING #04</div>
+            <h3>Successful Full-Duration Ground Test Firing</h3>
+            <p>
+              Static test #04 was conducted at the field test stand. The motor achieved full chamber pressure within 0.12 seconds of ignition. Load-cell thrust curve closely matched CFD predictions with zero phenolic nozzle erosion observed.
+            </p>
+          </div>
+
+          <div class="journal-entry">
+            <div class="journal-date">SEPTEMBER 28, 2024 • DESIGN ITERATION</div>
+            <h3>Nozzle Throat Expansion Ratio Revision</h3>
+            <p>
+              Replaced initial aluminum nozzle insert with a graphite-phenolic composite nozzle to handle throat heat flux exceeding 2,400 K during peak combustion.
+            </p>
+          </div>
+
+        </div>
+
+      </article>
+
+      <!-- RIGHT SIDEBAR DOCUMENTATION NAVIGATION (DESKTOP ONLY) -->
+      <aside class="repo-sidebar">
+        
+        <!-- IN-PAGE TABLE OF CONTENTS NAV (LAPTOP ONLY) -->
+        <div class="repo-sidebar-box repo-sidebar-nav">
+          <h4>Table of Contents</h4>
+          <ul class="sidebar-nav-links">
+            <li><span class="skeleton-box mb-2" style="height: 18px; width: 90%;"></span></li>
+            <li><span class="skeleton-box mb-2" style="height: 18px; width: 85%;"></span></li>
+            <li><span class="skeleton-box mb-2" style="height: 18px; width: 75%;"></span></li>
+            <li><span class="skeleton-box mb-2" style="height: 18px; width: 80%;"></span></li>
+          </ul>
+        </div>
+
+        <!-- DOCUMENT METADATA BOX -->
+        <div class="repo-sidebar-box">
+          <h4>Document Meta</h4>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+            <strong>Lead Author:</strong> <span id="doc-meta-author"><span class="skeleton-box" style="height: 14px; width: 100px; display: inline-block;"></span></span>
+          </p>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+            <strong>Domain:</strong> <span id="doc-meta-domain"><span class="skeleton-box" style="height: 14px; width: 90px; display: inline-block;"></span></span>
+          </p>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0;">
+            <strong>Verification:</strong> <span id="doc-meta-verification"><span class="skeleton-box" style="height: 14px; width: 80px; display: inline-block;"></span></span>
+          </p>
+        </div>
+
+        <!-- RELATED SUBSYSTEMS BOX -->
+        <div class="repo-sidebar-box">
+          <h4>Related Systems</h4>
+          <ul class="sidebar-nav-links" id="doc-related-links">
+            <li><span class="skeleton-box mb-2" style="height: 18px; width: 90%;"></span></li>
+            <li><span class="skeleton-box mb-2" style="height: 18px; width: 85%;"></span></li>
+          </ul>
+        </div>
+
+      </aside>
+
+    </div>
+
+  </div>
+</section>
+
+<!-- Firebase & Auth Script -->
+<script type="module" src="firebase-config.js"></script>
+<script src="script.js"></script>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

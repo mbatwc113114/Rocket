@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roadmap | Roketry</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ================= NAVBAR ================= -->
+<nav class="navbar navbar-expand-md bg-white fixed-top border-bottom">
+  <div class="container-fluid">
+
+    <!-- Brand -->
+    <a class="navbar-brand fw-bold" href="index.html">Roketry</a>
+
+    <!-- Hamburger Button -->
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#rokentryNavbar"
+      aria-controls="rokentryNavbar"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Collapsible Menu -->
+    <div class="collapse navbar-collapse" id="rokentryNavbar">
+      <ul class="navbar-nav ms-auto mb-2 mb-md-0 align-items-md-center">
+        <li class="nav-item">
+          <a class="nav-link" href="index.html">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="project.html">Projects</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="roadmap.html">Roadmap</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="about.html">About</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="join.html">Join</a>
+        </li>
+      </ul>
+      <div id="auth-nav-widget" class="d-flex align-items-center ms-md-3"></div>
+      <button class="theme-toggle-btn" type="button"><span>🌙</span> Dark</button>
+    </div>
+
+  </div>
+</nav>
+
+<!-- ================= SCROLL SNAP CONTAINER ================= -->
+<div class="snap-container">
+
+  <!-- ================= HERO SECTION ================= -->
+  <section id="hero" class="snap">
+    <div class="hero">
+
+      <!-- LEFT: TEXT -->
+      <div class="hero-text">
+        <h1 class="title">
+          Rocket Development<br>
+          Roadmap
+        </h1>
+
+        <p class="subtitle">
+          STRATEGIC MILESTONES, SYSTEM EVOLUTION, AND FUTURE PHASES OF OUR OPEN-SOURCE AEROSPACE INITIATIVE.
+        </p>
+      </div>
+
+      <!-- RIGHT: IMAGE -->
+      <div class="hero-image">
+        <img src="https://images.unsplash.com/photo-1517976487492-5750f3195933?w=800&auto=format&fit=crop&q=80" alt="Rocket roadmap diagram">
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= ROADMAP PHASES SECTION ================= -->
+  <section id="phases" class="snap projects-section">
+    <div class="projects-layout">
+
+      <!-- LEFT -->
+      <div class="projects-info">
+        <h2 class="projects-title">Development Phases</h2>
+        <p class="projects-desc">
+          Key technical milestones tracking our open-source propulsion, avionics, recovery, and launch infrastructure roadmap.
+        </p>
+      </div>
+
+      <!-- RIGHT: HORIZONTAL SLIDER -->
+      <div class="projects-slider">
+
+        <div class="project-card" data-id="model1">
+          <div class="card-sketch-wrap">
+            <img src="https://images.unsplash.com/photo-1517976487492-5750f3195933?w=800&auto=format&fit=crop&q=80" alt="Model-I Solid Rocket Sketch">
+          </div>
+          <span class="project-badge">PHASE 1</span>
+          <h3>Model-I Solid Stability Rocket</h3>
+          <p>Flight stability validation, fin center-of-pressure alignment, and low-altitude sensor tracking.</p>
+          <div class="status-pill"><span class="status-dot green"></span> Field Flight Tested</div>
+        </div>
+
+        <div class="project-card" data-id="model2">
+          <div class="card-sketch-wrap">
+            <img src="https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?w=800&auto=format&fit=crop&q=80" alt="Model-II Multistage Rocket Sketch">
+          </div>
+          <span class="project-badge">PHASE 2</span>
+          <h3>Model-II Multistage Payload</h3>
+          <p>Long-range dual-stage solid rocket featuring pneumatic staging and CubeSat payload ejection.</p>
+          <div class="status-pill"><span class="status-dot orange"></span> Staging Bench Passed</div>
+        </div>
+
+        <div class="project-card" data-id="model3">
+          <div class="card-sketch-wrap">
+            <img src="https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?w=800&auto=format&fit=crop&q=80" alt="Model-III Liquid Lander Sketch">
+          </div>
+          <span class="project-badge">PHASE 3</span>
+          <h3>Model-III Liquid Engine Lander</h3>
+          <p>Ethanol/LOX liquid-propelled vehicle targeting autonomous propulsive vertical landing (VTVL).</p>
+          <div class="status-pill"><span class="status-dot blue"></span> Liquid Static Testing</div>
+        </div>
+
+        <div class="project-card" data-id="simulator">
+          <div class="card-sketch-wrap">
+            <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=80" alt="Mission Simulator Sketch">
+          </div>
+          <span class="project-badge">PHASE 4</span>
+          <h3>Ground Electric Simulator</h3>
+          <p>Hardware-in-the-loop electric simulator replicating all launch flight phases.</p>
+          <div class="status-pill"><span class="status-dot green"></span> Active HIL Bench</div>
+        </div>
+
+        <div class="project-card more-card">
+          <span><a href="project.html">View System Tree →</a></span>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= MILESTONES SECTION ================= -->
+  <section id="milestones" class="snap about-section">
+    <div class="about-layout">
+
+      <!-- LEFT -->
+      <div class="about-text">
+        <h2 class="about-title">Milestone Timeline</h2>
+        <p class="about-desc">
+          Our development cycle is structured around verifiable open-source releases, public static firings, and transparent technical documentation.
+        </p>
+
+        <p class="about-desc">
+          Every phase undergoes rigorous ground testing, safety analysis, and peer-reviewed design iteration.
+        </p>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="about-stats">
+        <div class="stat">
+          <span class="stat-number">2024</span>
+          <span class="stat-label">SRM Testing</span>
+        </div>
+
+        <div class="stat">
+          <span class="stat-number">2025</span>
+          <span class="stat-label">Flight Computer</span>
+        </div>
+
+        <div class="stat">
+          <span class="stat-number">2026</span>
+          <span class="stat-label">10k Altitude</span>
+        </div>
+
+        <div class="stat">
+          <span class="stat-number">2027+</span>
+          <span class="stat-label">Liquid Engine</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</div>
+
+<!-- Firebase & Auth Script -->
+<script type="module" src="firebase-config.js"></script>
+<script src="script.js"></script>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

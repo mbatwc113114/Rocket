@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard & Modular Page Builder | Roketry</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- MathJax for LaTeX Render -->
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+</head>
+<body class="standalone-page">
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-md bg-white fixed-top border-bottom">
+  <div class="container-fluid">
+    <a class="navbar-brand fw-bold" href="index.html">Roketry</a>
+
+    <button class="navbar-toggler" type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNav"
+      aria-controls="navbarNav"
+      aria-expanded="false"
+      aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto align-items-md-center">
+        <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="project.html">Projects</a></li>
+        <li class="nav-item"><a class="nav-link" href="roadmap.html">Roadmap</a></li>
+        <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+        <li class="nav-item"><a class="nav-link" href="join.html">Join</a></li>
+      </ul>
+      <div id="auth-nav-widget" class="d-flex align-items-center ms-md-3"></div>
+      <button class="theme-toggle-btn" type="button"><span>🌙</span> Dark</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ACCESS DENIED FOR NON-ADMINS -->
+<div id="admin-access-denied" class="doc-section-card d-none text-center style-box" style="max-width: 620px; margin: calc(var(--nav-height) + 3rem) auto; padding: 3.5rem 2rem;">
+  <div style="font-size: 3rem; margin-bottom: 1rem;">🔒</div>
+  <h2 style="color: #ef4444; font-size: 1.8rem; margin-bottom: 0.75rem;">Admin Access Required</h2>
+  <p style="color: var(--text-muted); max-width: 480px; margin: 0 auto 1.5rem auto;">
+    Admin control center and page builder tools are strictly restricted to designated administrator account (<strong style="color: var(--text-dark);">mbatwc@gmail.com</strong>).
+  </p>
+  <div class="d-flex gap-2 justify-content-center">
+    <button type="button" id="btn-admin-login-now" class="primary-btn" style="padding: 0.75rem 1.6rem;">🔑 Sign In with Google →</button>
+    <a href="profile.html" class="repo-action-btn" style="padding: 0.75rem 1.6rem; text-decoration: none;">View User Profile</a>
+  </div>
+</div>
+
+<!-- ADMIN WORKSPACE CONTAINER -->
+<div id="admin-workspace" class="d-none">
+
+  <!-- NAVIGATION TAB BAR -->
+  <section class="bg-white-theme border-bottom" style="padding-top: calc(var(--nav-height) + 1rem); padding-bottom: 1rem;">
+    <div class="container-centered d-flex justify-content-between align-items-center">
+      <div>
+        <h2 style="font-family: var(--font-display); font-weight: 800; margin: 0; font-size: 1.5rem;">Admin Control Center</h2>
+        <span class="mono-text subtle-text" style="font-size: 0.8rem;">Logged in as: mbatwc@gmail.com</span>
+      </div>
+
+      <div class="d-flex gap-2">
+        <button type="button" id="tab-btn-dashboard" class="repo-action-btn primary-btn" style="font-size: 0.82rem;">📊 Dashboard Overview</button>
+        <button type="button" id="tab-btn-editor" class="repo-action-btn" style="font-size: 0.82rem;">➕ Create New Project</button>
+        <button type="button" id="tab-btn-projects" class="repo-action-btn" style="font-size: 0.82rem;">📁 Manage Catalog</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- VIEW 1: DASHBOARD OVERVIEW -->
+  <section id="view-dashboard" class="page-section bg-gray-theme" style="padding-top: 2rem; padding-bottom: 4rem;">
+    <div class="container-centered">
+      
+      <!-- STATS METRICS GRID -->
+      <div class="row g-4 mb-4">
+        <div class="col-md-4">
+          <div class="doc-section-card h-100" style="padding: 1.8rem;">
+            <div class="mono-text subtle-text mb-1" style="font-size: 0.78rem;">PUBLISHED SYSTEMS</div>
+            <h3 id="dash-projects-count" style="font-size: 2.2rem; font-weight: 800; font-family: var(--font-display); margin: 0;">6 Projects</h3>
+            <span class="subtle-text" style="font-size: 0.8rem; color: #10b981;">● Fleet, Simulators & Recovery</span>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="doc-section-card h-100" style="padding: 1.8rem;">
+            <div class="mono-text subtle-text mb-1" style="font-size: 0.78rem;">COMMUNITY MEMBERS</div>
+            <h3 id="dash-members-count" style="font-size: 2.2rem; font-weight: 800; font-family: var(--font-display); margin: 0;">3 Registered</h3>
+            <span class="subtle-text" style="font-size: 0.8rem;">Firebase Realtime Sync</span>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="doc-section-card h-100" style="padding: 1.8rem;">
+            <div class="mono-text subtle-text mb-1" style="font-size: 0.78rem;">FIREBASE ENDPOINT</div>
+            <h3 style="font-size: 1.4rem; font-weight: 700; font-family: var(--font-mono); margin: 0; word-break: break-all;">asia-southeast1</h3>
+            <span class="subtle-text" style="font-size: 0.8rem; color: #10b981;">🔒 Storage & Database Active</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN ACTION CARDS -->
+      <div class="row g-4 mb-4">
+        <div class="col-md-6">
+          <div class="doc-section-card h-100 style-box" style="cursor: pointer; border-left: 4px solid var(--text-dark);" id="card-action-create">
+            <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">🚀</div>
+            <h3 style="font-family: var(--font-display); font-weight: 800; font-size: 1.4rem; margin-bottom: 0.5rem;">Create New Rocket Project</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.2rem;">
+              Start a clean Notion-style page. Add hierarchical sections, drag-and-drop component blocks, 2-column side-by-side layouts, LaTeX equations, and code files.
+            </p>
+            <span class="mono-text fw-bold" style="color: #10b981;">Launch Modular Page Builder →</span>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="doc-section-card h-100 style-box" style="cursor: pointer; border-left: 4px solid #3b82f6;" id="card-action-manage">
+            <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">📁</div>
+            <h3 style="font-family: var(--font-display); font-weight: 800; font-size: 1.4rem; margin-bottom: 0.5rem;">Manage Published Catalog</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.2rem;">
+              View and inspect projects stored in Firebase Realtime Database across categories (*Rocket Fleet, Simulators, Subsystems*).
+            </p>
+            <span class="mono-text fw-bold" style="color: #3b82f6;">View Catalog Manager →</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- REGISTERED ENGINEERS TABLE -->
+      <div class="doc-section-card">
+        <h3 class="doc-section-heading">👥 Registered Community Engineers</h3>
+        <p class="subtle-text mb-3">Community members registered in Firebase Realtime Database (`users/`):</p>
+
+        <div class="table-responsive">
+          <table class="table table-bordered repo-table style-box mb-0">
+            <thead>
+              <tr>
+                <th>Avatar</th>
+                <th>Engineer Name</th>
+                <th>Gmail Address</th>
+                <th>Specialty / Bio</th>
+                <th>Account Role</th>
+              </tr>
+            </thead>
+            <tbody id="dash-members-tbody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- VIEW 2: NOTION-STYLE HIERARCHICAL DRAG-AND-DROP PAGE EDITOR -->
+  <section id="view-editor" class="d-none">
+    
+    <!-- HEADER (NOTION-STYLE WITH SKETCH COVER) -->
+    <section class="doc-header-section page-section bg-white-theme" style="padding-top: 2rem; padding-bottom: 2.5rem;">
+      <div class="container-centered">
+        
+        <div class="doc-header-layout">
+
+          <!-- LEFT: TITLE & METADATA -->
+          <div class="doc-header-left">
+            <div class="mb-2">
+              <label class="form-label-mono">Project Category Domain</label>
+              <select id="ed-category-domain" class="editor-input-title mono-text" style="font-weight: 700; width: 260px; font-size: 0.82rem; padding: 0.2rem 0.5rem;">
+                <option value="fleet">🚀 Rocket Fleet (Models)</option>
+                <option value="simulators">⚡ Simulators & Ground Benches</option>
+                <option value="subsystems">🛠️ Subsystems & Recovery</option>
+              </select>
+            </div>
+
+            <div class="doc-meta-bar d-flex align-items-center gap-2 mb-2">
+              <span class="doc-category-badge" id="ed-badge" contenteditable="true">ROCKET FLEET</span>
+              <span class="doc-id-badge" id="ed-docid" contenteditable="true">DOC-FLEET-04</span>
+              <span class="doc-date">ID Slug: <input type="text" id="ed-slug" value="model-new" class="mono-text" style="width: 120px; border: 1px dashed var(--border-color); background: transparent; padding: 1px 4px;"></span>
+            </div>
+
+            <h1 class="doc-main-title mb-2" id="ed-title" contenteditable="true" title="Click to edit title">New Rocket Technical Documentation</h1>
+            <p class="doc-main-subtitle mb-3" id="ed-subtitle" contenteditable="true" title="Click to edit subtitle">ENTER SYSTEM TECHNICAL SUBTITLE & ENGINEERING DESCRIPTION</p>
+
+            <div class="doc-actions-bar d-flex align-items-center gap-2">
+              <button type="button" id="btn-trigger-publish" class="repo-action-btn primary-btn">🚀 Publish Project Live</button>
+              <button type="button" id="btn-cancel-editor" class="repo-action-btn">← Back to Dashboard</button>
+            </div>
+          </div>
+
+          <!-- RIGHT: SKETCH COVER IMAGE UPLOADER -->
+          <div class="doc-header-right">
+            <div class="doc-sketch-box position-relative mb-2" style="cursor: pointer;" title="Click to Pick Local Image File (100% Free)" onclick="document.getElementById('ed-sketch-file').click()">
+              <img id="ed-sketch-img" src="sketch_srm.png" alt="Technical Assembly Sketch">
+              <span class="sketch-caption">FIG 1.0 — Technical Assembly Sketch</span>
+              <div style="position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.75); color: #fff; padding: 4px 10px; border-radius: 20px; font-size: 0.72rem; font-family: var(--font-mono);">
+                📷 Upload Cover File
+              </div>
+            </div>
+            <input type="file" id="ed-sketch-file" accept="image/*" class="d-none">
+            <input type="text" id="ed-sketch-url-input" class="editor-input-title mono-text w-100 style-box" placeholder="🔗 OR Paste Google Drive / Image URL..." style="font-size: 0.78rem;">
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- HIERARCHICAL SECTIONS CANVAS & SIDEBAR -->
+    <section class="page-section bg-gray-theme" style="padding-top: 2.5rem; padding-bottom: 4rem;">
+      <div class="container-centered">
+        
+        <div class="repo-detail-layout">
+
+          <!-- LEFT: HIERARCHICAL SECTIONS CANVAS (STARTS EMPTY FOR NEW PROJECTS) -->
+          <article class="doc-main-article">
+            
+            <!-- TOP SECTION CREATOR BANNER -->
+            <div class="d-flex justify-content-between align-items-center p-3 mb-3 style-box" style="background: var(--bg-card); border: 2px dashed var(--border-color); border-radius: 10px;">
+              <div>
+                <h4 style="font-family: var(--font-display); font-weight: 800; font-size: 1.1rem; margin: 0;">Modular Project Canvas</h4>
+                <p class="subtle-text m-0" style="font-size: 0.82rem;">Add top-level document sections, then add components under each section:</p>
+              </div>
+
+              <button type="button" id="btn-add-top-section" class="primary-btn" style="padding: 0.6rem 1.4rem; font-size: 0.9rem;">
+                ➕ Add New Section
+              </button>
+            </div>
+
+            <!-- CONTAINER FOR HIERARCHICAL SECTIONS -->
+            <div id="hierarchical-sections-container" class="d-flex flex-column gap-4">
+              <!-- Dynamically generated sections will appear here -->
+            </div>
+
+          </article>
+
+          <!-- RIGHT SIDEBAR (LIVE TOC & TEAM MEMBERS) -->
+          <aside class="repo-sidebar">
+            
+            <!-- LIVE AUTO-GENERATED TABLE OF CONTENTS -->
+            <div class="repo-sidebar-box repo-sidebar-nav">
+              <h4>Table of Contents</h4>
+              <ul id="auto-toc-links" class="sidebar-nav-links">
+                <!-- Auto-updated live from section headings -->
+              </ul>
+            </div>
+
+            <!-- DOCUMENT META & TEAM MEMBERS -->
+            <div class="repo-sidebar-box">
+              <h4>Document Meta & Team</h4>
+              
+              <div class="mb-3">
+                <label class="form-label-mono">Lead Author</label>
+                <input type="text" id="ed-author" class="editor-input-title" placeholder="Enter or select Lead Author..." style="font-size: 0.85rem; font-weight: 700;">
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label-mono">Project Contributors</label>
+                <div id="contributors-list" class="contributor-list mb-2">
+                  <!-- Empty by default — add registered members below -->
+                </div>
+
+                <!-- REGISTERED MEMBERS SELECT -->
+                <div class="p-2 style-box" style="background: var(--bg-tree-bg); border-radius: 8px;">
+                  <label class="form-label-mono mb-1">Add Registered Member</label>
+                  <select id="select-registered-user" class="editor-input-title mono-text mb-2" style="font-size: 0.78rem; padding: 0.3rem;">
+                    <option value="">-- Select Registered Member --</option>
+                  </select>
+                  <input type="text" id="input-member-custom-role" class="editor-input-title mb-2" placeholder="Project Role (e.g. Avionics Lead)" style="font-size: 0.78rem;">
+                  <div class="d-flex gap-2">
+                    <button type="button" id="btn-add-registered-member" class="repo-action-btn flex-fill" style="font-size: 0.75rem;">+ Add Contributor</button>
+                    <button type="button" id="btn-set-lead-author" class="repo-action-btn flex-fill" style="font-size: 0.75rem;">Set as Lead</button>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label class="form-label-mono">Verification Status</label>
+                <input type="text" id="ed-verification" class="editor-input-title" value="Field Verified" style="font-size: 0.85rem;">
+              </div>
+            </div>
+
+            <!-- RELATED SYSTEMS MANAGER -->
+            <div class="repo-sidebar-box">
+              <h4>Related Systems</h4>
+              <p class="subtle-text mb-2" style="font-size: 0.78rem;">Add links to related systems or rocket projects:</p>
+              
+              <div id="ed-related-list" class="mb-2">
+                <div class="related-item d-flex justify-content-between align-items-center mb-1 p-1 style-box" style="font-size: 0.8rem;" data-title="Rocket Model-II" data-url="model2">
+                  <span>🚀 Rocket Model-II</span>
+                  <button type="button" class="btn-close btn-sm btn-del-rel" aria-label="Remove"></button>
+                </div>
+              </div>
+
+              <div class="d-flex gap-1 mb-2">
+                <input type="text" id="input-related-title" class="editor-input-title" placeholder="System Name" style="font-size: 0.78rem;">
+                <input type="text" id="input-related-url" class="editor-input-title" placeholder="Slug ID" style="font-size: 0.78rem;">
+              </div>
+              <button type="button" id="btn-add-related-sys" class="repo-action-btn w-100" style="font-size: 0.75rem;">+ Add Related System</button>
+            </div>
+
+            <!-- PUBLISH BUTTON BOX -->
+            <div class="repo-sidebar-box">
+              <button type="button" id="btn-sidebar-publish" class="primary-btn w-100" style="padding: 0.8rem;">
+                🚀 Publish Live Project
+              </button>
+            </div>
+
+          </aside>
+
+        </div>
+
+      </div>
+    </section>
+
+  </section>
+
+  <!-- VIEW 3: MANAGE PUBLISHED CATALOG -->
+  <section id="view-projects" class="page-section bg-gray-theme d-none" style="padding-top: 2rem; padding-bottom: 4rem;">
+    <div class="container-centered">
+      <div class="doc-section-card">
+        <h3 class="doc-section-heading">📁 Published Systems Catalog</h3>
+        <p class="subtle-text mb-4">View and inspect projects stored in Firebase Realtime Database across category domains:</p>
+
+        <div id="admin-catalog-grid" class="projects-grid">
+          <!-- Dynamically populated cards -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- CONFIRMATION MODAL -->
+<div class="modal fade" id="confirmPublishModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background: var(--bg-card); color: var(--text-dark); border: 1px solid var(--border-color); border-radius: 12px;">
+      <div class="modal-header" style="border-bottom: 1px solid var(--border-color);">
+        <h5 class="modal-title fw-bold" style="font-family: var(--font-display);">Confirm Live Publication</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p style="color: var(--text-muted);">Confirm publishing project documentation to Firebase Realtime Database:</p>
+        
+        <ul class="list-unstyled mono-text" style="font-size: 0.88rem; background: var(--bg-tree-bg); padding: 1rem; border-radius: 8px;">
+          <li class="mb-2"><strong>Title:</strong> <span id="conf-title"></span></li>
+          <li class="mb-2"><strong>Category Domain:</strong> <span id="conf-cat-domain"></span></li>
+          <li class="mb-2"><strong>Page Slug ID:</strong> <span id="conf-id"></span></li>
+          <li class="mb-2"><strong>Lead Author:</strong> <span id="conf-author"></span></li>
+          <li class="mb-2"><strong>Sections Count:</strong> <span id="conf-sections-count"></span></li>
+          <li><strong>Firebase Target:</strong> asia-southeast1 RTDB</li>
+        </ul>
+      </div>
+      <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+        <button type="button" class="repo-action-btn" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" id="btn-confirm-final-publish" class="primary-btn">Confirm & Publish Live →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase & Script -->
+<script type="module" src="firebase-config.js"></script>
+<script src="script.js"></script>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  let coverImageURL = 'sketch_srm.png';
+  let sectionCounter = 0;
+  const sectionsContainer = document.getElementById('hierarchical-sections-container');
+  const autoTocList = document.getElementById('auto-toc-links');
+
+  // VIEW SWITCHING LOGIC
+  const viewDashboard = document.getElementById('view-dashboard');
+  const viewEditor = document.getElementById('view-editor');
+  const viewProjects = document.getElementById('view-projects');
+
+  const tabBtnDashboard = document.getElementById('tab-btn-dashboard');
+  const tabBtnEditor = document.getElementById('tab-btn-editor');
+  const tabBtnProjects = document.getElementById('tab-btn-projects');
+
+  function switchTab(activeTab) {
+    viewDashboard.classList.add('d-none');
+    viewEditor.classList.add('d-none');
+    viewProjects.classList.add('d-none');
+
+    tabBtnDashboard.classList.remove('primary-btn');
+    tabBtnEditor.classList.remove('primary-btn');
+    tabBtnProjects.classList.remove('primary-btn');
+
+    if (activeTab === 'dashboard') {
+      viewDashboard.classList.remove('d-none');
+      tabBtnDashboard.classList.add('primary-btn');
+    } else if (activeTab === 'editor') {
+      viewEditor.classList.remove('d-none');
+      tabBtnEditor.classList.add('primary-btn');
+      updateAutoTOC();
+    } else if (activeTab === 'projects') {
+      viewProjects.classList.remove('d-none');
+      tabBtnProjects.classList.add('primary-btn');
+      renderAdminCatalog();
+    }
+  }
+
+  let isEditingExisting = false;
+
+  function resetEditorForNewProject() {
+    isEditingExisting = false;
+    const uniqueId = 'model-' + Date.now().toString().slice(-6);
+    document.getElementById('ed-slug').value = uniqueId;
+    document.getElementById('ed-title').textContent = 'New Rocket Technical Documentation';
+    document.getElementById('ed-subtitle').textContent = 'ENTER SYSTEM TECHNICAL SUBTITLE & DESCRIPTION';
+    document.getElementById('ed-badge').textContent = 'ROCKET FLEET';
+    document.getElementById('ed-docid').textContent = 'DOC-FLEET-0' + Math.floor(Math.random() * 90 + 10);
+    document.getElementById('ed-category-domain').value = 'fleet';
+    document.getElementById('ed-author').value = '';
+    document.getElementById('ed-verification').value = 'Field Verified';
+
+    const contribList = document.getElementById('contributors-list');
+    if (contribList) contribList.innerHTML = '';
+
+    const relContainer = document.getElementById('ed-related-list');
+    if (relContainer) relContainer.innerHTML = '';
+
+    sectionsContainer.innerHTML = '';
+    sectionCounter = 0;
+    coverImageURL = 'sketch_srm.png';
+    document.getElementById('ed-sketch-img').src = 'sketch_srm.png';
+  }
+
+  // AUTO SLUGIFY TITLE ON INPUT IF NOT EDITING EXISTING
+  document.getElementById('ed-title').addEventListener('input', () => {
+    if (!isEditingExisting) {
+      const titleText = document.getElementById('ed-title').textContent.trim();
+      const slugInput = document.getElementById('ed-slug');
+      if (titleText && titleText !== 'New Rocket Technical Documentation') {
+        const generatedSlug = titleText.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        if (generatedSlug) {
+          slugInput.value = generatedSlug;
+        }
+      }
+    }
+  });
+
+  tabBtnDashboard.addEventListener('click', () => switchTab('dashboard'));
+  tabBtnEditor.addEventListener('click', () => {
+    if (!isEditingExisting) resetEditorForNewProject();
+    switchTab('editor');
+  });
+  tabBtnProjects.addEventListener('click', () => switchTab('projects'));
+
+  document.getElementById('card-action-create').addEventListener('click', () => {
+    resetEditorForNewProject();
+    switchTab('editor');
+  });
+  document.getElementById('card-action-manage').addEventListener('click', () => switchTab('projects'));
+  document.getElementById('btn-cancel-editor').addEventListener('click', () => switchTab('dashboard'));
+
+  // ADMIN PERMISSION CHECK
+  function checkAdmin() {
+    const auth = window.authManager;
+    const user = auth ? auth.getUser() : null;
+    const isAdmin = user && user.email && user.email.toLowerCase().trim() === 'mbatwc@gmail.com';
+
+    const accessDenied = document.getElementById('admin-access-denied');
+    const workspace = document.getElementById('admin-workspace');
+
+    if (!isAdmin) {
+      accessDenied.classList.remove('d-none');
+      workspace.classList.add('d-none');
+    } else {
+      accessDenied.classList.add('d-none');
+      workspace.classList.remove('d-none');
+      loadRegisteredMembers();
+    }
+  }
+
+  const adminLoginBtn = document.getElementById('btn-admin-login-now');
+  if (adminLoginBtn) {
+    adminLoginBtn.addEventListener('click', async () => {
+      if (window.authManager) {
+        await window.authManager.signInWithGoogle();
+        checkAdmin();
+      }
+    });
+  }
+
+  checkAdmin();
+  setTimeout(checkAdmin, 200);
+  setTimeout(checkAdmin, 1000);
+
+  // AUTO-GENERATE TABLE OF CONTENTS (TOC)
+  function updateAutoTOC() {
+    autoTocList.innerHTML = '';
+    const sectionCards = sectionsContainer.querySelectorAll('.sec-container-card');
+
+    if (sectionCards.length === 0) {
+      autoTocList.innerHTML = '<li class="subtle-text" style="font-size: 0.8rem;">No sections added yet</li>';
+      return;
+    }
+
+    sectionCards.forEach((card, idx) => {
+      const headingInput = card.querySelector('.sec-title-input');
+      const secId = `sec-${idx + 1}`;
+      card.id = secId;
+
+      const titleText = headingInput ? headingInput.value.trim() : `Section ${idx + 1}`;
+      const li = document.createElement('li');
+      li.innerHTML = `<a href="#${secId}">📌 ${idx + 1}. ${titleText}</a>`;
+      autoTocList.appendChild(li);
+    });
+  }
+
+  // COVER SKETCH IMAGE UPLOAD & GOOGLE DRIVE LINK SUPPORT
+  const sketchFileInput = document.getElementById('ed-sketch-file');
+  sketchFileInput.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        document.getElementById('ed-sketch-img').src = evt.target.result;
+        coverImageURL = evt.target.result;
+      };
+      reader.readAsDataURL(file);
+
+      if (window.authManager) {
+        const uploaded = await window.authManager.uploadImageToFirebaseStorage(file);
+        if (uploaded) {
+          coverImageURL = uploaded;
+          document.getElementById('ed-sketch-img').src = uploaded;
+        }
+      }
+    }
+  });
+
+  const sketchUrlInput = document.getElementById('ed-sketch-url-input');
+  if (sketchUrlInput) {
+    sketchUrlInput.addEventListener('input', (e) => {
+      let val = e.target.value.trim();
+      if (val) {
+        if (window.authManager && window.authManager.convertGoogleDriveUrl) {
+          val = window.authManager.convertGoogleDriveUrl(val);
+        }
+        document.getElementById('ed-sketch-img').src = val;
+        coverImageURL = val;
+      }
+    });
+  }
+
+  // HIERARCHICAL LEVEL 1: ADD NEW TOP-LEVEL SECTION
+  document.getElementById('btn-add-top-section').addEventListener('click', () => {
+    addTopLevelSection();
+  });
+
+  function addTopLevelSection(defaultTitle = 'Subsystem Design & Architecture') {
+    sectionCounter++;
+    const secId = `sec-${sectionCounter}`;
+    const card = document.createElement('div');
+    card.className = 'doc-section-card sec-container-card position-relative style-box mb-4';
+    card.id = secId;
+
+    card.innerHTML = `
+      <!-- SECTION HEADER & CONTROLS -->
+      <div class="d-flex justify-content-between align-items-center mb-3 pb-2" style="border-bottom: 1px solid var(--border-light);">
+        <div class="d-flex align-items-center gap-2 style-box p-1" style="flex: 1;">
+          <span class="drag-handle" title="Drag to reorder section">⣿</span>
+          <span class="mono-text fw-bold" style="color: var(--text-subtle);">${sectionCounter}.</span>
+          <input type="text" class="editor-input-title sec-title-input" value="${defaultTitle}" style="font-size: 1.25rem; font-weight: 700; font-family: var(--font-display);" placeholder="Enter Section Heading...">
+        </div>
+
+        <div class="d-flex align-items-center gap-2 ms-2">
+          <!-- LAYOUT TOGGLE: STACK vs 2-COLUMN GRID -->
+          <select class="sec-layout-select mono-text" style="font-size: 0.78rem; padding: 0.2rem 0.5rem; background: var(--bg-tree-bg); border-radius: 4px;">
+            <option value="stack">↕️ 1-Column Stack Layout</option>
+            <option value="grid-2col">↔️ 2-Column Side-by-Side Grid</option>
+          </select>
+          <button type="button" class="btn-close btn-del-top-sec" aria-label="Remove Section" title="Delete Section"></button>
+        </div>
+      </div>
+
+      <!-- LEVEL 2: COMPONENT BLOCKS GRID CONTAINER UNDER THIS SECTION -->
+      <div class="section-components-grid mb-3">
+        <!-- Component blocks appended here -->
+      </div>
+
+      <!-- INTERNAL TOOLBAR TO ADD COMPONENT UNDER THIS SECTION -->
+      <div class="p-2 style-box" style="background: var(--bg-tree-bg); border: 1px dashed var(--border-color); border-radius: 6px;">
+        <span class="mono-text subtle-text d-block mb-1" style="font-size: 0.75rem;">+ ADD COMPONENT BLOCK UNDER THIS SECTION:</span>
+        <div class="d-flex flex-wrap gap-2">
+          <button type="button" class="repo-action-btn btn-add-cmp-text" style="font-size: 0.75rem;">📝 Text Block</button>
+          <button type="button" class="repo-action-btn btn-add-cmp-image" style="font-size: 0.75rem;">🖼️ Image (Firebase Storage)</button>
+          <button type="button" class="repo-action-btn btn-add-cmp-latex" style="font-size: 0.75rem;">∑ LaTeX Math</button>
+          <button type="button" class="repo-action-btn btn-add-cmp-code" style="font-size: 0.75rem;">💻 Code Script</button>
+          <button type="button" class="repo-action-btn btn-add-cmp-diagram" style="font-size: 0.75rem;">📐 ASCII Flow</button>
+          <button type="button" class="repo-action-btn btn-add-cmp-specs" style="font-size: 0.75rem;">📊 Specs Table</button>
+        </div>
+      </div>
+    `;
+
+    // Section Delete Event
+    card.querySelector('.btn-del-top-sec').addEventListener('click', () => {
+      card.remove();
+      updateAutoTOC();
+    });
+
+    // Layout Select Event
+    const layoutSelect = card.querySelector('.sec-layout-select');
+    const compGrid = card.querySelector('.section-components-grid');
+    layoutSelect.addEventListener('change', () => {
+      if (layoutSelect.value === 'grid-2col') {
+        compGrid.classList.add('grid-2col');
+      } else {
+        compGrid.classList.remove('grid-2col');
+      }
+    });
+
+    // Heading Edit Event
+    card.querySelector('.sec-title-input').addEventListener('input', updateAutoTOC);
+
+    // Component Buttons Handlers inside Section
+    card.querySelector('.btn-add-cmp-text').addEventListener('click', () => addComponentBlock(compGrid, 'text'));
+    card.querySelector('.btn-add-cmp-image').addEventListener('click', () => addComponentBlock(compGrid, 'image'));
+    card.querySelector('.btn-add-cmp-latex').addEventListener('click', () => addComponentBlock(compGrid, 'latex'));
+    card.querySelector('.btn-add-cmp-code').addEventListener('click', () => addComponentBlock(compGrid, 'code'));
+    card.querySelector('.btn-add-cmp-diagram').addEventListener('click', () => addComponentBlock(compGrid, 'diagram'));
+    card.querySelector('.btn-add-cmp-specs').addEventListener('click', () => addComponentBlock(compGrid, 'specs'));
+
+    sectionsContainer.appendChild(card);
+    updateAutoTOC();
+    return card;
+  }
+
+  // HIERARCHICAL LEVEL 2: ADD COMPONENT BLOCK INSIDE SECTION (WITH HTML5 DRAG & DROP)
+  function addComponentBlock(gridContainer, type) {
+    const compCard = document.createElement('div');
+    compCard.className = 'draggable-component p-3 style-box position-relative';
+    compCard.style.background = 'var(--bg-card)';
+    compCard.style.border = '1px solid var(--border-color)';
+    compCard.style.borderRadius = '8px';
+    compCard.draggable = true;
+    compCard.dataset.compType = type;
+
+    // Drag Handle HTML
+    let innerHTML = `
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <span class="drag-handle" title="Drag component to reorder">⣿ <span class="mono-text" style="font-size: 0.72rem; color: var(--text-subtle);">${type.toUpperCase()} COMPONENT</span></span>
+        <button type="button" class="btn-close btn-sm btn-del-cmp" aria-label="Remove Component"></button>
+      </div>
+    `;
+
+    if (type === 'text') {
+      innerHTML += `
+        <textarea class="editor-input-title cmp-text-body" rows="3" placeholder="Write component technical documentation text..."></textarea>
+      `;
+    } else if (type === 'image') {
+      innerHTML += `
+        <div class="p-2 text-center style-box" style="background: var(--bg-tree-bg); border-radius: 6px;">
+          <img class="cmp-img-preview mb-2 d-none" style="max-width: 100%; max-height: 260px; border-radius: 6px;" src="" alt="Component Image">
+          <input type="file" class="cmp-img-file form-control form-control-sm mb-2" accept="image/*">
+          <input type="text" class="editor-input-title cmp-img-caption text-center mono-text" placeholder="Add image caption..." style="font-size: 0.78rem;">
+        </div>
+      `;
+    } else if (type === 'latex') {
+      innerHTML += `
+        <div class="mb-1">
+          <label class="form-label-mono mb-1">LaTeX Equation Input</label>
+          <input type="text" class="editor-input-title mono-text cmp-latex-input" value="F_{thrust} = \\dot{m} V_e + (P_e - P_a) A_e">
+        </div>
+        <div class="p-2 text-center style-box" style="background: var(--bg-tree-bg); border-radius: 6px;">
+          <span class="cmp-latex-render" style="font-size: 1.1rem;">\\( F_{thrust} = \\dot{m} V_e + (P_e - P_a) A_e \\)</span>
+        </div>
+      `;
+    } else if (type === 'code') {
+      innerHTML += `
+        <div class="code-editor-box">
+          <div class="code-header d-flex justify-content-between">
+            <span contenteditable="true" class="cmp-code-filename">flight_controller.cpp</span>
+            <span>C++</span>
+          </div>
+          <textarea class="editor-input-title mono-text cmp-code-body" rows="5" style="background: #14141c !important; color: #a5d6ff !important; font-size: 0.82rem;" placeholder="// Write firmware code script...">#include <Wire.h>
+void setup() { Serial.begin(115200); }</textarea>
+        </div>
+      `;
+    } else if (type === 'diagram') {
+      innerHTML += `
+        <div class="diagram-box">
+          <div class="diagram-title">FLOW STATE DIAGRAM</div>
+          <textarea class="editor-input-title mono-text cmp-diagram-body" rows="4" style="background: var(--bg-tree-bg) !important; font-size: 0.8rem;" placeholder="Draw ASCII flow diagram...">[ IGNITION ] ──> [ BURNOUT ] ──> [ LANDING BURN ]</textarea>
+        </div>
+      `;
+    } else if (type === 'specs') {
+      innerHTML += `
+        <table class="table table-bordered repo-table style-box mb-1">
+          <thead><tr><th>Parameter</th><th>Value</th><th>Notes</th></tr></thead>
+          <tbody class="cmp-specs-tbody">
+            <tr><td contenteditable="true">Thrust</td><td contenteditable="true">1250 N</td><td contenteditable="true">Peak value</td></tr>
+          </tbody>
+        </table>
+      `;
+    }
+
+    compCard.innerHTML = innerHTML;
+    compCard.querySelector('.btn-del-cmp').addEventListener('click', () => compCard.remove());
+
+    // Image Upload Handler with Immediate Data URL Fallback
+    if (type === 'image') {
+      const fileInput = compCard.querySelector('.cmp-img-file');
+      const previewImg = compCard.querySelector('.cmp-img-preview');
+      fileInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (evt) => {
+            previewImg.src = evt.target.result;
+            previewImg.classList.remove('d-none');
+            compCard.dataset.uploadedUrl = evt.target.result;
+          };
+          reader.readAsDataURL(file);
+
+          if (window.authManager) {
+            const uploaded = await window.authManager.uploadImageToFirebaseStorage(file);
+            if (uploaded) {
+              compCard.dataset.uploadedUrl = uploaded;
+              previewImg.src = uploaded;
+            }
+          }
+        }
+      });
+    }
+
+    // LaTeX Render Handler
+    if (type === 'latex') {
+      const input = compCard.querySelector('.cmp-latex-input');
+      const target = compCard.querySelector('.cmp-latex-render');
+      input.addEventListener('input', () => {
+        target.innerHTML = `\\( ${input.value} \\)`;
+        if (window.MathJax) window.MathJax.typesetPromise([target]);
+      });
+      if (window.MathJax) window.MathJax.typesetPromise();
+    }
+
+    // HTML5 Drag and Drop Handlers
+    compCard.addEventListener('dragstart', (e) => {
+      compCard.classList.add('dragging');
+      e.dataTransfer.setData('text/plain', '');
+    });
+
+    compCard.addEventListener('dragend', () => {
+      compCard.classList.remove('dragging');
+    });
+
+    gridContainer.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      const draggingItem = gridContainer.querySelector('.dragging');
+      if (draggingItem && draggingItem !== compCard) {
+        const bounding = compCard.getBoundingClientRect();
+        const offset = e.clientY - bounding.top - (bounding.height / 2);
+        if (offset < 0) {
+          gridContainer.insertBefore(draggingItem, compCard);
+        } else {
+          gridContainer.insertBefore(draggingItem, compCard.nextSibling);
+        }
+      }
+    });
+
+    gridContainer.appendChild(compCard);
+  }
+
+  // ADD 1 INITIAL CLEAN SECTION ON PAGE LOAD
+  addTopLevelSection('1. System Overview & Objectives');
+
+  // REGISTERED COMMUNITY MEMBERS SELECTION
+  let registeredUsersList = [];
+  async function loadRegisteredMembers() {
+    if (window.authManager) {
+      registeredUsersList = await window.authManager.fetchAllRTDBUsers();
+      
+      // Update Dashboard Published Systems Count
+      const dbProjects = await window.authManager.fetchAllCustomProjectsFromRTDB();
+      const projCountEl = document.getElementById('dash-projects-count');
+      if (projCountEl && dbProjects) {
+        projCountEl.textContent = `${dbProjects.length} Projects`;
+      }
+
+      // Dashboard Table Update
+      document.getElementById('dash-members-count').textContent = `${registeredUsersList.length} Registered`;
+      const dashTbody = document.getElementById('dash-members-tbody');
+      if (dashTbody) {
+        dashTbody.innerHTML = registeredUsersList.map(u => `
+          <tr>
+            <td style="width: 50px;"><img src="${u.photoURL}" class="avatar-circle" style="width: 36px; height: 36px; object-fit: cover;" alt="${u.name}"></td>
+            <td><strong>${u.name}</strong></td>
+            <td class="mono-text" style="font-size: 0.85rem;">${u.email}</td>
+            <td style="font-size: 0.85rem;">${u.bio || 'Aerospace Developer'}</td>
+            <td><span class="profile-role-badge">${(u.role || 'USER').toUpperCase()}</span></td>
+          </tr>
+        `).join('');
+      }
+
+      // Editor Dropdown Update
+      const select = document.getElementById('select-registered-user');
+      if (select && registeredUsersList.length > 0) {
+        select.innerHTML = '<option value="">-- Select Registered Member --</option>';
+        registeredUsersList.forEach(u => {
+          const opt = document.createElement('option');
+          opt.value = u.uid;
+          opt.textContent = `${u.name} (${u.email})`;
+          select.appendChild(opt);
+        });
+      }
+    }
+  }
+
+  document.getElementById('btn-add-registered-member').addEventListener('click', () => {
+    const select = document.getElementById('select-registered-user');
+    const selectedUid = select.value;
+    const roleInput = document.getElementById('input-member-custom-role');
+    const role = roleInput.value.trim() || 'Contributor';
+
+    const userObj = registeredUsersList.find(u => u.uid === selectedUid);
+    if (userObj) {
+      const item = document.createElement('div');
+      item.className = 'contributor-item position-relative';
+      item.dataset.uid = userObj.uid;
+      item.dataset.name = userObj.name;
+      item.dataset.email = userObj.email;
+      item.dataset.photo = userObj.photoURL || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80';
+
+      item.innerHTML = `
+        <img src="${item.dataset.photo}" class="avatar-circle" style="object-fit: cover;" alt="${userObj.name}">
+        <div>
+          <div style="font-size: 0.85rem; font-weight: 700;">${userObj.name}</div>
+          <span class="subtle-text">${role} • ${userObj.email}</span>
+        </div>
+        <button type="button" class="btn-close btn-sm position-absolute top-0 end-0 m-1 btn-del-member" aria-label="Remove"></button>
+      `;
+      item.querySelector('.btn-del-member').addEventListener('click', () => item.remove());
+      document.getElementById('contributors-list').appendChild(item);
+
+      roleInput.value = '';
+      select.value = '';
+    } else {
+      alert("Please select a registered community member from the dropdown.");
+    }
+  });
+
+  document.getElementById('btn-set-lead-author').addEventListener('click', () => {
+    const select = document.getElementById('select-registered-user');
+    const selectedUid = select.value;
+    const userObj = registeredUsersList.find(u => u.uid === selectedUid);
+    if (userObj) {
+      document.getElementById('ed-author').value = `${userObj.name} (${userObj.email})`;
+      select.value = '';
+    } else {
+      alert("Please select a registered member from the dropdown first.");
+    }
+  });
+
+  // RELATED SYSTEMS MANAGER HANDLER
+  document.querySelectorAll('#ed-related-list .btn-del-rel').forEach(btn => {
+    btn.addEventListener('click', (e) => e.target.closest('.related-item').remove());
+  });
+
+  document.getElementById('btn-add-related-sys').addEventListener('click', () => {
+    const titleInput = document.getElementById('input-related-title');
+    const urlInput = document.getElementById('input-related-url');
+    const relTitle = titleInput.value.trim();
+    const relUrl = urlInput.value.trim().toLowerCase();
+
+    if (relTitle && relUrl) {
+      const item = document.createElement('div');
+      item.className = 'related-item d-flex justify-content-between align-items-center mb-1 p-1 style-box';
+      item.style.fontSize = '0.8rem';
+      item.dataset.title = relTitle;
+      item.dataset.url = relUrl;
+      item.innerHTML = `
+        <span>🔗 ${relTitle}</span>
+        <button type="button" class="btn-close btn-sm btn-del-rel" aria-label="Remove"></button>
+      `;
+      item.querySelector('.btn-del-rel').addEventListener('click', () => item.remove());
+      document.getElementById('ed-related-list').appendChild(item);
+
+      titleInput.value = '';
+      urlInput.value = '';
+    } else {
+      alert("Please enter both System Name and Slug ID.");
+    }
+  });
+
+  // CONFIRMATION & PUBLISHING ACTION
+  const modal = new bootstrap.Modal(document.getElementById('confirmPublishModal'));
+
+  function triggerPublishModal() {
+    const title = document.getElementById('ed-title').textContent.trim();
+    const slug = document.getElementById('ed-slug').value.trim().toLowerCase();
+
+    if (!title || !slug) {
+      alert("Please enter Document Title and Page Slug ID.");
+      return;
+    }
+
+    const catSelect = document.getElementById('ed-category-domain');
+    document.getElementById('conf-title').textContent = title;
+    document.getElementById('conf-cat-domain').textContent = catSelect.options[catSelect.selectedIndex].text;
+    document.getElementById('conf-id').textContent = slug;
+    document.getElementById('conf-author').textContent = document.getElementById('ed-author').value;
+    document.getElementById('conf-sections-count').textContent = sectionsContainer.querySelectorAll('.sec-container-card').length;
+
+    modal.show();
+  }
+
+  document.getElementById('btn-trigger-publish').addEventListener('click', triggerPublishModal);
+  document.getElementById('btn-sidebar-publish').addEventListener('click', triggerPublishModal);
+
+  // SERIALIZATION & SAVE TO FIREBASE REALTIME DATABASE
+  document.getElementById('btn-confirm-final-publish').addEventListener('click', async () => {
+    const slug = document.getElementById('ed-slug').value.trim().toLowerCase();
+    const title = document.getElementById('ed-title').textContent.trim();
+    const subtitle = document.getElementById('ed-subtitle').textContent.trim();
+    const badge = document.getElementById('ed-badge').textContent.trim();
+    const docId = document.getElementById('ed-docid').textContent.trim();
+    const category = document.getElementById('ed-category-domain').value;
+    const author = document.getElementById('ed-author').value;
+    const verification = document.getElementById('ed-verification').value || 'Field Verified';
+
+    const related = [];
+    document.querySelectorAll('#ed-related-list .related-item').forEach(item => {
+      const relTitle = item.dataset.title || item.querySelector('span')?.textContent.replace('🔗 ', '');
+      const relUrl = item.dataset.url;
+      if (relTitle && relUrl) related.push({ title: relTitle, url: relUrl });
+    });
+
+    const authors = [];
+    document.querySelectorAll('#contributors-list .contributor-item').forEach(item => {
+      const name = item.dataset.name || item.querySelector('div div')?.textContent;
+      const role = item.querySelector('.subtle-text')?.textContent;
+      const photoURL = item.dataset.photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80';
+      if (name) authors.push({ name, role: role || 'Contributor', photoURL });
+    });
+
+    // Extract Sections & Nested Components
+    const sections = [];
+    sectionsContainer.querySelectorAll('.sec-container-card').forEach(secCard => {
+      const secTitle = secCard.querySelector('.sec-title-input')?.value.trim();
+      const layout = secCard.querySelector('.sec-layout-select')?.value || 'stack';
+      
+      const components = [];
+      secCard.querySelectorAll('.draggable-component').forEach(comp => {
+        const compType = comp.dataset.compType;
+        const textBody = comp.querySelector('.cmp-text-body')?.value;
+        const latexInput = comp.querySelector('.cmp-latex-input')?.value;
+        const codeBody = comp.querySelector('.cmp-code-body')?.value;
+        const codeFileName = comp.querySelector('.cmp-code-filename')?.textContent.trim();
+        const diagramBody = comp.querySelector('.cmp-diagram-body')?.value;
+        const imgUrl = comp.dataset.uploadedUrl || comp.querySelector('.cmp-img-preview')?.src;
+        const imgCaption = comp.querySelector('.cmp-img-caption')?.value;
+
+        if (compType === 'image' || (imgUrl && imgUrl.length > 5 && !textBody && !codeBody && !diagramBody && !latexInput)) {
+          if (imgUrl) components.push({ type: 'image', imgUrl, caption: imgCaption || '' });
+        } else if (compType === 'latex' || latexInput) {
+          components.push({ type: 'latex', formula: latexInput || '' });
+        } else if (compType === 'code' || codeBody) {
+          components.push({ type: 'code', filename: codeFileName || 'script.cpp', code: codeBody || '' });
+        } else if (compType === 'diagram' || diagramBody) {
+          components.push({ type: 'diagram', diagramText: diagramBody || '' });
+        } else if (compType === 'text' || textBody) {
+          components.push({ type: 'text', content: textBody || '' });
+        }
+      });
+
+      if (secTitle) {
+        sections.push({ title: secTitle, layout, components });
+      }
+    });
+
+    const projectData = {
+      id: slug,
+      title,
+      subtitle,
+      category,
+      badge,
+      docId,
+      sketchImg: coverImageURL,
+      p1: sections[0]?.components[0]?.content || subtitle,
+      p2: 'Published via Roketry Modular Drag-and-Drop Page Builder.',
+      verification,
+      related,
+      authors,
+      sections,
+      specs: [
+        ["Publication Target", "Firebase Realtime Sync", "asia-southeast1"],
+        ["Layout Model", "Notion-Style Hierarchical Grid", "Live Rendered"]
+      ]
+    };
+
+    if (window.authManager) {
+      await window.authManager.publishCustomProjectToRTDB(projectData);
+      modal.hide();
+      alert(`🎉 Project "${title}" Published Live!\n\nView Page: project-detail.html?id=${slug}`);
+      window.location.href = `project-detail.html?id=${slug}`;
+    }
+  });
+
+  // CATALOG MANAGER RENDERING
+  async function renderAdminCatalog() {
+    const grid = document.getElementById('admin-catalog-grid');
+    if (!grid) return;
+
+    let customProjects = [];
+    if (window.authManager) {
+      customProjects = await window.authManager.fetchAllCustomProjectsFromRTDB();
+    }
+
+    const allProjects = customProjects.map(cp => ({
+      id: cp.id,
+      title: cp.title,
+      category: cp.category || 'fleet',
+      badge: cp.badge || 'ROCKET FLEET',
+      img: cp.sketchImg || 'sketch_srm.png'
+    }));
+
+    grid.innerHTML = allProjects.map(p => `
+      <div class="project-card style-box">
+        <div class="card-sketch-wrap">
+          <img src="${p.img}" alt="${p.title}">
+        </div>
+        <span class="profile-role-badge mt-2" style="background: rgba(59, 130, 246, 0.15); color: #3b82f6;">${p.badge}</span>
+        <h4 style="font-size: 1.1rem; font-weight: 700; margin: 0.5rem 0;">${p.title}</h4>
+        <div class="d-flex gap-2 mt-3">
+          <a href="project-detail.html?id=${p.id}" class="repo-action-btn primary-btn" style="font-size: 0.75rem; flex: 1;">View Page</a>
+          <button type="button" class="repo-action-btn btn-edit-proj" data-id="${p.id}" style="font-size: 0.75rem;">✏️ Edit</button>
+        </div>
+      </div>
+    `).join('');
+
+    grid.querySelectorAll('.btn-edit-proj').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-id');
+        editProject(id);
+      });
+    });
+  }
+
+  // EDIT EXISTING PROJECT IN MODULAR BUILDER
+  async function editProject(projId) {
+    if (!window.authManager) return;
+    const projData = await window.authManager.fetchCustomProjectFromRTDB(projId);
+    if (!projData) {
+      alert("Project details not found in database.");
+      return;
+    }
+
+    isEditingExisting = true;
+
+    // Populate Header
+    document.getElementById('ed-slug').value = projData.id || projId;
+    document.getElementById('ed-title').textContent = projData.title || '';
+    document.getElementById('ed-subtitle').textContent = projData.subtitle || '';
+    document.getElementById('ed-badge').textContent = projData.badge || 'PROJECT';
+    document.getElementById('ed-docid').textContent = projData.docId || 'DOC-01';
+    document.getElementById('ed-category-domain').value = projData.category || 'fleet';
+    if (projData.sketchImg) {
+      document.getElementById('ed-sketch-img').src = projData.sketchImg;
+      coverImageURL = projData.sketchImg;
+    }
+
+    // Populate Authors
+    if (projData.authors && projData.authors.length > 0) {
+      document.getElementById('ed-author').value = projData.authors[0]?.name || '';
+      const contribList = document.getElementById('contributors-list');
+      contribList.innerHTML = '';
+      projData.authors.slice(1).forEach(a => {
+        const item = document.createElement('div');
+        item.className = 'contributor-item position-relative';
+        item.dataset.name = a.name;
+        item.dataset.photo = a.photoURL || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80';
+        item.innerHTML = `
+          <img src="${item.dataset.photo}" class="avatar-circle" style="object-fit: cover;" alt="${a.name}">
+          <div>
+            <div style="font-size: 0.85rem; font-weight: 700;">${a.name}</div>
+            <span class="subtle-text">${a.role || 'Contributor'}</span>
+          </div>
+          <button type="button" class="btn-close btn-sm position-absolute top-0 end-0 m-1 btn-del-member" aria-label="Remove"></button>
+        `;
+        item.querySelector('.btn-del-member').addEventListener('click', () => item.remove());
+        contribList.appendChild(item);
+      });
+    }
+
+    // Populate Verification & Related Systems
+    document.getElementById('ed-verification').value = projData.verification || 'Field Verified';
+    const relContainer = document.getElementById('ed-related-list');
+    if (relContainer) {
+      relContainer.innerHTML = '';
+      if (projData.related && projData.related.length > 0) {
+        projData.related.forEach(r => {
+          const item = document.createElement('div');
+          item.className = 'related-item d-flex justify-content-between align-items-center mb-1 p-1 style-box';
+          item.style.fontSize = '0.8rem';
+          item.dataset.title = r.title;
+          item.dataset.url = r.url;
+          item.innerHTML = `
+            <span>🔗 ${r.title}</span>
+            <button type="button" class="btn-close btn-sm btn-del-rel" aria-label="Remove"></button>
+          `;
+          item.querySelector('.btn-del-rel').addEventListener('click', () => item.remove());
+          relContainer.appendChild(item);
+        });
+      }
+    }
+
+    // Populate Sections & Components
+    sectionsContainer.innerHTML = '';
+    sectionCounter = 0;
+
+    if (projData.sections && projData.sections.length > 0) {
+      projData.sections.forEach(sec => {
+        const card = addTopLevelSection(sec.title);
+        const layoutSelect = card.querySelector('.sec-layout-select');
+        if (sec.layout === 'grid-2col') {
+          layoutSelect.value = 'grid-2col';
+          card.querySelector('.section-components-grid').classList.add('grid-2col');
+        }
+
+        const compGrid = card.querySelector('.section-components-grid');
+        if (sec.components && sec.components.length > 0) {
+          sec.components.forEach(comp => {
+            addComponentBlock(compGrid, comp.type);
+            const lastComp = compGrid.lastChild;
+
+            if (comp.type === 'text' && lastComp.querySelector('.cmp-text-body')) {
+              lastComp.querySelector('.cmp-text-body').value = comp.content || '';
+            } else if (comp.type === 'image' && comp.imgUrl) {
+              const preview = lastComp.querySelector('.cmp-img-preview');
+              if (preview) {
+                preview.src = comp.imgUrl;
+                preview.classList.remove('d-none');
+              }
+              lastComp.dataset.uploadedUrl = comp.imgUrl;
+              if (lastComp.querySelector('.cmp-img-caption')) {
+                lastComp.querySelector('.cmp-img-caption').value = comp.caption || '';
+              }
+            } else if (comp.type === 'latex' && comp.formula) {
+              const latexInput = lastComp.querySelector('.cmp-latex-input');
+              if (latexInput) {
+                latexInput.value = comp.formula;
+                const renderSpan = lastComp.querySelector('.cmp-latex-render');
+                if (renderSpan) renderSpan.innerHTML = `\\( ${comp.formula} \\)`;
+              }
+            } else if (comp.type === 'code' && comp.code) {
+              if (lastComp.querySelector('.cmp-code-body')) {
+                lastComp.querySelector('.cmp-code-body').value = comp.code;
+              }
+              if (lastComp.querySelector('.cmp-code-filename')) {
+                lastComp.querySelector('.cmp-code-filename').textContent = comp.filename || 'script.cpp';
+              }
+            } else if (comp.type === 'diagram' && comp.diagramText) {
+              if (lastComp.querySelector('.cmp-diagram-body')) {
+                lastComp.querySelector('.cmp-diagram-body').value = comp.diagramText;
+              }
+            }
+          });
+        }
+      });
+    }
+
+    switchTab('editor');
+  }
+
+});
+</script>
+
+</body>
+</html>
