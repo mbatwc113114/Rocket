@@ -37,6 +37,33 @@
   --transition-normal: 0.25s ease;
 }
 
+/* ================= CENTERED CONTAINER UTILITY ================= */
+.container-centered {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#admin-workspace {
+  padding-top: calc(var(--nav-height) + 8px);
+}
+
+.graph-cmp-builder, .graph-cmp-public {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.graph-cmp-builder canvas, .graph-cmp-public canvas {
+  margin: 0 auto;
+  display: block;
+}
+
 /* ================= DARK MODE OVERRIDES FROM LOGS ================= */
 [data-theme="dark"] {
   --bg-white: #0b0f19;

@@ -563,56 +563,242 @@ document.addEventListener('DOMContentLoaded', () => {
                         <pre class="code-block"><code>${b.diagramText}</code></pre>
                       </div>
                     `;
+                  } else if (b.type === 'graph') {
+                    const graphId = `chart_pub_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+                    setTimeout(() => {
+                      const canvas = document.getElementById(graphId);
+                      if (!canvas || !window.Chart) return;
+                      const isArea = b.chartType === 'area';
+                      const realType = isArea ? 'line' : (b.chartType || 'line');
+
+                      let rawDs = b.datasets;
+                      if (!rawDs || !Array.isArray(rawDs) || rawDs.length === 0) {
+                        rawDs = [{ label: b.legendTitle || 'Dataset', data: b.values || [0, 3.2, 8.5, 10.2, 10.4, 9.8, 4.1, 0], color: b.lineColor || '#10b981' }];
+                      }
+
+                      const chartDatasets = rawDs.map(ds => {
+                        const color = ds.color || '#10b981';
+                        return {
+                          label: ds.label || 'Dataset',
+                          data: ds.data || [],
+                          borderColor: color,
+                          backgroundColor: isArea ? `${color}33` : (realType === 'bar' ? `${color}aa` : 'transparent'),
+                          fill: isArea,
+                          borderWidth: 2.5,
+                          tension: 0.35,
+                          pointBackgroundColor: color,
+                          pointRadius: 4
+                        };
+                      });
+
+                      new window.Chart(canvas.getContext('2d'), {
+                        type: realType,
+                        data: {
+                          labels: b.labels || [0, 1, 2, 3, 4, 5, 6, 7],
+                          datasets: chartDatasets
+                        },
+                        options: {
+                          responsive: true,
+                          maintainAspectRatio: false,
+                          plugins: {
+                            legend: { labels: { color: '#e2e8f0', font: { family: 'Space Mono', size: 12 } } }
+                          },
+                          scales: {
+                            x: {
+                              title: { display: !!b.xLabel, text: b.xLabel, color: '#94a3b8', font: { family: 'Space Mono' } },
+                              grid: { color: 'rgba(255, 255, 255, 0.08)' },
+                              ticks: { color: '#94a3b8' }
+                            },
+                            y: {
+                              title: { display: !!b.yLabel, text: b.yLabel, color: '#94a3b8', font: { family: 'Space Mono' } },
+                              grid: { color: 'rgba(255, 255, 255, 0.08)' },
+                              ticks: { color: '#94a3b8' }
+                            }
+                          }
+                        }
+                      });
+                    }, 150);
+
+                    return `
+                      <div class="p-3 style-box mb-3 w-100" style="background: var(--bg-card); border-radius: 12px;">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                          <span class="mono-text fw-bold text-success" style="font-size: 0.85rem;">📊 ${b.legendTitle || 'Interactive Multi-Series Data Chart'}</span>
+                          <span class="subtle-text mono-text" style="font-size: 0.75rem;">Multi-Column Plot</span>
+                        </div>
+                        <div style="position: relative; height: 320px; width: 100%;">
+                          <canvas id="${graphId}"></canvas>
+                        </div>
+                      </div>
+                    `;
                   } else if (b.type === 'roadmap') {
-                    const rData = b.roadmapData || { title: 'Architecture Roadmap', branches: [] };
+                    const rData = b.roadmapData || { title: 'System Architecture Roadmap', branches: [] };
+                    const mapId = `roadmap_pub_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+
+                    setTimeout(() => {
+                      const wrap = document.getElementById(mapId);
+                      if (!wrap) return;
+                      const svg = wrap.querySelector('.roadmap-cmp-svg');
+                      const rootNode = wrap.querySelector('.mindmap-root-node');
+                      if (!svg || !rootNode) return;
+
+                      function renderConnectorLines() {
+                        svg.innerHTML = `
+                          <defs>
+                            <marker id="cmp-pub-arrow-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                              <path d="M 0 0 L 10 5 L 0 10 z" fill="#3b82f6"/>
+                            </marker>
+                            <marker id="cmp-pub-arrow-green" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                              <path d="M 0 0 L 10 5 L 0 10 z" fill="#10b981"/>
+                            </marker>
+                            <marker id="cmp-pub-arrow-orange" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                              <path d="M 0 0 L 10 5 L 0 10 z" fill="#f59e0b"/>
+                            </marker>
+                            <marker id="cmp-pub-arrow-purple" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                              <path d="M 0 0 L 10 5 L 0 10 z" fill="#8b5cf6"/>
+                            </marker>
+                          </defs>
+                        `;
+
+                        const rx = rootNode.offsetLeft + rootNode.offsetWidth / 2;
+                        const ry = rootNode.offsetTop + rootNode.offsetHeight;
+
+                        const getBoxSnapPoint = (fromPt, boxEl) => {
+                          const bX = boxEl.offsetLeft;
+                          const bY = boxEl.offsetTop;
+                          const bW = boxEl.offsetWidth;
+                          const bH = boxEl.offsetHeight;
+
+                          const sides = [
+                            { side: 'top', x: bX + bW / 2, y: bY, cX: bX + bW / 2, cY: bY - 40 },
+                            { side: 'bottom', x: bX + bW / 2, y: bY + bH, cX: bX + bW / 2, cY: bY + bH + 40 },
+                            { side: 'left', x: bX, y: bY + bH / 2, cX: bX - 40, cY: bY + bH / 2 },
+                            { side: 'right', x: bX + bW, y: bY + bH / 2, cX: bX + bW + 40, cY: bY + bH / 2 }
+                          ];
+
+                          let minDst = Infinity;
+                          let bestSide = sides[0];
+                          sides.forEach(s => {
+                            const dst = Math.hypot(fromPt.x - s.x, fromPt.y - s.y);
+                            if (dst < minDst) {
+                              minDst = dst;
+                              bestSide = s;
+                            }
+                          });
+                          return bestSide;
+                        };
+
+                        wrap.querySelectorAll('.mindmap-main-branch-box').forEach(box => {
+                          const color = box.getAttribute('data-color') || '#3b82f6';
+                          const endSnap = getBoxSnapPoint({ x: rx, y: ry }, box);
+                          const bx = endSnap.x, by = endSnap.y;
+
+                          let markerId = 'cmp-pub-arrow-blue';
+                          if (color.includes('10b981') || color.includes('green')) markerId = 'cmp-pub-arrow-green';
+                          else if (color.includes('f59e0b') || color.includes('orange')) markerId = 'cmp-pub-arrow-orange';
+                          else if (color.includes('8b5cf6') || color.includes('purple')) markerId = 'cmp-pub-arrow-purple';
+
+                          const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                          const cX1 = rx, cY1 = ry + 45;
+                          const cX2 = endSnap.cX, cY2 = endSnap.cY;
+                          const d = `M ${rx},${ry} C ${cX1},${cY1} ${cX2},${cY2} ${bx},${by}`;
+                          path.setAttribute('d', d);
+                          path.setAttribute('stroke', color);
+                          path.setAttribute('stroke-width', '3');
+                          path.setAttribute('fill', 'none');
+                          path.setAttribute('stroke-linecap', 'round');
+                          path.setAttribute('marker-end', `url(#${markerId})`);
+                          svg.appendChild(path);
+
+                          // Subnodes Lines
+                          const parentId = box.getAttribute('data-id');
+                          if (parentId) {
+                            wrap.querySelectorAll(`.mindmap-subnode-wrapper[data-parentid="${parentId}"]`).forEach(subBox => {
+                              const sbX = subBox.offsetLeft + subBox.offsetWidth / 2;
+                              const sbY = subBox.offsetTop;
+                              const pBx = box.offsetLeft + box.offsetWidth / 2;
+                              const pBy = box.offsetTop + box.offsetHeight;
+
+                              const subPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                              const sd = `M ${pBx},${pBy} C ${pBx},${pBy + 25} ${sbX},${sbY - 25} ${sbX},${sbY}`;
+                              subPath.setAttribute('d', sd);
+                              subPath.setAttribute('stroke', color);
+                              subPath.setAttribute('stroke-width', '2');
+                              subPath.setAttribute('stroke-dasharray', '4 3');
+                              subPath.setAttribute('fill', 'none');
+                              subPath.setAttribute('marker-end', `url(#${markerId})`);
+                              svg.appendChild(subPath);
+                            });
+                          }
+                        });
+                      }
+
+                      setTimeout(renderConnectorLines, 100);
+                      window.addEventListener('resize', renderConnectorLines);
+                    }, 150);
+
+                    const rootX = rData.rootX !== undefined ? rData.rootX : 340;
+                    const rootY = rData.rootY !== undefined ? rData.rootY : 20;
+
+                    const branchesHTML = (rData.branches || []).map((br, idx) => {
+                      const color = br.color || '#3b82f6';
+                      const isLink = br.type === 'link' || !!br.slug;
+                      const linkUrl = br.slug ? window.resolvePageURL(`project-detail.html?id=${br.slug}`) : '#';
+                      const defaultX = (idx % 2 === 0 ? 120 : 520);
+                      const defaultY = 130 + Math.floor(idx / 2) * 140;
+                      const bx = br.x !== undefined ? br.x : defaultX;
+                      const by = br.y !== undefined ? br.y : defaultY;
+                      const brId = br.id || `br_${idx}`;
+
+                      const subsHTML = (br.subnodes || []).map((s, sIdx) => {
+                        const sx = s.x !== undefined ? s.x : (bx + 20);
+                        const sy = s.y !== undefined ? s.y : (by + 110 + sIdx * 45);
+                        return `
+                          <div class="mindmap-subnode-wrapper d-flex align-items-center gap-1 p-2 style-box" data-subid="${s.id || sIdx}" data-parentid="${brId}" style="position: absolute; left: ${sx}px; top: ${sy}px; z-index: 4; background: var(--bg-card); border-radius: 14px; border: 1px solid ${color}; font-size: 0.76rem; font-weight: 700; min-width: 150px;">
+                            <span>🚀</span> ${s.title}
+                          </div>
+                        `;
+                      }).join('');
+
+                      let boxBodyHTML = '';
+                      if (isLink) {
+                        boxBodyHTML = `
+                          <div class="mindmap-main-branch-box style-box p-3" data-id="${brId}" data-color="${color}" style="position: absolute; left: ${bx}px; top: ${by}px; z-index: 5; width: 260px; background: var(--bg-card); border: 2px solid ${color}; border-radius: 12px; cursor: pointer;" ondblclick="window.location.href='${linkUrl}'">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                              <span class="badge" style="background: ${color}; color: #fff; font-size: 0.65rem;">${br.tag || 'LINKED PROJECT'}</span>
+                            </div>
+                            <h4 style="font-size: 0.95rem; font-weight: 800; margin: 0.2rem 0;"><a href="${linkUrl}" class="text-decoration-none text-reset">🚀 ${br.title}</a></h4>
+                            <a href="${linkUrl}" class="repo-action-btn primary-btn mt-2 d-inline-block" style="font-size: 0.72rem; padding: 0.25rem 0.6rem;">Explore Project →</a>
+                          </div>
+                          ${subsHTML}
+                        `;
+                      } else {
+                        boxBodyHTML = `
+                          <div class="mindmap-main-branch-box style-box p-3" data-id="${brId}" data-color="${color}" style="position: absolute; left: ${bx}px; top: ${by}px; z-index: 5; width: 260px; background: var(--bg-card); border: 2px solid ${color}; border-radius: 12px;">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                              <span class="badge" style="background: ${color}; color: #fff; font-size: 0.65rem;">${br.tag || 'TEXT FIELD'}</span>
+                            </div>
+                            <h4 style="font-size: 0.95rem; font-weight: 800; margin: 0.2rem 0; color: var(--text-dark);">📝 ${br.title}</h4>
+                          </div>
+                          ${subsHTML}
+                        `;
+                      }
+                      return boxBodyHTML;
+                    }).join('');
+
                     return `
                       <div class="p-3 style-box mb-3 w-100" style="background: var(--bg-card); border-radius: 12px;">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                           <span class="mono-text fw-bold text-primary" style="font-size: 0.85rem;">🗺️ ${rData.title || 'System Architecture Roadmap'}</span>
-                          <span class="subtle-text mono-text" style="font-size: 0.75rem;">Interactive Mindmap Component</span>
+                          <span class="subtle-text mono-text" style="font-size: 0.75rem;">Interactive System Map (Double-click link to open)</span>
                         </div>
-                        <div class="mindmap-viewport style-box position-relative overflow-auto" style="min-height: 380px; background: var(--bg-tree-bg); border-radius: 8px;">
-                          <div class="mindmap-canvas-inner position-relative" style="width: 950px; min-height: 420px;">
-                            <div class="d-flex flex-column align-items-center" style="position: relative; z-index: 2; width: 100%; height: 100%;">
-                              <div class="mindmap-root-node mt-2 mb-4" style="font-size: 1.1rem; padding: 0.5rem 1.8rem;">
-                                ${rData.title || 'Development Tree'}
-                              </div>
-                              <div class="d-flex flex-wrap justify-content-center gap-3 w-100 mt-2">
-                                ${(rData.branches || []).map(br => {
-                                  const color = br.color || '#3b82f6';
-                                  const isLink = br.type === 'link' || !!br.slug;
-                                  const linkUrl = br.slug ? window.resolvePageURL(`project-detail.html?id=${br.slug}`) : '#';
-                                  
-                                  const subsHTML = (br.subnodes || []).map(s => `
-                                    <div class="mindmap-subnode-wrapper d-flex align-items-center gap-1 p-1 mt-2 style-box" style="background: var(--bg-card); border-radius: 14px; border: 1px solid ${color}; font-size: 0.76rem; font-weight: 700;">
-                                      <span>🚀</span> ${s.title}
-                                    </div>
-                                  `).join('');
-
-                                  if (isLink) {
-                                    return `
-                                      <div class="mindmap-main-branch-box" data-color="${color}" style="position: relative; width: auto; min-width: 190px;">
-                                        <div class="d-flex justify-content-between align-items-center mb-1">
-                                          <span class="badge" style="background: ${color}; color: #fff; font-size: 0.65rem;">${br.tag || 'LINKED PROJECT'}</span>
-                                        </div>
-                                        <h4 style="font-size: 0.95rem; font-weight: 800; margin: 0.2rem 0;"><a href="${linkUrl}" class="text-decoration-none text-reset">🚀 ${br.title}</a></h4>
-                                        <a href="${linkUrl}" class="repo-action-btn primary-btn mt-2 d-inline-block" style="font-size: 0.72rem; padding: 0.25rem 0.6rem;">Explore Project →</a>
-                                        ${subsHTML}
-                                      </div>
-                                    `;
-                                  } else {
-                                    return `
-                                      <div class="mindmap-main-branch-box" data-color="${color}" style="position: relative; width: auto; min-width: 190px; background: var(--bg-card); border-color: ${color};">
-                                        <div class="d-flex justify-content-between align-items-center mb-1">
-                                          <span class="badge" style="background: ${color}; color: #fff; font-size: 0.65rem;">${br.tag || 'TEXT FIELD'}</span>
-                                        </div>
-                                        <h4 style="font-size: 0.95rem; font-weight: 800; margin: 0.2rem 0; color: var(--text-dark);">📝 ${br.title}</h4>
-                                        ${subsHTML}
-                                      </div>
-                                    `;
-                                  }
-                                }).join('')}
-                              </div>
+                        <div id="${mapId}" class="mindmap-viewport style-box position-relative overflow-auto" style="min-height: 440px; background: var(--bg-tree-bg); border-radius: 8px;">
+                          <div class="mindmap-canvas-inner position-relative" style="width: 950px; min-height: 480px;">
+                            <svg class="roadmap-cmp-svg position-absolute top-0 start-0 w-100 h-100" style="pointer-events: none; z-index: 1;"></svg>
+                            <div class="mindmap-root-node style-box p-2 px-4 text-center fw-bold" style="position: absolute; left: ${rootX}px; top: ${rootY}px; font-size: 1.1rem; background: var(--bg-card); border: 2px solid var(--primary-color); border-radius: 12px; z-index: 6;">
+                              ${rData.title || 'Development Tree'}
+                            </div>
+                            <div class="roadmap-cmp-branches-list" style="position: relative; width: 100%; height: 100%;">
+                              ${branchesHTML}
                             </div>
                           </div>
                         </div>

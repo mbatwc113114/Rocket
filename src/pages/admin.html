@@ -17,6 +17,10 @@
 
   <!-- MathJax for LaTeX Render -->
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+
+  <!-- Chart.js & SheetJS for Interactive Graphs -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body class="standalone-page">
 
@@ -802,6 +806,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <button type="button" class="repo-action-btn btn-add-cmp-code" style="font-size: 0.75rem;">💻 Code Script</button>
           <button type="button" class="repo-action-btn btn-add-cmp-diagram" style="font-size: 0.75rem;">📐 ASCII Flow</button>
           <button type="button" class="repo-action-btn btn-add-cmp-specs" style="font-size: 0.75rem;">📊 Specs Table</button>
+          <button type="button" class="repo-action-btn btn-add-cmp-graph" style="font-size: 0.75rem; background: rgba(16, 185, 129, 0.15); color: #34d399 !important; border: 1px solid rgba(16, 185, 129, 0.35);">📈 Graph & Chart</button>
           <button type="button" class="repo-action-btn btn-add-cmp-roadmap" style="font-size: 0.75rem; background: rgba(59, 130, 246, 0.15); color: #60a5fa !important; border: 1px solid rgba(59, 130, 246, 0.35);">🗺️ Mindmap Roadmap</button>
         </div>
       </div>
@@ -834,6 +839,7 @@ document.addEventListener('DOMContentLoaded', () => {
     card.querySelector('.btn-add-cmp-code').addEventListener('click', () => addComponentBlock(compGrid, 'code'));
     card.querySelector('.btn-add-cmp-diagram').addEventListener('click', () => addComponentBlock(compGrid, 'diagram'));
     card.querySelector('.btn-add-cmp-specs').addEventListener('click', () => addComponentBlock(compGrid, 'specs'));
+    card.querySelector('.btn-add-cmp-graph').addEventListener('click', () => addComponentBlock(compGrid, 'graph'));
     card.querySelector('.btn-add-cmp-roadmap').addEventListener('click', () => addComponentBlock(compGrid, 'roadmap'));
 
     sectionsContainer.appendChild(card);
@@ -907,6 +913,67 @@ void setup() { Serial.begin(115200); }</textarea>
             <tr><td contenteditable="true">Thrust</td><td contenteditable="true">1250 N</td><td contenteditable="true">Peak value</td></tr>
           </tbody>
         </table>
+      `;
+    } else if (type === 'graph') {
+      const defaultGraphData = compCard._graphData || {
+        legendTitle: "Static Test Multi-Series Profile",
+        xLabel: "Time (seconds)",
+        yLabel: "Thrust & Pressure (kN / bar)",
+        chartType: "line",
+        labels: [0, 1, 2, 3, 4, 5, 6, 7],
+        datasets: [
+          { label: "Thrust 1 (kN)", data: [0, 3.2, 8.5, 10.2, 10.4, 9.8, 4.1, 0], color: "#10b981" },
+          { label: "Thrust 2 (kN)", data: [0, 2.8, 7.9, 9.8, 10.1, 9.4, 3.8, 0], color: "#3b82f6" },
+          { label: "Chamber Press (bar)", data: [0, 1.2, 3.5, 4.5, 4.6, 4.2, 1.8, 0], color: "#f59e0b" }
+        ]
+      };
+      compCard._graphData = defaultGraphData;
+
+      innerHTML += `
+        <div class="graph-cmp-builder style-box p-3" style="background: var(--bg-tree-bg); border-radius: 8px;">
+          <div class="row g-2 mb-3">
+            <div class="col-md-7">
+              <label class="form-label-mono mb-1" style="font-size: 0.72rem;">📁 Upload Multi-Column CSV or Excel (.xlsx / .csv)</label>
+              <input type="file" accept=".csv,.xlsx,.xls" class="cmp-graph-file form-control form-control-sm mono-text">
+            </div>
+            <div class="col-md-5">
+              <label class="form-label-mono mb-1" style="font-size: 0.72rem;">📈 Chart Display Mode</label>
+              <select class="form-select form-select-sm cmp-graph-type mono-text">
+                <option value="line" ${defaultGraphData.chartType === 'line' ? 'selected' : ''}>📈 Multi-Line Chart</option>
+                <option value="bar" ${defaultGraphData.chartType === 'bar' ? 'selected' : ''}>📊 Multi-Bar Chart</option>
+                <option value="area" ${defaultGraphData.chartType === 'area' ? 'selected' : ''}>🌊 Multi-Area Chart</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row g-2 mb-3">
+            <div class="col-md-4">
+              <label class="form-label-mono mb-1" style="font-size: 0.72rem;">🏷️ Main Chart Title</label>
+              <input type="text" class="form-control form-control-sm cmp-graph-legend mono-text" value="${defaultGraphData.legendTitle || ''}" placeholder="e.g. Multi-Series Flight Telemetry">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label-mono mb-1" style="font-size: 0.72rem;">📐 X-Axis Label (Col 1)</label>
+              <input type="text" class="form-control form-control-sm cmp-graph-xlabel mono-text" value="${defaultGraphData.xLabel || ''}" placeholder="e.g. Time (s)">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label-mono mb-1" style="font-size: 0.72rem;">📐 Y-Axis Label (Cols 2+)</label>
+              <input type="text" class="form-control form-control-sm cmp-graph-ylabel mono-text" value="${defaultGraphData.yLabel || ''}" placeholder="e.g. Values">
+            </div>
+          </div>
+
+          <!-- MULTI-SERIES LEGENDS & COLOR PALETTE CONTROL PANEL -->
+          <div class="mb-3 p-2 style-box" style="background: rgba(0,0,0,0.15); border-radius: 6px;">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="mono-text fw-bold text-success" style="font-size: 0.75rem;">🎨 Datasets & Series Colors (Double-Click Legend/Color to Edit)</span>
+              <button type="button" class="repo-action-btn btn-add-series p-0 px-2" style="font-size: 0.7rem;">➕ Add Series</button>
+            </div>
+            <div class="cmp-graph-series-list d-flex flex-column gap-1"></div>
+          </div>
+
+          <div class="position-relative style-box p-2 d-flex justify-content-center align-items-center" style="background: var(--bg-card); border-radius: 8px; min-height: 290px; width: 100%;">
+            <canvas class="cmp-graph-canvas" style="width: 100% !important; max-height: 330px; margin: 0 auto; display: block;"></canvas>
+          </div>
+        </div>
       `;
     } else if (type === 'roadmap') {
       const defaultData = compCard._roadmapData || {
@@ -1530,6 +1597,250 @@ void setup() { Serial.begin(115200); }</textarea>
       setTimeout(initCmpRoadmap, 60);
     }
 
+    // Graph & Chart Component Interactive Engine (Multi-Column CSV/Excel Upload, Multi-Series Legends & Color Controls)
+    if (type === 'graph') {
+      const initCmpGraph = () => {
+        const canvas = compCard.querySelector('.cmp-graph-canvas');
+        const fileInput = compCard.querySelector('.cmp-graph-file');
+        const typeSelect = compCard.querySelector('.cmp-graph-type');
+        const legendInput = compCard.querySelector('.cmp-graph-legend');
+        const xInput = compCard.querySelector('.cmp-graph-xlabel');
+        const yInput = compCard.querySelector('.cmp-graph-ylabel');
+        const btnAddSeries = compCard.querySelector('.btn-add-series');
+        const seriesListContainer = compCard.querySelector('.cmp-graph-series-list');
+
+        const paletteColors = ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#ef4444', '#eab308'];
+
+        // Render Series Controls (Legends & Color Palette Swatches)
+        const renderSeriesControls = () => {
+          if (!seriesListContainer) return;
+          const datasets = compCard._graphData.datasets || [];
+
+          seriesListContainer.innerHTML = datasets.map((ds, idx) => `
+            <div class="d-flex align-items-center gap-2 style-box p-1 px-2" style="background: var(--bg-card); border-radius: 6px;" data-idx="${idx}">
+              <input type="color" class="form-control form-control-sm form-control-color cmp-series-color" value="${ds.color || '#10b981'}" title="Click or Double-click to pick line color">
+              <input type="text" class="form-control form-control-sm cmp-series-label mono-text" value="${ds.label || 'Series ' + (idx + 1)}" placeholder="Legend Name" title="Double-click or edit legend name inline" style="font-size: 0.76rem;">
+              <button type="button" class="btn-del-icon btn-del-series border-0 bg-transparent p-0 ms-auto" data-idx="${idx}" title="Remove Series"><span class="trash-icon" style="font-size: 0.75rem;">🗑️</span></button>
+            </div>
+          `).join('');
+
+          seriesListContainer.querySelectorAll('.cmp-series-color').forEach((inp, idx) => {
+            inp.addEventListener('input', () => {
+              if (compCard._graphData.datasets[idx]) {
+                compCard._graphData.datasets[idx].color = inp.value;
+                renderChart();
+              }
+            });
+          });
+
+          seriesListContainer.querySelectorAll('.cmp-series-label').forEach((inp, idx) => {
+            inp.addEventListener('input', () => {
+              if (compCard._graphData.datasets[idx]) {
+                compCard._graphData.datasets[idx].label = inp.value.trim();
+                renderChart();
+              }
+            });
+          });
+
+          seriesListContainer.querySelectorAll('.btn-del-series').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const idx = parseInt(btn.getAttribute('data-idx'));
+              if (!isNaN(idx) && compCard._graphData.datasets && compCard._graphData.datasets.length > 1) {
+                compCard._graphData.datasets.splice(idx, 1);
+                renderSeriesControls();
+                renderChart();
+              }
+            });
+          });
+        };
+
+        const renderChart = () => {
+          if (!canvas || !window.Chart) return;
+          const gData = compCard._graphData || {
+            legendTitle: "Static Test Multi-Series Profile",
+            xLabel: "Time (seconds)",
+            yLabel: "Values",
+            chartType: "line",
+            labels: [0, 1, 2, 3, 4, 5, 6, 7],
+            datasets: [
+              { label: "Thrust 1 (kN)", data: [0, 3.2, 8.5, 10.2, 10.4, 9.8, 4.1, 0], color: "#10b981" },
+              { label: "Thrust 2 (kN)", data: [0, 2.8, 7.9, 9.8, 10.1, 9.4, 3.8, 0], color: "#3b82f6" },
+              { label: "Chamber Press (bar)", data: [0, 1.2, 3.5, 4.5, 4.6, 4.2, 1.8, 0], color: "#f59e0b" }
+            ]
+          };
+
+          if (compCard._chartInstance) {
+            compCard._chartInstance.destroy();
+          }
+
+          const isArea = gData.chartType === 'area';
+          const realType = isArea ? 'line' : (gData.chartType || 'line');
+
+          const chartDatasets = (gData.datasets || []).map(ds => {
+            const color = ds.color || '#10b981';
+            return {
+              label: ds.label || 'Dataset',
+              data: ds.data || [],
+              borderColor: color,
+              backgroundColor: isArea ? `${color}33` : (realType === 'bar' ? `${color}aa` : 'transparent'),
+              fill: isArea,
+              borderWidth: 2.5,
+              tension: 0.35,
+              pointBackgroundColor: color,
+              pointRadius: 4
+            };
+          });
+
+          const ctx = canvas.getContext('2d');
+          compCard._chartInstance = new window.Chart(ctx, {
+            type: realType,
+            data: {
+              labels: gData.labels || [0, 1, 2, 3, 4, 5, 6, 7],
+              datasets: chartDatasets
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { labels: { color: '#e2e8f0', font: { family: 'Space Mono', size: 11 } } }
+              },
+              scales: {
+                x: {
+                  title: { display: !!gData.xLabel, text: gData.xLabel, color: '#94a3b8', font: { family: 'Space Mono' } },
+                  grid: { color: 'rgba(255, 255, 255, 0.08)' },
+                  ticks: { color: '#94a3b8' }
+                },
+                y: {
+                  title: { display: !!gData.yLabel, text: gData.yLabel, color: '#94a3b8', font: { family: 'Space Mono' } },
+                  grid: { color: 'rgba(255, 255, 255, 0.08)' },
+                  ticks: { color: '#94a3b8' }
+                }
+              }
+            }
+          });
+        };
+
+        const updateGraphMeta = () => {
+          if (!compCard._graphData) compCard._graphData = {};
+          compCard._graphData.legendTitle = legendInput.value.trim();
+          compCard._graphData.xLabel = xInput.value.trim();
+          compCard._graphData.yLabel = yInput.value.trim();
+          compCard._graphData.chartType = typeSelect.value;
+          renderChart();
+        };
+
+        [typeSelect, legendInput, xInput, yInput].forEach(inp => {
+          if (inp) inp.addEventListener('input', updateGraphMeta);
+        });
+
+        if (btnAddSeries) {
+          btnAddSeries.addEventListener('click', () => {
+            if (!compCard._graphData.datasets) compCard._graphData.datasets = [];
+            const idx = compCard._graphData.datasets.length;
+            const refLen = (compCard._graphData.labels || []).length || 8;
+            const dummyData = Array.from({ length: refLen }, (_, i) => Math.round(Math.random() * 10 + i));
+            compCard._graphData.datasets.push({
+              label: `Series ${idx + 1}`,
+              data: dummyData,
+              color: paletteColors[idx % paletteColors.length]
+            });
+            renderSeriesControls();
+            renderChart();
+          });
+        }
+
+        // Multi-Column CSV & Excel File Upload Parser
+        if (fileInput) {
+          fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const isExcel = file.name.endsWith('.xlsx') || file.name.endsWith('.xls');
+            const reader = new FileReader();
+
+            const processRows = (rows) => {
+              if (!rows || rows.length < 2) return;
+              const header = rows[0];
+              const numCols = header.length;
+              if (numCols < 2) return;
+
+              const xLbl = header[0] ? String(header[0]).trim() : 'Time (s)';
+              const labels = [];
+              const datasets = [];
+
+              for (let c = 1; c < numCols; c++) {
+                const colName = header[c] ? String(header[c]).trim() : `Series ${c}`;
+                datasets.push({
+                  label: colName,
+                  data: [],
+                  color: paletteColors[(c - 1) % paletteColors.length]
+                });
+              }
+
+              for (let i = 1; i < rows.length; i++) {
+                const r = rows[i];
+                if (!r || r.length < 2) continue;
+                const xVal = r[0];
+                if (xVal !== undefined && xVal !== '') {
+                  labels.push(xVal);
+                  for (let c = 1; c < numCols; c++) {
+                    const val = parseFloat(r[c]);
+                    datasets[c - 1].data.push(isNaN(val) ? 0 : val);
+                  }
+                }
+              }
+
+              if (labels.length > 0 && datasets.length > 0) {
+                compCard._graphData.labels = labels;
+                compCard._graphData.datasets = datasets;
+                compCard._graphData.xLabel = xLbl;
+                compCard._graphData.yLabel = datasets.map(d => d.label).join(' / ');
+
+                if (xInput) xInput.value = xLbl;
+                if (yInput) yInput.value = compCard._graphData.yLabel;
+                if (legendInput) legendInput.value = `${datasets.length}-Series Data Plot`;
+
+                renderSeriesControls();
+                renderChart();
+              }
+            };
+
+            if (isExcel && window.XLSX) {
+              reader.onload = (evt) => {
+                try {
+                  const bstr = evt.target.result;
+                  const wb = XLSX.read(bstr, { type: 'binary' });
+                  const wsName = wb.SheetNames[0];
+                  const ws = wb.Sheets[wsName];
+                  const json = XLSX.utils.sheet_to_json(ws, { header: 1 });
+                  processRows(json);
+                } catch (err) {
+                  alert('Error parsing Excel file. Please check file formatting.');
+                }
+              };
+              reader.readAsBinaryString(file);
+            } else {
+              reader.onload = (evt) => {
+                try {
+                  const text = evt.target.result;
+                  const lines = text.split('\n').map(l => l.trim().split(/,|\t/));
+                  processRows(lines);
+                } catch (err) {
+                  alert('Error parsing CSV file. Please check file formatting.');
+                }
+              };
+              reader.readAsText(file);
+            }
+          });
+        }
+
+        renderSeriesControls();
+        setTimeout(renderChart, 100);
+      };
+
+      setTimeout(initCmpGraph, 60);
+    }
+
     // Image Upload Handler with Immediate Data URL Fallback
     if (type === 'image') {
       const fileInput = compCard.querySelector('.cmp-img-file');
@@ -1973,8 +2284,52 @@ void setup() { Serial.begin(115200); }</textarea>
           components.push({ type: 'code', filename: codeFileName || 'script.cpp', code: codeBody || '' });
         } else if (compType === 'specs') {
           components.push({ type: 'specs', content: 'Specs Table' });
+        } else if (compType === 'graph') {
+          const gData = comp._graphData || {};
+          components.push({
+            type: 'graph',
+            legendTitle: comp.querySelector('.cmp-graph-legend')?.value || gData.legendTitle || 'Interactive Chart',
+            xLabel: comp.querySelector('.cmp-graph-xlabel')?.value || gData.xLabel || 'X Axis',
+            yLabel: comp.querySelector('.cmp-graph-ylabel')?.value || gData.yLabel || 'Y Axis',
+            chartType: comp.querySelector('.cmp-graph-type')?.value || gData.chartType || 'line',
+            labels: gData.labels || [0, 1, 2, 3, 4, 5, 6, 7],
+            datasets: gData.datasets || [
+              { label: "Thrust 1 (kN)", data: [0, 3.2, 8.5, 10.2, 10.4, 9.8, 4.1, 0], color: "#10b981" },
+              { label: "Thrust 2 (kN)", data: [0, 2.8, 7.9, 9.8, 10.1, 9.4, 3.8, 0], color: "#3b82f6" }
+            ]
+          });
         } else if (compType === 'roadmap') {
-          const rData = comp._roadmapData || { title: "Architecture Roadmap", branches: [] };
+          const rData = comp._roadmapData || { title: "System Architecture Roadmap", branches: [] };
+          const rootEl = comp.querySelector('.roadmap-cmp-root-title');
+          if (rootEl) {
+            rData.rootX = rootEl.offsetLeft;
+            rData.rootY = rootEl.offsetTop;
+            rData.title = rootEl.textContent.trim();
+          }
+          comp.querySelectorAll('.roadmap-cmp-branch-box').forEach(bBox => {
+            const bId = bBox.getAttribute('data-id');
+            const br = (rData.branches || []).find(b => b.id === bId);
+            if (br) {
+              br.x = bBox.offsetLeft;
+              br.y = bBox.offsetTop;
+              const titleEl = bBox.querySelector('.cmp-branch-title');
+              if (titleEl) br.title = titleEl.textContent.trim();
+            }
+          });
+          comp.querySelectorAll('.roadmap-cmp-sub-box').forEach(subBox => {
+            const subId = subBox.getAttribute('data-subid');
+            const parentId = subBox.getAttribute('data-parentid');
+            const parentBranch = (rData.branches || []).find(b => b.id === parentId);
+            if (parentBranch && parentBranch.subnodes) {
+              const sub = parentBranch.subnodes.find(s => s.id === subId);
+              if (sub) {
+                sub.x = subBox.offsetLeft;
+                sub.y = subBox.offsetTop;
+                const subTitle = subBox.querySelector('.cmp-sub-title');
+                if (subTitle) sub.title = subTitle.textContent.trim();
+              }
+            }
+          });
           components.push({ type: 'roadmap', roadmapData: rData });
         } else if (compType === 'diagram' || diagramBody) {
           components.push({ type: 'diagram', diagramText: diagramBody || '' });
@@ -2243,6 +2598,23 @@ void setup() { Serial.begin(115200); }</textarea>
               if (lastComp.querySelector('.cmp-diagram-body')) {
                 lastComp.querySelector('.cmp-diagram-body').value = comp.diagramText;
               }
+            } else if (comp.type === 'graph') {
+              const defaultDs = [
+                { label: "Thrust 1 (kN)", data: [0, 3.2, 8.5, 10.2, 10.4, 9.8, 4.1, 0], color: "#10b981" },
+                { label: "Thrust 2 (kN)", data: [0, 2.8, 7.9, 9.8, 10.1, 9.4, 3.8, 0], color: "#3b82f6" }
+              ];
+              lastComp._graphData = {
+                legendTitle: comp.legendTitle || 'Interactive Chart',
+                xLabel: comp.xLabel || 'X Axis',
+                yLabel: comp.yLabel || 'Y Axis',
+                chartType: comp.chartType || 'line',
+                labels: comp.labels || [0, 1, 2, 3, 4, 5, 6, 7],
+                datasets: comp.datasets || defaultDs
+              };
+              if (lastComp.querySelector('.cmp-graph-legend')) lastComp.querySelector('.cmp-graph-legend').value = comp.legendTitle || '';
+              if (lastComp.querySelector('.cmp-graph-xlabel')) lastComp.querySelector('.cmp-graph-xlabel').value = comp.xLabel || '';
+              if (lastComp.querySelector('.cmp-graph-ylabel')) lastComp.querySelector('.cmp-graph-ylabel').value = comp.yLabel || '';
+              if (lastComp.querySelector('.cmp-graph-type')) lastComp.querySelector('.cmp-graph-type').value = comp.chartType || 'line';
             } else if (comp.type === 'roadmap' && comp.roadmapData) {
               lastComp._roadmapData = comp.roadmapData;
               const rootTitle = lastComp.querySelector('.roadmap-cmp-root-title');
