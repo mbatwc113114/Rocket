@@ -6,8 +6,6 @@
  * legacy design tokens and theme rules.
  */
 
-@import './src/css/main.css';
-
 /* ================= ROOT VARIABLES ================= */
 :root {
   /* Fonts */
