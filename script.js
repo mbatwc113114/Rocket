@@ -1419,82 +1419,81 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Inject Aerospace Glowing Blur Orb spinner during RTDB fetch
       let orbLoader = document.getElementById('aerospace-blur-orb-loader');
-      if (!orbLoader && heroT) {
+      if (!orbLoader && heroT && heroT.parentNode) {
         orbLoader = document.createElement('div');
         orbLoader.id = 'aerospace-blur-orb-loader';
         orbLoader.className = 'aerospace-blur-orb my-3 mx-auto';
         heroT.parentNode.insertBefore(orbLoader, heroT);
       }
 
-      const pageData = await window.authManager.fetchSitePageContent(pageKey);
+      try {
+        if (window.authManager) {
+          const pageData = await window.authManager.fetchSitePageContent(pageKey);
 
-      // Remove orb loader after fetch completes
-      if (orbLoader) orbLoader.remove();
-
-      if (pageData) {
-        if (pageData.heroTitle && heroT) {
-          heroT.innerHTML = pageData.heroTitle.replace(/\n/g, '<br>');
-        }
-        if (pageData.heroSubtitle && heroSub) {
-          heroSub.textContent = pageData.heroSubtitle;
-        }
-
-        // Render Published Custom Snap Sections & Internal Components
-        if (pageData.snapSections && Array.isArray(pageData.snapSections) && pageData.snapSections.length > 0) {
-          const snapContainer = document.querySelector('.snap-container') || document.body;
-          pageData.snapSections.forEach(secData => {
-            const sec = document.createElement('section');
-            sec.className = 'snap page-section custom-snap-section d-flex flex-column align-items-center justify-content-center p-4 min-vh-100 position-relative';
-            sec.style.background = 'radial-gradient(circle at 50% 50%, rgba(30, 41, 59, 0.5) 0%, rgba(11, 15, 25, 0.98) 100%)';
-
-            let compsHTML = '';
-            if (secData.components && Array.isArray(secData.components)) {
-              compsHTML = secData.components.map(b => {
-                let inner = '';
-                if (b.type === 'heading') inner = `<h3 class="doc-section-heading custom-block custom-section-heading m-0" style="font-size: 1.35rem; font-weight: 800;">${b.content}</h3>`;
-                else if (b.type === 'paragraph') inner = `<p class="subtle-text custom-block custom-section-text m-0" style="font-size: 0.92rem; line-height: 1.6;">${b.content}</p>`;
-                else if (b.type === 'list') {
-                  const items = Array.isArray(b.items) ? b.items : [b.content];
-                  inner = `<ul class="custom-block custom-bullet-list style-box p-3 m-0 w-100" style="list-style-type: square; background: var(--bg-card); border-radius: 10px;">${items.map(it => `<li class="custom-list-item mb-1" style="font-size: 0.88rem;">${it}</li>`).join('')}</ul>`;
-                } else if (b.type === 'toggle') {
-                  inner = `<details class="custom-block custom-toggle-box style-box p-3 m-0 w-100" style="background: var(--bg-card); border-radius: 10px; border: 1px solid var(--border-color);"><summary class="fw-bold mono-text custom-toggle-title" style="cursor: pointer; color: #60a5fa; font-size: 0.9rem;">▶ ${b.title || 'Click to Toggle Details'}</summary><p class="mt-2 subtle-text custom-toggle-content m-0" style="font-size: 0.88rem;">${b.content || ''}</p></details>`;
-                } else if (b.type === 'card') {
-                  inner = `<div class="project-card style-box p-3.5 w-100" style="border-radius: 12px; background: var(--bg-card);"><div style="font-size: 1.8rem; margin-bottom: 0.5rem;">📡</div><h4 class="custom-block custom-section-heading" style="font-size: 1.1rem; font-weight: 700;">${b.title}</h4><p class="subtle-text custom-block custom-section-text m-0" style="font-size: 0.85rem;">${b.desc}</p></div>`;
-                }
-
-                return `
-                  <div class="custom-block-wrapper style-box p-3 mb-2 position-relative d-flex align-items-center gap-2" draggable="true" style="border-radius: 10px; border: 1px dashed rgba(59, 130, 246, 0.35);">
-                    <span class="drag-handle mono-text" style="cursor: grab; color: #60a5fa; font-size: 1.1rem; padding: 0 4px;" title="Drag up/down to reorder block">⋮⋮</span>
-                    <div class="flex-grow-1 custom-block-inner">${inner}</div>
-                    <button type="button" class="btn btn-sm btn-outline-danger btn-delete-block" title="Delete Block" style="font-size: 0.72rem; padding: 2px 8px; border-radius: 6px;">🗑️</button>
-                  </div>
-                `;
-              }).join('');
+          if (pageData) {
+            if (pageData.heroTitle && heroT) {
+              heroT.innerHTML = pageData.heroTitle.replace(/\n/g, '<br>');
+            }
+            if (pageData.heroSubtitle && heroSub) {
+              heroSub.textContent = pageData.heroSubtitle;
             }
 
-            sec.innerHTML = `
-              <div class="container-centered text-center">
-                <h2 class="title-centered custom-section-heading text-evolved-visible" style="font-size: 2.2rem; font-weight: 800; font-family: var(--font-display);">${secData.title || '🚀 New Aerospace System Section'}</h2>
-                <p class="subtitle custom-section-text text-evolved-visible" style="font-size: 0.95rem; margin-top: 0.5rem;">${secData.subtitle || ''}</p>
-                <div class="in-section-components-container container-centered d-flex flex-column gap-3 my-3 w-100">${compsHTML}</div>
-              </div>
-            `;
+            // Render Published Custom Snap Sections & Internal Components
+            if (pageData.snapSections && Array.isArray(pageData.snapSections) && pageData.snapSections.length > 0) {
+              const snapContainer = document.querySelector('.snap-container') || document.body;
+              pageData.snapSections.forEach(secData => {
+                const sec = document.createElement('section');
+                sec.className = 'snap page-section custom-snap-section d-flex flex-column align-items-center justify-content-center p-4 min-vh-100 position-relative';
+                sec.style.background = 'radial-gradient(circle at 50% 50%, rgba(30, 41, 59, 0.5) 0%, rgba(11, 15, 25, 0.98) 100%)';
 
-            snapContainer.appendChild(sec);
-          });
+                let compsHTML = '';
+                if (secData.components && Array.isArray(secData.components)) {
+                  compsHTML = secData.components.map(b => {
+                    let inner = '';
+                    if (b.type === 'heading') inner = `<h3 class="doc-section-heading custom-block custom-section-heading m-0" style="font-size: 1.35rem; font-weight: 800;">${b.content}</h3>`;
+                    else if (b.type === 'paragraph') inner = `<p class="subtle-text custom-block custom-section-text m-0" style="font-size: 0.92rem; line-height: 1.6;">${b.content}</p>`;
+                    else if (b.type === 'list') {
+                      const items = Array.isArray(b.items) ? b.items : [b.content];
+                      inner = `<ul class="custom-block custom-bullet-list style-box p-3 m-0 w-100" style="list-style-type: square; background: var(--bg-card); border-radius: 10px;">${items.map(it => `<li class="custom-list-item mb-1" style="font-size: 0.88rem;">${it}</li>`).join('')}</ul>`;
+                    } else if (b.type === 'toggle') {
+                      inner = `<details class="custom-block custom-toggle-box style-box p-3 m-0 w-100" style="background: var(--bg-card); border-radius: 10px; border: 1px solid var(--border-color);"><summary class="fw-bold mono-text custom-toggle-title" style="cursor: pointer; color: #60a5fa; font-size: 0.9rem;">▶ ${b.title || 'Click to Toggle Details'}</summary><p class="mt-2 subtle-text custom-toggle-content m-0" style="font-size: 0.88rem;">${b.content || ''}</p></details>`;
+                    } else if (b.type === 'card') {
+                      inner = `<div class="project-card style-box p-3.5 w-100" style="border-radius: 12px; background: var(--bg-card);"><div style="font-size: 1.8rem; margin-bottom: 0.5rem;">📡</div><h4 class="custom-block custom-section-heading" style="font-size: 1.1rem; font-weight: 700;">${b.title}</h4><p class="subtle-text custom-block custom-section-text m-0" style="font-size: 0.85rem;">${b.desc}</p></div>`;
+                    }
+
+                    return `
+                      <div class="custom-block-wrapper style-box p-3 mb-2 position-relative d-flex align-items-center gap-2" draggable="true" style="border-radius: 10px; border: 1px dashed rgba(59, 130, 246, 0.35);">
+                        <span class="drag-handle mono-text" style="cursor: grab; color: #60a5fa; font-size: 1.1rem; padding: 0 4px;" title="Drag up/down to reorder block">⋮⋮</span>
+                        <div class="flex-grow-1 custom-block-inner">${inner}</div>
+                        <button type="button" class="btn btn-sm btn-outline-danger btn-delete-block" title="Delete Block" style="font-size: 0.72rem; padding: 2px 8px; border-radius: 6px;">🗑️</button>
+                      </div>
+                    `;
+                  }).join('');
+                }
+
+                sec.innerHTML = `
+                  <div class="container-centered text-center">
+                    <h2 class="title-centered custom-section-heading text-evolved-visible" style="font-size: 2.2rem; font-weight: 800; font-family: var(--font-display);">${secData.title || '🚀 New Aerospace System Section'}</h2>
+                    <p class="subtitle custom-section-text text-evolved-visible" style="font-size: 0.95rem; margin-top: 0.5rem;">${secData.subtitle || ''}</p>
+                    <div class="in-section-components-container container-centered d-flex flex-column gap-3 my-3 w-100">${compsHTML}</div>
+                  </div>
+                `;
+
+                snapContainer.appendChild(sec);
+              });
+            }
+          }
         }
-      } else {
-        // Upload initial default page content to Firebase RTDB for all users
-        autoSaveSitePage();
-      }
-
-      // Smoothly evolve text from blurred orb state into crisp visible text
-      setTimeout(() => {
+      } catch (err) {
+        console.warn("RTDB Page Sync Error:", err);
+      } finally {
+        if (orbLoader) orbLoader.remove();
+        // Ensure text is ALWAYS unblurred and visible 100% of the time
         document.querySelectorAll('.title, .title-centered, .subtitle, .about-title, .about-desc, .projects-title, .projects-desc, .doc-section-heading, .stat-box').forEach(el => {
           el.classList.remove('text-fetching-hidden');
           el.classList.add('text-evolved-visible');
         });
-      }, 50);
+      }
 
       // Re-bind editable handlers for loaded content
       document.querySelectorAll('.title, .title-centered, .subtitle, .about-title, .about-desc, .projects-title, .projects-desc, .doc-section-heading, .project-card h3, .project-card p, .custom-section-heading, .custom-section-text, .custom-list-item, .custom-toggle-title, .custom-toggle-content').forEach(makeElementEditable);
