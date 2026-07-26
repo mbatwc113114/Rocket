@@ -354,6 +354,47 @@ class ActualAuthManager {
   }
 
   /**
+   * Submits notification (Join application, contact form) to RTDB.
+   */
+  async submitNotification(notifData) {
+    const payload = {
+      ...notifData,
+      read: false,
+      timestamp: notifData.timestamp || new Date().toISOString()
+    };
+
+    if (db) {
+      try {
+        await push(dbRef(db, 'notifications'), payload);
+        return true;
+      } catch (err) {
+        console.warn("RTDB Submit Notification Error:", err);
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Fetches admin notifications from RTDB.
+   */
+  async fetchNotifications() {
+    if (db) {
+      try {
+        const snapshot = await get(dbRef(db, 'notifications'));
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          const list = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+          list.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+          return list;
+        }
+      } catch (err) {
+        console.warn("RTDB Fetch Notifications Error:", err);
+      }
+    }
+    return [];
+  }
+
+  /**
    * Fetches single project by ID from RTDB.
    */
   async fetchCustomProjectFromRTDB(projectId) {
