@@ -90,7 +90,7 @@ export async function renderAdminCatalog() {
       </div>
       <h4 style="font-size: 1.1rem; font-weight: 700; margin: 0.5rem 0 0.25rem 0;">${p.title}</h4>
       <div class="d-flex gap-2 mt-2">
-        <a href="project-detail.html?id=${p.id}" class="repo-action-btn primary-btn" style="font-size: 0.75rem; flex: 1;">View Page</a>
+        <a href="${(window.resolvePageURL ? window.resolvePageURL(`project-detail.html?id=${p.id}`) : `project-detail.html?id=${p.id}`)}" class="repo-action-btn primary-btn" style="font-size: 0.75rem; flex: 1;">View Page</a>
       </div>
     </div>
   `).join('');

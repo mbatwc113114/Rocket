@@ -10,7 +10,29 @@
 
   document.documentElement.setAttribute('data-theme', initialTheme);
 
-  document.addEventListener('DOMContentLoaded', () => {
+  /**
+ * Global Page URL Resolver
+ * Resolves relative URLs seamlessly whether executing from root index.html or src/pages/
+ */
+window.resolvePageURL = function(path) {
+  if (!path || typeof path !== 'string') return path;
+  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('#') || path.startsWith('javascript:')) return path;
+  
+  const isInSrcPages = window.location.pathname.includes('/src/pages/') || window.location.pathname.endsWith('/src/pages');
+  
+  let cleanPath = path;
+  if (cleanPath.startsWith('../../')) cleanPath = cleanPath.substring(6);
+  if (cleanPath.startsWith('../')) cleanPath = cleanPath.substring(3);
+  if (cleanPath.startsWith('src/pages/')) cleanPath = cleanPath.substring(10);
+  
+  if (cleanPath === 'index.html' || cleanPath.startsWith('index.html?')) {
+    return isInSrcPages ? `../${cleanPath}` : cleanPath;
+  }
+  
+  return isInSrcPages ? cleanPath : `src/pages/${cleanPath}`;
+};
+
+document.addEventListener('DOMContentLoaded', () => {
     // 2. Theme Toggle Buttons
     const toggleBtns = document.querySelectorAll('.theme-toggle-btn');
 
@@ -161,7 +183,7 @@
               `;
 
               card.addEventListener('click', () => {
-                window.location.href = `project-detail.html?id=${cp.id}`;
+                window.location.href = window.resolvePageURL(`project-detail.html?id=${cp.id}`);
               });
 
               projectsContainer.appendChild(card);
@@ -191,7 +213,7 @@
       `;
       sliderContainer.innerHTML = Array(4).fill(skeletonCardHTML).join('') + `
         <div class="project-card more-card">
-          <span><a href="project.html">View Full Fleet →</a></span>
+          <span><a href="${window.resolvePageURL('project.html')}">View Full Fleet →</a></span>
         </div>
       `;
 
@@ -226,7 +248,7 @@
               `;
 
               card.addEventListener('click', () => {
-                window.location.href = `project-detail.html?id=${cp.id}`;
+                window.location.href = window.resolvePageURL(`project-detail.html?id=${cp.id}`);
               });
 
               sliderContainer.appendChild(card);
@@ -234,7 +256,7 @@
 
             const moreCard = document.createElement('div');
             moreCard.className = 'project-card more-card';
-            moreCard.innerHTML = '<span><a href="project.html">View Full Fleet →</a></span>';
+            moreCard.innerHTML = `<span><a href="${window.resolvePageURL('project.html')}">View Full Fleet →</a></span>`;
             sliderContainer.appendChild(moreCard);
           }
         } catch (err) {
@@ -455,7 +477,7 @@
           const colors = ['blue', 'green', 'purple', 'orange', 'pink'];
           subContainer.innerHTML = subList.map((s, idx) => {
             const tagColor = s.color || colors[idx % colors.length];
-            const targetUrl = s.slug ? `project-detail.html?id=${s.slug}` : `project.html`;
+            const targetUrl = window.resolvePageURL(s.slug ? `project-detail.html?id=${s.slug}` : `project.html`);
             return `
               <a href="${targetUrl}" class="text-decoration-none">
                 <span class="notion-tag notion-tag-${tagColor}">🧩 ${s.name || s.title}</span>
@@ -614,7 +636,7 @@
         card.addEventListener('click', (e) => {
           if (e.target.tagName !== 'A') {
             const id = card.getAttribute('data-id') || 'model1';
-            window.location.href = `project-detail.html?id=${id}`;
+            window.location.href = window.resolvePageURL(`project-detail.html?id=${id}`);
           }
         });
       }

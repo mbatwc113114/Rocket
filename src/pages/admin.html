@@ -23,7 +23,7 @@
 <!-- NAVBAR -->
 <nav class="navbar navbar-expand-md bg-white fixed-top border-bottom">
   <div class="container-fluid">
-    <a class="navbar-brand fw-bold" href="../../index.html">Roketry</a>
+    <a class="navbar-brand fw-bold" href="../index.html">Roketry</a>
 
     <button class="navbar-toggler" type="button"
       data-bs-toggle="collapse"
@@ -36,7 +36,7 @@
 
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ms-auto align-items-md-center">
-        <li class="nav-item"><a class="nav-link" href="../../index.html">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
         <li class="nav-item"><a class="nav-link" href="project.html">Projects</a></li>
         <li class="nav-item"><a class="nav-link" href="roadmap.html">Roadmap</a></li>
         <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
@@ -1372,7 +1372,7 @@ void setup() { Serial.begin(115200); }</textarea>
       const result = await window.authManager.publishCustomProjectToRTDB(projectData, commitMsg);
       modal.hide();
       alert(`🎉 Project "${title}" (${result?.version || 'v1.0'}) Published Live!\n\nCommit: "${commitMsg}"\n\nView Page: project-detail.html?id=${slug}`);
-      window.location.href = `project-detail.html?id=${slug}`;
+      window.location.href = (window.resolvePageURL ? window.resolvePageURL(`project-detail.html?id=${slug}`) : `project-detail.html?id=${slug}`);
     }
   });
 
@@ -1408,7 +1408,7 @@ void setup() { Serial.begin(115200); }</textarea>
         <h4 style="font-size: 1.1rem; font-weight: 700; margin: 0.5rem 0 0.25rem 0;">${p.title}</h4>
         ${p.lastCommitMessage ? `<p class="mono-text subtle-text m-0 mb-2" style="font-size: 0.76rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${p.lastCommitMessage}">💬 ${p.lastCommitMessage}</p>` : ''}
         <div class="d-flex gap-2 mt-2">
-          <a href="project-detail.html?id=${p.id}" class="repo-action-btn primary-btn" style="font-size: 0.75rem; flex: 1;">View Page</a>
+          <a href="${(window.resolvePageURL ? window.resolvePageURL(`project-detail.html?id=${p.id}`) : `project-detail.html?id=${p.id}`)}" class="repo-action-btn primary-btn" style="font-size: 0.75rem; flex: 1;">View Page</a>
           <button type="button" class="repo-action-btn btn-edit-proj" data-id="${p.id}" style="font-size: 0.75rem;">✏️ Edit</button>
           <button type="button" class="repo-action-btn btn-view-logs" data-id="${p.id}" data-title="${p.title}" style="font-size: 0.75rem;" title="View Project Commit Logs">📜 Logs</button>
           <button type="button" class="btn-delete-animated btn-del-proj-card" data-id="${p.id}" data-title="${p.title}" style="font-size: 0.75rem; padding: 4px 10px;" title="Delete Project"><span class="trash-icon">🗑️</span></button>
