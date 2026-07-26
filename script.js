@@ -593,12 +593,23 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }
 
-        document.getElementById('doc-title').textContent = dataToRender.title;
-        document.getElementById('doc-subtitle').textContent = dataToRender.subtitle;
-        document.getElementById('doc-badge').textContent = dataToRender.badge || 'PROJECT';
-        document.getElementById('doc-id').textContent = dataToRender.docId || 'DOC-CUSTOM-01';
-        document.getElementById('doc-overview-p1').textContent = dataToRender.p1;
-        document.getElementById('doc-overview-p2').textContent = dataToRender.p2 || '';
+        const docTitleEl = document.getElementById('doc-title');
+        if (docTitleEl) docTitleEl.textContent = dataToRender.title || '';
+
+        const docSubEl = document.getElementById('doc-subtitle');
+        if (docSubEl) docSubEl.textContent = dataToRender.subtitle || '';
+
+        const docBadgeEl = document.getElementById('doc-badge');
+        if (docBadgeEl) docBadgeEl.textContent = dataToRender.badge || 'PROJECT';
+
+        const docIdEl = document.getElementById('doc-id');
+        if (docIdEl) docIdEl.textContent = dataToRender.docId || 'DOC-CUSTOM-01';
+
+        const docP1El = document.getElementById('doc-overview-p1');
+        if (docP1El) docP1El.textContent = dataToRender.p1 || '';
+
+        const docP2El = document.getElementById('doc-overview-p2');
+        if (docP2El) docP2El.textContent = dataToRender.p2 || '';
         const domStyle = window.getDomainCategoryStyle(dataToRender.category || dataToRender.badge);
         const docCategory = document.getElementById('doc-category');
 
@@ -1371,9 +1382,15 @@ document.addEventListener('DOMContentLoaded', () => {
       }, 500);
     };
 
-    // 2. Direct In-Place ContentEditable Double-Click Handler (No Alert Prompts!)
+    // 2. Direct In-Place ContentEditable Double-Click Handler (Admin Only!)
     const makeElementEditable = (el) => {
       if (!el || el.dataset.editableBound) return;
+      if (!window.authManager || !window.authManager.isAdmin()) {
+        el.contentEditable = "false";
+        el.style.cursor = "default";
+        return;
+      }
+
       el.dataset.editableBound = 'true';
       el.style.cursor = 'pointer';
       el.title = 'Double-click to type & edit in-place';
@@ -1508,6 +1525,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 4. Admin Page & Snap Section Builder Engine Initialization
     const initPageBuilderEngine = () => {
+      // ONLY Administrators have access to Page Builder tools & section addition
+      if (!window.authManager || !window.authManager.isAdmin()) return;
+
       const snapContainer = document.querySelector('.snap-container') || document.body;
 
       // Bottom-of-Page Admin Toolbar Section (Snaps cleanly at page end)
