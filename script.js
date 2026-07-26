@@ -26,7 +26,7 @@ window.resolvePageURL = function(path) {
   if (cleanPath.startsWith('src/pages/')) cleanPath = cleanPath.substring(10);
   
   if (cleanPath === 'index.html' || cleanPath.startsWith('index.html?')) {
-    return isInSrcPages ? `../${cleanPath}` : cleanPath;
+    return isInSrcPages ? `../../${cleanPath}` : cleanPath;
   }
   
   return isInSrcPages ? cleanPath : `src/pages/${cleanPath}`;
