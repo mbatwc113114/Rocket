@@ -8,18 +8,14 @@
   const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
   const initialTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
 
-  if (initialTheme === 'dark') {
-    document.documentElement.setAttribute('data-theme', 'dark');
-  } else {
-    document.documentElement.removeAttribute('data-theme');
-  }
+  document.documentElement.setAttribute('data-theme', initialTheme);
 
   document.addEventListener('DOMContentLoaded', () => {
     // 2. Theme Toggle Buttons
     const toggleBtns = document.querySelectorAll('.theme-toggle-btn');
 
     function updateBtnUI(isDark) {
-      toggleBtns.forEach(btn => {
+      document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
         btn.innerHTML = isDark ? '<span>☀️</span> Light' : '<span>🌙</span> Dark';
         btn.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
       });
@@ -28,19 +24,15 @@
     const currentTheme = document.documentElement.getAttribute('data-theme');
     updateBtnUI(currentTheme === 'dark');
 
-    toggleBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('.theme-toggle-btn');
+      if (btn) {
         const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        if (isDark) {
-          document.documentElement.removeAttribute('data-theme');
-          localStorage.setItem('roketry-theme', 'light');
-          updateBtnUI(false);
-        } else {
-          document.documentElement.setAttribute('data-theme', 'dark');
-          localStorage.setItem('roketry-theme', 'dark');
-          updateBtnUI(true);
-        }
-      });
+        const newTheme = isDark ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('roketry-theme', newTheme);
+        updateBtnUI(newTheme === 'dark');
+      }
     });
 
     // 3. Scroll Reveal Observer for Entrance Motion
@@ -131,8 +123,19 @@
       `;
       projectsContainer.innerHTML = Array(6).fill(skeletonCardHTML).join('');
 
-      setTimeout(async () => {
-        if (window.authManager) {
+      // Robust: wait for authManager to be available (up to 5s), then fetch
+      async function loadProjectCards() {
+        let retries = 0;
+        while (!window.authManager && retries < 50) {
+          await new Promise(r => setTimeout(r, 100));
+          retries++;
+        }
+        if (!window.authManager) {
+          console.warn('authManager not available after 5s');
+          return;
+        }
+
+        try {
           const allDbProjects = await window.authManager.fetchAllCustomProjectsFromRTDB();
           if (allDbProjects && allDbProjects.length > 0) {
             projectsContainer.innerHTML = ''; // Clear skeleton buffer once fetched!
@@ -142,7 +145,7 @@
               card.className = 'project-card';
               card.setAttribute('data-id', cp.id);
               card.setAttribute('data-category', cp.category || 'fleet');
-              card.setAttribute('data-keywords', `${cp.title} ${cp.subtitle} ${cp.id}`.toLowerCase());
+              card.setAttribute('data-keywords', `${cp.title} ${cp.subtitle} ${cp.badge} ${cp.id}`.toLowerCase());
               card.style.cursor = 'pointer';
 
               card.innerHTML = `
@@ -163,10 +166,15 @@
 
               projectsContainer.appendChild(card);
             });
+
+            // Apply any active filter/search after cards are rendered
             filterProjects();
           }
+        } catch (err) {
+          console.error('Error loading project cards:', err);
         }
-      }, 350);
+      }
+      loadProjectCards();
     }
 
     // HOMEPAGE FEATURED PROJECTS SLIDER (index.html) WITH YOUTUBE-STYLE SKELETON BUFFER
@@ -187,8 +195,15 @@
         </div>
       `;
 
-      setTimeout(async () => {
-        if (window.authManager) {
+      async function loadSliderCards() {
+        let retries = 0;
+        while (!window.authManager && retries < 50) {
+          await new Promise(r => setTimeout(r, 100));
+          retries++;
+        }
+        if (!window.authManager) return;
+
+        try {
           const allDbProjects = await window.authManager.fetchAllCustomProjectsFromRTDB();
           if (allDbProjects && allDbProjects.length > 0) {
             sliderContainer.innerHTML = '';
@@ -222,8 +237,11 @@
             moreCard.innerHTML = '<span><a href="project.html">View Full Fleet →</a></span>';
             sliderContainer.appendChild(moreCard);
           }
+        } catch (err) {
+          console.error('Error loading slider cards:', err);
         }
-      }, 350);
+      }
+      loadSliderCards();
     }
 
     treeNodes.forEach(node => {
@@ -360,6 +378,11 @@
           sketchImg.src = dataToRender.sketchImg;
         }
 
+        const metaVersion = document.getElementById('doc-meta-version');
+        if (metaVersion) {
+          metaVersion.textContent = dataToRender.version || 'v1.0';
+        }
+
         const metaAuthor = document.getElementById('doc-meta-author');
         if (metaAuthor) {
           metaAuthor.textContent = (dataToRender.authors && dataToRender.authors.length > 0) ? dataToRender.authors[0].name : (dataToRender.author || 'Rocket Lead');
@@ -375,11 +398,70 @@
           metaVerification.textContent = dataToRender.verification || 'Field Verified';
         }
 
-        const relatedLinks = document.getElementById('doc-related-links');
-        if (relatedLinks && dataToRender.related && dataToRender.related.length > 0) {
-          relatedLinks.innerHTML = dataToRender.related.map(r => `
-            <li><a href="project-detail.html?id=${r.url}">🔗 ${r.title}</a></li>
-          `).join('');
+        // Render Revision History in Sidebar
+        const historyBox = document.getElementById('doc-history-box');
+        const historyList = document.getElementById('doc-history-list');
+        if (historyBox && historyList) {
+          let histArray = [];
+          if (Array.isArray(dataToRender.history)) {
+            histArray = dataToRender.history;
+          } else if (dataToRender.history && typeof dataToRender.history === 'object') {
+            histArray = Object.values(dataToRender.history);
+          }
+
+          if (histArray.length > 0) {
+            historyBox.style.display = 'block';
+            historyList.innerHTML = histArray.slice().reverse().map(h => {
+              const d = h.editedAt ? new Date(h.editedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }) : 'Live';
+              return `
+                <li class="mb-2" style="border-bottom: 1px dashed var(--border-color); padding-bottom: 4px;">
+                  <div class="d-flex align-items-center justify-content-between">
+                    <span class="changelog-field-badge field-title" style="font-size: 0.68rem;">${h.version || 'v1.0'}</span>
+                    <span class="subtle-text" style="font-size: 0.72rem;">${d}</span>
+                  </div>
+                  <div style="font-size: 0.78rem; font-weight: 600; margin-top: 2px;">${h.commitMessage || 'Documentation update'}</div>
+                  <span class="subtle-text" style="font-size: 0.7rem;">by ${h.editorName || h.editedBy || 'Admin'}</span>
+                </li>
+              `;
+            }).join('');
+          } else {
+            historyBox.style.display = 'none';
+          }
+        }
+
+        const subContainer = document.getElementById('doc-subsystem-tags');
+        if (subContainer) {
+          let subList = [];
+          if (Array.isArray(dataToRender.subsystems)) {
+            subList = dataToRender.subsystems;
+          } else if (dataToRender.subsystems && typeof dataToRender.subsystems === 'object') {
+            subList = Object.values(dataToRender.subsystems);
+          } else if (Array.isArray(dataToRender.related)) {
+            subList = dataToRender.related.map(r => ({ name: r.title, slug: r.url, color: 'blue' }));
+          } else if (dataToRender.related && typeof dataToRender.related === 'object') {
+            subList = Object.values(dataToRender.related).map(r => ({ name: r.title, slug: r.url, color: 'blue' }));
+          }
+
+          // Fallback if no subsystem tags linked to this project
+          if (subList.length === 0) {
+            const defaultPool = [
+              { name: "Solid Motor Propulsion", slug: "teststand", color: "orange" },
+              { name: "Dual Pyro Recovery Stack", slug: "recovery", color: "green" },
+              { name: "Hardware Mission Simulator", slug: "simulator", color: "purple" }
+            ];
+            subList = defaultPool.filter(s => s.slug !== projectId);
+          }
+
+          const colors = ['blue', 'green', 'purple', 'orange', 'pink'];
+          subContainer.innerHTML = subList.map((s, idx) => {
+            const tagColor = s.color || colors[idx % colors.length];
+            const targetUrl = s.slug ? `project-detail.html?id=${s.slug}` : `project.html`;
+            return `
+              <a href="${targetUrl}" class="text-decoration-none">
+                <span class="notion-tag notion-tag-${tagColor}">🧩 ${s.name || s.title}</span>
+              </a>
+            `;
+          }).join('');
         }
 
         const tbody = document.getElementById('doc-specs-body');
@@ -493,29 +575,36 @@
         }
       };
 
-      if (data) {
-        renderDocData(data);
-      } else {
-        // Show YouTube-Style Skeleton Shimmer placeholders while waiting for Firebase RTDB fetch
-        const docHeader = document.querySelector('.doc-header-card');
-        if (docHeader) {
-          const docTitle = document.getElementById('doc-title');
-          const docSubtitle = document.getElementById('doc-subtitle');
-          if (docTitle) docTitle.innerHTML = '<span class="skeleton-box" style="height: 36px; width: 65%; display: block; margin-bottom: 8px;"></span>';
-          if (docSubtitle) docSubtitle.innerHTML = '<span class="skeleton-box" style="height: 18px; width: 85%; display: block;"></span>';
+      // 1. Render YouTube-Style Skeleton Shimmer placeholders on fetch start
+      const docTitle = document.getElementById('doc-title');
+      const docSubtitle = document.getElementById('doc-subtitle');
+      const overviewP = document.getElementById('doc-overview-p1');
+      if (docTitle) docTitle.innerHTML = '<span class="skeleton-box" style="height: 36px; width: 70%; display: block; margin-bottom: 8px;"></span>';
+      if (docSubtitle) docSubtitle.innerHTML = '<span class="skeleton-box" style="height: 18px; width: 90%; display: block;"></span>';
+      if (overviewP) overviewP.innerHTML = '<span class="skeleton-box mb-2" style="height: 16px; width: 100%; display: block;"></span><span class="skeleton-box mb-2" style="height: 16px; width: 95%; display: block;"></span><span class="skeleton-box" style="height: 16px; width: 80%; display: block;"></span>';
+
+      // 2. Fetch live project data from Firebase Realtime Database with smooth shimmer transition
+      (async () => {
+        let retries = 0;
+        while (!window.authManager && retries < 50) {
+          await new Promise(r => setTimeout(r, 100));
+          retries++;
         }
 
-        setTimeout(async () => {
-          if (window.authManager) {
-            const customData = await window.authManager.fetchCustomProjectFromRTDB(projectId);
-            if (customData) {
-              renderDocData(customData);
-            } else {
-              renderDocData(docDatabase['model1']);
-            }
+        let customData = null;
+        if (window.authManager) {
+          try {
+            customData = await window.authManager.fetchCustomProjectFromRTDB(projectId);
+          } catch (err) {
+            console.warn('Error loading live project detail:', err);
           }
+        }
+
+        const finalData = customData || docDatabase[projectId] || docDatabase['model1'];
+        setTimeout(() => {
+          renderDocData(finalData);
         }, 300);
-      }
+      })();
     }
 
     // Make project cards clickable across project.html & index.html to navigate to project technical documentation
@@ -581,6 +670,57 @@
         }
       }
     }
+
+    // GLOBAL CONTACT & JOIN FORM SUBMISSION NOTIFICATION HANDLER
+    document.querySelectorAll('.contact-form').forEach(form => {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const nameInput = form.querySelector('input[type="text"]');
+        const emailInput = form.querySelector('input[type="email"]');
+        const messageInput = form.querySelector('textarea');
+        const selectInput = form.querySelector('select');
+        const submitBtn = form.querySelector('button[type="submit"]');
+
+        const senderName = nameInput ? nameInput.value.trim() : 'Community Member';
+        const senderEmail = emailInput ? emailInput.value.trim() : 'member@roketry.org';
+        const message = messageInput ? messageInput.value.trim() : '';
+        const interest = selectInput ? selectInput.value : '';
+
+        const isJoinForm = window.location.pathname.includes('join.html') || !!selectInput;
+
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = '⏳ Sending Notification...';
+        }
+
+        if (window.authManager) {
+          await window.authManager.submitNotification({
+            type: isJoinForm ? 'JOIN' : 'CONTACT',
+            title: isJoinForm ? '🚀 New Join Application' : '📩 New Contact Message',
+            senderName: senderName,
+            senderEmail: senderEmail,
+            message: message || `Application interest: ${interest || 'General'}`,
+            interest: interest,
+            timestamp: new Date().toISOString()
+          });
+
+          await window.authManager.updateNavUI();
+        }
+
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = isJoinForm ? '✓ Application Submitted!' : '✓ Message Sent!';
+        }
+
+        alert(`🎉 ${isJoinForm ? 'Application' : 'Message'} Sent!\n\nNotification dispatched live to Admin & Notification Center.`);
+        form.reset();
+
+        setTimeout(() => {
+          if (submitBtn) submitBtn.textContent = isJoinForm ? 'Join Community' : 'Send Message';
+        }, 3000);
+      });
+    });
 
   });
 })();

@@ -45,17 +45,21 @@
     }
 
     .mindmap-branches-row {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
+      display: flex;
+      justify-content: space-around;
+      gap: 2rem;
+      align-items: flex-start;
+      flex-wrap: nowrap;
+      min-width: 1000px;
     }
 
-    .mindmap-main-branch-box,
-    .mindmap-subnode-wrapper {
-      pointer-events: all;
+    .mindmap-branch-column {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.25rem;
+      min-width: 230px;
     }
 
     .mindmap-main-branch-box {
@@ -186,28 +190,28 @@
         <!-- SVG BEZIER CONNECTOR LINES LAYER -->
         <svg id="mindmap-svg" class="svg-lines-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;">
           <defs>
-            <marker id="arrow-solid-blue" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <marker id="arrow-solid-blue" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
               <path d="M 0 0 L 10 5 L 0 10 z" fill="#3b82f6"/>
             </marker>
-            <marker id="arrow-dashed-blue" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <marker id="arrow-dashed-blue" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
               <path d="M 0 0 L 10 5 L 0 10 z" fill="#3b82f6" opacity="0.85"/>
             </marker>
-            <marker id="arrow-solid-green" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <marker id="arrow-solid-green" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
               <path d="M 0 0 L 10 5 L 0 10 z" fill="#10b981"/>
             </marker>
-            <marker id="arrow-dashed-green" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <marker id="arrow-dashed-green" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
               <path d="M 0 0 L 10 5 L 0 10 z" fill="#10b981" opacity="0.85"/>
             </marker>
-            <marker id="arrow-solid-orange" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <marker id="arrow-solid-orange" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
               <path d="M 0 0 L 10 5 L 0 10 z" fill="#f59e0b"/>
             </marker>
-            <marker id="arrow-dashed-orange" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <marker id="arrow-dashed-orange" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
               <path d="M 0 0 L 10 5 L 0 10 z" fill="#f59e0b" opacity="0.85"/>
             </marker>
-            <marker id="arrow-solid-purple" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <marker id="arrow-solid-purple" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
               <path d="M 0 0 L 10 5 L 0 10 z" fill="#8b5cf6"/>
             </marker>
-            <marker id="arrow-dashed-purple" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <marker id="arrow-dashed-purple" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
               <path d="M 0 0 L 10 5 L 0 10 z" fill="#8b5cf6" opacity="0.85"/>
             </marker>
           </defs>
@@ -338,35 +342,39 @@ const DEFAULT_ROADMAP_TREE = {
 let currentTreeData = DEFAULT_ROADMAP_TREE;
 let editingParentBranchId = null;
 
-// GROUND-UP BALANCED MINDMAP HIERARCHICAL TREE LAYOUT GENERATOR
+// SCREEN-FIT TAP-ROOT HIERARCHICAL TREE LAYOUT GENERATOR
 function applyTapRootLayout(tree, forceReset = false) {
   if (!tree || !tree.branches) return;
 
   const viewport = document.getElementById('mindmap-viewport');
   const viewW = viewport ? viewport.clientWidth : 1200;
-  const rootX = Math.round(viewW / 2) - 90;
+  const rootX = Math.round(viewW / 2);
   const rootY = 40;
 
-  if (forceReset || tree.rootX === undefined) {
-    tree.rootX = rootX;
-    tree.rootY = rootY;
+  if (forceReset) {
+    delete tree.rootX;
+    delete tree.rootY;
   }
+
+  const rowGap = 165;
+  const sideOffset = 210;
 
   tree.branches.forEach((b, i) => {
     const isLeft = (i % 2 === 0);
     const rowIndex = Math.floor(i / 2);
-    const branchY = rootY + 140 + rowIndex * 220;
+    const branchY = rootY + 120 + rowIndex * rowGap;
 
     if (forceReset || b.x === undefined || b.y === undefined) {
-      b.x = isLeft ? Math.round(rootX - 320) : Math.round(rootX + 160);
+      b.x = isLeft ? Math.round(rootX - sideOffset - 220) : Math.round(rootX + sideOffset);
       b.y = Math.round(branchY);
     }
 
     if (b.subnodes) {
       b.subnodes.forEach((s, j) => {
         if (forceReset || s.x === undefined || s.y === undefined) {
+          // Sprout sub-nodes outward away from center (like tree branches in Thermodynamics diagram)
           s.x = isLeft ? Math.round(b.x - 220) : Math.round(b.x + 250);
-          s.y = Math.round(b.y - 10 + j * 50);
+          s.y = Math.round(b.y - 15 + j * 46);
         }
       });
     }
@@ -390,7 +398,6 @@ function makeNodeRenamable(element, getTitle, setTitle) {
     }
   });
 }
-const makeInlineEditable = makeNodeRenamable;
 
 function getMarkerColorName(colorHex) {
   if (!colorHex) return 'blue';
@@ -400,198 +407,19 @@ function getMarkerColorName(colorHex) {
   return 'blue';
 }
 
-// FIND CLOSEST MAGNETIC SNAP POINT ON A BOX (TOP, BOTTOM, LEFT, RIGHT) WITH ZERO OFFSET
-function getClosestBoxSnapPoint(fromX, fromY, boxEl, viewport) {
-  const vRect = viewport ? viewport.getBoundingClientRect() : { left: 0, top: 0 };
-  const bRect = boxEl.getBoundingClientRect();
+// ORGANIC ROOT-TO-BRANCH BEZIER CURVE (NO SHARP 90-DEGREE ANGLES!)
+function drawOrganicRootCurve(svg, x1, y1, x2, y2, color, strokeWidth = 3.5) {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
 
-  const scrollLeft = viewport ? viewport.scrollLeft : 0;
-  const scrollTop = viewport ? viewport.scrollTop : 0;
-
-  const left = Math.round(bRect.left - vRect.left + scrollLeft);
-  const top = Math.round(bRect.top - vRect.top + scrollTop);
-  const right = Math.round(bRect.right - vRect.left + scrollLeft);
-  const bottom = Math.round(bRect.bottom - vRect.top + scrollTop);
-  const midX = Math.round(left + bRect.width / 2);
-  const midY = Math.round(top + bRect.height / 2);
-
-  const points = [
-    { x: midX, y: top, side: 'top' },
-    { x: midX, y: bottom, side: 'bottom' },
-    { x: left, y: midY, side: 'left' },
-    { x: right, y: midY, side: 'right' }
-  ];
-
-  let minDistance = Infinity;
-  let closest = points[0];
-
-  points.forEach(pt => {
-    const dist = Math.hypot(pt.x - fromX, pt.y - fromY);
-    if (dist < minDistance) {
-      minDistance = dist;
-      closest = pt;
-    }
-  });
-
-  return closest;
-}
-
-// MAGNETIC BOX SNAP POINT DETECTOR (FIND CLOSEST BORDER SNAP POINT ACROSS ALL BOXES)
-function findClosestBoxSnapPointAll(mouseX, mouseY, viewport) {
-  const allBoxes = document.querySelectorAll('#root-node-box, .mindmap-main-branch-box, .mindmap-subnode-wrapper');
-  let minDist = Infinity;
-  let closestSnap = null;
-
-  allBoxes.forEach(box => {
-    const snap = getClosestBoxSnapPoint(mouseX, mouseY, box, viewport);
-    const dist = Math.hypot(snap.x - mouseX, snap.y - mouseY);
-    if (dist < 40 && dist < minDist) {
-      minDist = dist;
-      closestSnap = snap;
-    }
-  });
-
-  return closestSnap;
-}
-
-// CALCULATE PERPENDICULAR NORMAL CONTROL VECTOR FOR BORDER SNAP POINTS
-function getPerpendicularControlPoint(pt, dist = 70) {
-  if (pt.side === 'top') return { ctrlX: pt.x, ctrlY: pt.y - dist };
-  if (pt.side === 'bottom') return { ctrlX: pt.x, ctrlY: pt.y + dist };
-  if (pt.side === 'left') return { ctrlX: pt.x - dist, ctrlY: pt.y };
-  if (pt.side === 'right') return { ctrlX: pt.x + dist, ctrlY: pt.y };
-  return { ctrlX: pt.x, ctrlY: pt.y - dist };
-}
-
-// 4-POINT DUAL-SIDE INTERACTIVE LINE CONTROL HANDLES & MAGNETIC SNAP ENGINE
-function addLine4PointHandles(group, x1, y1, ctrlX1, ctrlY1, ctrlX2, ctrlY2, x2, y2, linePath, lineId) {
-  linePath.style.cursor = 'pointer';
-  linePath.style.pointerEvents = 'stroke';
-  linePath.addEventListener('click', (e) => {
-    e.stopPropagation();
-    selectNode({ element: group, isLine: true, lineId });
-  });
-
-  const points = [
-    { x: x1, y: y1, role: 'start', fill: '#3b82f6' },
-    { x: ctrlX1, y: ctrlY1, role: 'ctrl1', fill: '#f59e0b' },
-    { x: ctrlX2, y: ctrlY2, role: 'ctrl2', fill: '#f59e0b' },
-    { x: x2, y: y2, role: 'end', fill: '#3b82f6' }
-  ];
-
-  // Helper dashed lines connecting control handles to endpoints
-  const helperLine1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-  helperLine1.setAttribute('class', 'line-drag-handle');
-  helperLine1.setAttribute('stroke', 'rgba(245, 158, 11, 0.45)');
-  helperLine1.setAttribute('stroke-dasharray', '3 3');
-  group.appendChild(helperLine1);
-
-  const helperLine2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-  helperLine2.setAttribute('class', 'line-drag-handle');
-  helperLine2.setAttribute('stroke', 'rgba(245, 158, 11, 0.45)');
-  helperLine2.setAttribute('stroke-dasharray', '3 3');
-  group.appendChild(helperLine2);
-
-  const updateHelperLines = () => {
-    helperLine1.setAttribute('x1', x1); helperLine1.setAttribute('y1', y1);
-    helperLine1.setAttribute('x2', ctrlX1); helperLine1.setAttribute('y2', ctrlY1);
-
-    helperLine2.setAttribute('x1', x2); helperLine2.setAttribute('y1', y2);
-    helperLine2.setAttribute('x2', ctrlX2); helperLine2.setAttribute('y2', ctrlY2);
-  };
-  updateHelperLines();
-
-  points.forEach((pt) => {
-    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    circle.setAttribute('cx', pt.x);
-    circle.setAttribute('cy', pt.y);
-    circle.setAttribute('r', pt.role.includes('ctrl') ? '5' : '6.5');
-    circle.setAttribute('fill', pt.fill);
-    circle.setAttribute('stroke', '#ffffff');
-    circle.setAttribute('stroke-width', '2');
-    circle.setAttribute('class', 'line-drag-handle');
-    circle.style.cursor = 'grab';
-    circle.style.pointerEvents = 'all';
-
-    let isDraggingHandle = false;
-
-    circle.addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-
-      isDraggingHandle = true;
-      circle.style.cursor = 'grabbing';
-      selectNode({ element: group, isLine: true, lineId });
-
-      const viewport = document.getElementById('mindmap-viewport');
-      const vRect = viewport ? viewport.getBoundingClientRect() : { left: 0, top: 0 };
-      const scrollLeft = viewport ? viewport.scrollLeft : 0;
-      const scrollTop = viewport ? viewport.scrollTop : 0;
-
-      const onHandleMove = (moveEvt) => {
-        if (!isDraggingHandle) return;
-        let mouseX = moveEvt.clientX - vRect.left + scrollLeft;
-        let mouseY = moveEvt.clientY - vRect.top + scrollTop;
-
-        // Magnetic Snapping to closest box snap point for line endpoints
-        if (pt.role === 'start' || pt.role === 'end') {
-          const snapPt = findClosestBoxSnapPointAll(mouseX, mouseY, viewport);
-          if (snapPt) {
-            mouseX = snapPt.x;
-            mouseY = snapPt.y;
-          }
-        }
-
-        circle.setAttribute('cx', mouseX);
-        circle.setAttribute('cy', mouseY);
-
-        if (pt.role === 'start') {
-          x1 = mouseX; y1 = mouseY;
-        } else if (pt.role === 'ctrl1') {
-          ctrlX1 = mouseX; ctrlY1 = mouseY;
-        } else if (pt.role === 'ctrl2') {
-          ctrlX2 = mouseX; ctrlY2 = mouseY;
-        } else if (pt.role === 'end') {
-          x2 = mouseX; y2 = mouseY;
-        }
-
-        updateHelperLines();
-        const newD = `M ${x1},${y1} C ${ctrlX1},${ctrlY1} ${ctrlX2},${ctrlY2} ${x2},${y2}`;
-        linePath.setAttribute('d', newD);
-      };
-
-      const onHandleUp = () => {
-        if (!isDraggingHandle) return;
-        isDraggingHandle = false;
-        circle.style.cursor = 'grab';
-        document.removeEventListener('pointermove', onHandleMove);
-        document.removeEventListener('pointerup', onHandleUp);
-      };
-
-      document.addEventListener('pointermove', onHandleMove);
-      document.addEventListener('pointerup', onHandleUp);
-    });
-
-    group.appendChild(circle);
-  });
-}
-
-// ORGANIC ROOT-TO-BRANCH BEZIER CURVE (100% NORMAL/PERPENDICULAR TO BORDER & ELEGANTLY CURVED)
-function drawOrganicRootCurve(svg, startSnap, endSnap, color, strokeWidth = 3.5, lineId = '') {
-  const x1 = startSnap.x, y1 = startSnap.y;
-  const x2 = endSnap.x, y2 = endSnap.y;
-
-  const distance = Math.hypot(x2 - x1, y2 - y1);
-  const curveOffset = Math.max(100, distance * 0.42);
-
-  const ctrl1 = getPerpendicularControlPoint(startSnap, curveOffset);
-  const ctrl2 = getPerpendicularControlPoint(endSnap, curveOffset);
-
-  const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-  group.setAttribute('class', 'connector-group');
+  // Smooth organic curve sprouting vertically from root box and swooping to branch box
+  const ctrlX1 = x1 + dx * 0.15;
+  const ctrlY1 = y1 + dy * 0.55;
+  const ctrlX2 = x2 - dx * 0.35;
+  const ctrlY2 = y2 - dy * 0.20;
 
   const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-  const d = `M ${x1},${y1} C ${ctrl1.ctrlX},${ctrl1.ctrlY} ${ctrl2.ctrlX},${ctrl2.ctrlY} ${x2},${y2}`;
+  const d = `M ${x1},${y1} C ${ctrlX1},${ctrlY1} ${ctrlX2},${ctrlY2} ${x2},${y2}`;
   path.setAttribute('d', d);
   path.setAttribute('stroke', color);
   path.setAttribute('stroke-width', strokeWidth);
@@ -601,28 +429,21 @@ function drawOrganicRootCurve(svg, startSnap, endSnap, color, strokeWidth = 3.5,
 
   const colorName = getMarkerColorName(color);
   path.setAttribute('marker-end', `url(#arrow-solid-${colorName})`);
-  group.appendChild(path);
-
-  addLine4PointHandles(group, x1, y1, ctrl1.ctrlX, ctrl1.ctrlY, ctrl2.ctrlX, ctrl2.ctrlY, x2, y2, path, lineId);
-  svg.appendChild(group);
+  svg.appendChild(path);
 }
 
-// ORGANIC DASHED SUBNODE CURVE (100% NORMAL/PERPENDICULAR TO BORDER & ELEGANTLY CURVED)
-function drawOrganicSubnodeCurve(svg, startSnap, endSnap, color, strokeWidth = 2.2, lineId = '') {
-  const x1 = startSnap.x, y1 = startSnap.y;
-  const x2 = endSnap.x, y2 = endSnap.y;
+// ORGANIC DASHED SUBNODE CURVE
+function drawOrganicSubnodeCurve(svg, x1, y1, x2, y2, color, strokeWidth = 2.2) {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
 
-  const distance = Math.hypot(x2 - x1, y2 - y1);
-  const curveOffset = Math.max(60, distance * 0.35);
-
-  const ctrl1 = getPerpendicularControlPoint(startSnap, curveOffset);
-  const ctrl2 = getPerpendicularControlPoint(endSnap, curveOffset);
-
-  const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-  group.setAttribute('class', 'connector-group');
+  const ctrlX1 = x1 + dx * 0.65;
+  const ctrlY1 = y1 + dy * 0.05;
+  const ctrlX2 = x2 - dx * 0.35;
+  const ctrlY2 = y2 - dy * 0.05;
 
   const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-  const d = `M ${x1},${y1} C ${ctrl1.ctrlX},${ctrl1.ctrlY} ${ctrl2.ctrlX},${ctrl2.ctrlY} ${x2},${y2}`;
+  const d = `M ${x1},${y1} C ${ctrlX1},${ctrlY1} ${ctrlX2},${ctrlY2} ${x2},${y2}`;
   path.setAttribute('d', d);
   path.setAttribute('stroke', color);
   path.setAttribute('stroke-width', strokeWidth);
@@ -633,79 +454,71 @@ function drawOrganicSubnodeCurve(svg, startSnap, endSnap, color, strokeWidth = 2
 
   const colorName = getMarkerColorName(color);
   path.setAttribute('marker-end', `url(#arrow-dashed-${colorName})`);
-  group.appendChild(path);
-
-  addLine4PointHandles(group, x1, y1, ctrl1.ctrlX, ctrl1.ctrlY, ctrl2.ctrlX, ctrl2.ctrlY, x2, y2, path, lineId);
-  svg.appendChild(group);
+  svg.appendChild(path);
 }
 
-// FIND CLOSEST MAGNETIC SNAP POINT ON A BOX (TOP, BOTTOM, LEFT, RIGHT) - 100% ZOOM-PROOF UNSCALED CANVAS GEOMETRY
-function getClosestBoxSnapPoint(fromX, fromY, boxEl) {
-  const left = boxEl.offsetLeft;
-  const top = boxEl.offsetTop;
-  const right = left + boxEl.offsetWidth;
-  const bottom = top + boxEl.offsetHeight;
-  const midX = Math.round(left + boxEl.offsetWidth / 2);
-  const midY = Math.round(top + boxEl.offsetHeight / 2);
-
-  const points = [
-    { x: midX, y: top, side: 'top' },
-    { x: midX, y: bottom, side: 'bottom' },
-    { x: left, y: midY, side: 'left' },
-    { x: right, y: midY, side: 'right' }
-  ];
-
-  let minDistance = Infinity;
-  let closest = points[0];
-
-  points.forEach(pt => {
-    const dist = Math.hypot(pt.x - fromX, pt.y - fromY);
-    if (dist < minDistance) {
-      minDistance = dist;
-      closest = pt;
-    }
-  });
-
-  return closest;
-}
-
-// DRAW ORGANIC BEZIER CONNECTOR CURVES DIRECTLY FROM ROOT & BRANCHES (100% ZOOM & SCALE PROOF)
+// DRAW ORGANIC BEZIER CONNECTOR CURVES DIRECTLY FROM ROOT & BRANCHES
 function renderOrganicConnectorLines() {
   const svg = document.getElementById('mindmap-svg');
   if (!svg) return;
 
-  const existingElements = svg.querySelectorAll('g.connector-group, path, circle.line-drag-handle');
-  existingElements.forEach(el => el.remove());
+  const existingPaths = svg.querySelectorAll('path');
+  existingPaths.forEach(p => p.remove());
 
+  const viewport = document.getElementById('mindmap-viewport');
   const rootNode = document.getElementById('root-node-box');
-  if (!rootNode) return;
+  if (!viewport || !rootNode) return;
+
+  const vRect = viewport.getBoundingClientRect();
+  const rRect = rootNode.getBoundingClientRect();
+
+  // Root Bottom Center: Starts directly touching the bottom border of the root box
+  const rootX = (rRect.left + rRect.width / 2) - vRect.left + viewport.scrollLeft;
+  const rootY = rRect.bottom - vRect.top + viewport.scrollTop;
 
   const branchBoxes = document.querySelectorAll('.mindmap-main-branch-box');
 
+  // 1. CONNECT ROOT DIRECTLY TO MAIN BRANCHES (SMOOTH ORGANIC CURVES, NO 90 DEGREE ANGLES)
   branchBoxes.forEach(box => {
+    const bRect = box.getBoundingClientRect();
+    const boxCenterX = (bRect.left + bRect.width / 2) - vRect.left + viewport.scrollLeft;
+    const boxCenterY = (bRect.top + bRect.height / 2) - vRect.top + viewport.scrollTop;
     const color = box.dataset.color || '#3b82f6';
 
-    const bCenterX = Math.round(box.offsetLeft + box.offsetWidth / 2);
-    const bCenterY = Math.round(box.offsetTop + box.offsetHeight / 2);
+    // Touch exact inner border of target box (0 separation)
+    let targetX = boxCenterX > rootX 
+      ? (bRect.left - vRect.left + viewport.scrollLeft)
+      : (bRect.right - vRect.left + viewport.scrollLeft);
+    let targetY = boxCenterY;
 
-    // 1. Magnetic Border Snap Points (Root -> Main Branch)
-    const startSnap = getClosestBoxSnapPoint(bCenterX, bCenterY, rootNode);
-    const endSnap = getClosestBoxSnapPoint(startSnap.x, startSnap.y, box);
+    drawOrganicRootCurve(svg, rootX, rootY, targetX, targetY, color, 3.5);
 
-    drawOrganicRootCurve(svg, startSnap, endSnap, color, 3.5, box.dataset.id);
+    // 2. MAIN BRANCH DIRECT TO SUB-NODES (ORGANIC DASHED CURVES)
+    const column = box.closest('.mindmap-branch-column') || box.parentElement;
+    if (column) {
+      const subitems = column.querySelectorAll('.mindmap-subnode-wrapper');
+      subitems.forEach(sub => {
+        const sRect = sub.getBoundingClientRect();
+        const subCenterX = (sRect.left + sRect.width / 2) - vRect.left + viewport.scrollLeft;
+        const subCenterY = (sRect.top + sRect.height / 2) - vRect.top + viewport.scrollTop;
 
-    // 2. Sub-nodes Magnetic Border Snap Points (Main Branch -> ONLY ITS OWN SUBNODES)
-    const branchId = box.dataset.id;
-    const subitems = document.querySelectorAll(`.mindmap-subnode-wrapper[data-branchid="${branchId}"]`);
-    subitems.forEach(sub => {
-      const sCenterX = Math.round(sub.offsetLeft + sub.offsetWidth / 2);
-      const sCenterY = Math.round(sub.offsetTop + sub.offsetHeight / 2);
+        let startPointX, startPointY, endPointX, endPointY;
 
-      const subStartSnap = getClosestBoxSnapPoint(sCenterX, sCenterY, box);
-      const subEndSnap = getClosestBoxSnapPoint(subStartSnap.x, subStartSnap.y, sub);
+        if (subCenterX < boxCenterX) {
+          startPointX = bRect.left - vRect.left + viewport.scrollLeft;
+          startPointY = boxCenterY;
+          endPointX = sRect.right - vRect.left + viewport.scrollLeft;
+          endPointY = subCenterY;
+        } else {
+          startPointX = bRect.right - vRect.left + viewport.scrollLeft;
+          startPointY = boxCenterY;
+          endPointX = sRect.left - vRect.left + viewport.scrollLeft;
+          endPointY = subCenterY;
+        }
 
-      drawOrganicSubnodeCurve(svg, subStartSnap, subEndSnap, color, 2.2, sub.dataset.subid);
-    });
+        drawOrganicSubnodeCurve(svg, startPointX, startPointY, endPointX, endPointY, color, 2.2);
+      });
+    }
   });
 }
 
@@ -716,9 +529,7 @@ function renderMindmapNodes(tree) {
 
   const isAdmin = window.authManager && window.authManager.isAdmin();
 
-  let html = '';
-
-  (tree.branches || []).forEach(b => {
+  container.innerHTML = tree.branches.map(b => {
     const color = b.color || '#3b82f6';
     const linkUrl = b.slug ? `project-detail.html?id=${b.slug}` : 'project.html';
 
@@ -726,77 +537,76 @@ function renderMindmapNodes(tree) {
       ? `position: absolute; left: ${b.x}px; top: ${b.y}px; ${b.w ? `width: ${b.w}px;` : ''} ${b.h ? `height: ${b.h}px;` : ''}` 
       : '';
 
-    // 1. Main Branch Box
-    html += `
-      <div class="mindmap-main-branch-box ${isAdmin ? 'admin-editable' : ''}" data-id="${b.id}" data-color="${color}" style="${customPos}">
-        <div class="d-flex justify-content-between align-items-center mb-1">
-          <span class="badge" style="background: ${color}; color: #ffffff; font-size: 0.65rem; letter-spacing: 0.08em;">${b.tag || 'SYSTEM'}</span>
-        </div>
-        <h4 style="font-size: 1.05rem; font-weight: 800; margin: 0.2rem 0 0.4rem 0;"><a href="${isAdmin ? 'javascript:void(0);' : linkUrl}" class="text-decoration-none text-reset" ${isAdmin ? `ondblclick="window.location.href='${linkUrl}'"` : ''}>${b.title}</a></h4>
-        
-        <div class="d-flex justify-content-center gap-1 mt-2">
-          <a href="${linkUrl}" class="repo-action-btn primary-btn" style="font-size: 0.72rem; padding: 0.25rem 0.6rem;">Explore →</a>
-          ${isAdmin ? `<button type="button" class="repo-action-btn btn-add-subnode" data-branch="${b.id}" style="font-size: 0.72rem; padding: 0.25rem 0.5rem;" title="Add Sub-Branch">➕ Sub</button>` : ''}
-        </div>
-
-        ${isAdmin ? `
-          <div class="box-snap-dot side-top" data-side="top"></div>
-          <div class="box-snap-dot side-bottom" data-side="bottom"></div>
-          <div class="box-snap-dot side-left" data-side="left"></div>
-          <div class="box-snap-dot side-right" data-side="right"></div>
-        ` : ''}
-      </div>
-    `;
-
-    // 2. Sub-nodes Separated as Independent Top-Level Canvas Elements
-    (b.subnodes || []).forEach(s => {
+    const subnodesHTML = (b.subnodes || []).map(s => {
       const subUrl = s.slug ? `project-detail.html?id=${s.slug}` : 'project.html';
       const subPos = (s.x !== undefined && s.y !== undefined)
         ? `position: absolute; left: ${s.x}px; top: ${s.y}px; ${s.w ? `width: ${s.w}px;` : ''} ${s.h ? `height: ${s.h}px;` : ''}`
         : '';
 
-      html += `
-        <div class="d-flex align-items-center gap-1 mindmap-subnode-wrapper ${isAdmin ? 'admin-editable' : ''}" data-subid="${s.id}" data-branchid="${b.id}" data-url="${subUrl}" style="${subPos}">
-          <a href="${isAdmin ? 'javascript:void(0);' : subUrl}" class="mindmap-subnode-item" ${isAdmin ? `ondblclick="window.location.href='${subUrl}'"` : ''}>
+      return `
+        <div class="d-flex align-items-center gap-1 mindmap-subnode-wrapper ${isAdmin ? 'admin-editable' : ''}" data-subid="${s.id}" data-branchid="${b.id}" style="${subPos}">
+          ${isAdmin ? `<span class="mindmap-drag-handle" title="Drag sub-node freely">✋</span>` : ''}
+          <a href="${subUrl}" class="mindmap-subnode-item">
             <span>🚀</span> ${s.title}
           </a>
-          ${isAdmin ? `
-            <div class="box-snap-dot side-top" data-side="top"></div>
-            <div class="box-snap-dot side-bottom" data-side="bottom"></div>
-            <div class="box-snap-dot side-left" data-side="left"></div>
-            <div class="box-snap-dot side-right" data-side="right"></div>
-          ` : ''}
+          ${isAdmin ? `<button type="button" class="btn-delete-animated btn-del-sub" data-branch="${b.id}" data-sub="${s.id}" style="padding: 2px 6px; font-size: 0.68rem;" title="Delete Sub-node"><span class="trash-icon">🗑️</span></button>` : ''}
         </div>
       `;
-    });
-  });
+    }).join('');
 
-  container.innerHTML = html;
+    return `
+      <div class="mindmap-branch-column">
+        <div class="mindmap-main-branch-box ${isAdmin ? 'admin-editable' : ''}" data-id="${b.id}" data-color="${color}" style="${customPos}">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="badge" style="background: ${color}; color: #ffffff; font-size: 0.65rem; letter-spacing: 0.08em;">${b.tag || 'SYSTEM'}</span>
+            ${isAdmin ? `<span class="mindmap-drag-handle" title="Drag main branch freely">✋</span>` : ''}
+          </div>
+          <h4 style="font-size: 1.05rem; font-weight: 800; margin: 0.2rem 0 0.4rem 0;"><a href="${linkUrl}" class="text-decoration-none text-reset">${b.title}</a></h4>
+          
+          <div class="d-flex justify-content-center gap-1 mt-2">
+            <a href="${linkUrl}" class="repo-action-btn primary-btn" style="font-size: 0.72rem; padding: 0.25rem 0.6rem;">Explore →</a>
+            ${isAdmin ? `<button type="button" class="repo-action-btn btn-add-subnode" data-branch="${b.id}" style="font-size: 0.72rem; padding: 0.25rem 0.5rem;" title="Add Sub-Branch">➕ Sub</button>` : ''}
+            ${isAdmin ? `<button type="button" class="btn-delete-animated btn-del-branch" data-branch="${b.id}" style="padding: 0.25rem 0.5rem; font-size: 0.72rem;" title="Delete Branch"><span class="trash-icon">🗑️</span></button>` : ''}
+          </div>
+        </div>
 
-  // Bind Admin Events & Draggable Engine to ALL Boxes (Main Branches & Subnodes)
+        <div class="d-flex flex-column align-items-center gap-2 w-100 mt-2 position-relative">
+          ${subnodesHTML}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Bind Admin Events, Dragging & Resizing
   if (isAdmin) {
+    // 1. Setup Draggable Engine on Main Branches
     container.querySelectorAll('.mindmap-main-branch-box').forEach(box => {
       const branchId = box.getAttribute('data-id');
-      makeBoxDraggable(box, { branchId }, async (x, y) => {
+      makeBoxDraggable(box, async (x, y, w, h) => {
         const branch = currentTreeData.branches.find(b => b.id === branchId);
         if (branch) {
           branch.x = Math.round(x);
           branch.y = Math.round(y);
+          branch.w = Math.round(w);
+          branch.h = Math.round(h);
           await saveTreeToRTDB(false);
         }
       });
     });
 
+    // 2. Setup Draggable Engine on Sub-nodes
     container.querySelectorAll('.mindmap-subnode-wrapper').forEach(subWrap => {
       const branchId = subWrap.getAttribute('data-branchid');
       const subId = subWrap.getAttribute('data-subid');
-      makeBoxDraggable(subWrap, { branchId, subId }, async (x, y) => {
+      makeBoxDraggable(subWrap, async (x, y, w, h) => {
         const branch = currentTreeData.branches.find(b => b.id === branchId);
         if (branch && branch.subnodes) {
           const sub = branch.subnodes.find(s => s.id === subId);
           if (sub) {
             sub.x = Math.round(x);
             sub.y = Math.round(y);
+            sub.w = Math.round(w);
+            sub.h = Math.round(h);
             await saveTreeToRTDB(false);
           }
         }
@@ -849,48 +659,31 @@ function renderMindmapNodes(tree) {
   setTimeout(renderOrganicConnectorLines, 100);
 }
 
-let selectedNode = null;
-function selectNode(nodeData) {
-  if (selectedNode && selectedNode.element) {
-    selectedNode.element.classList.remove('selected-node');
-  }
-  selectedNode = nodeData;
-  if (selectedNode && selectedNode.element) {
-    selectedNode.element.classList.add('selected-node');
-  }
-}
-
-// MS WORD STYLE DIRECT SHAPE DRAGGING ENGINE (100% ZOOM & SCALE PROOF)
+// MS WORD STYLE DIRECT SHAPE DRAGGING ENGINE
 function makeBoxDraggable(element, nodeData, onDragEnd) {
-  if (typeof nodeData === 'function') {
-    onDragEnd = nodeData;
-    nodeData = {};
-  }
   let isDragging = false;
   let hasDragged = false;
+  let startX, startY, initialLeft, initialTop;
 
   element.addEventListener('pointerdown', (e) => {
-    if (e.target.closest('.primary-btn') || e.target.closest('.btn-add-subnode') || e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') {
+    if (e.target.tagName === 'BUTTON' || e.target.tagName === 'A' || e.target.tagName === 'INPUT' || e.target.closest('a') || e.target.closest('button')) {
       return;
     }
     e.preventDefault();
     e.stopPropagation();
 
-    selectNode({ ...(nodeData || {}), element });
+    selectNode({ ...nodeData, element });
 
     isDragging = true;
     hasDragged = false;
     element.classList.add('is-dragging');
 
-    const canvasInner = document.getElementById('mindmap-canvas-inner');
-    const cRect = canvasInner ? canvasInner.getBoundingClientRect() : { left: 0, top: 0 };
-    const currentZoom = window.mindmapZoom || 1.0;
+    const viewport = document.getElementById('mindmap-viewport');
+    const vRect = viewport.getBoundingClientRect();
+    const eRect = element.getBoundingClientRect();
 
-    const initialLeft = element.offsetLeft;
-    const initialTop = element.offsetTop;
-
-    const startCanvasMouseX = (e.clientX - cRect.left) / currentZoom;
-    const startCanvasMouseY = (e.clientY - cRect.top) / currentZoom;
+    initialLeft = eRect.left - vRect.left + viewport.scrollLeft;
+    initialTop = eRect.top - vRect.top + viewport.scrollTop;
 
     element.style.position = 'absolute';
     element.style.left = initialLeft + 'px';
@@ -898,22 +691,20 @@ function makeBoxDraggable(element, nodeData, onDragEnd) {
     element.style.margin = '0';
     element.style.zIndex = '100';
 
+    startX = e.clientX;
+    startY = e.clientY;
+
     const onPointerMove = (moveEvt) => {
       if (!isDragging) return;
-
-      const currentZoom = window.mindmapZoom || 1.0;
-      const mouseCanvasX = (moveEvt.clientX - cRect.left) / currentZoom;
-      const mouseCanvasY = (moveEvt.clientY - cRect.top) / currentZoom;
-
-      const dx = mouseCanvasX - startCanvasMouseX;
-      const dy = mouseCanvasY - startCanvasMouseY;
-
-      const currentLeft = Math.max(10, Math.round(initialLeft + dx));
-      const currentTop = Math.max(10, Math.round(initialTop + dy));
+      const dx = moveEvt.clientX - startX;
+      const dy = moveEvt.clientY - startY;
 
       if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
         hasDragged = true;
       }
+
+      const currentLeft = Math.max(10, initialLeft + dx);
+      const currentTop = Math.max(10, initialTop + dy);
 
       element.style.left = currentLeft + 'px';
       element.style.top = currentTop + 'px';
@@ -925,7 +716,7 @@ function makeBoxDraggable(element, nodeData, onDragEnd) {
       if (!isDragging) return;
       isDragging = false;
       element.classList.remove('is-dragging');
-      element.style.zIndex = '5';
+      element.style.zIndex = '2';
 
       document.removeEventListener('pointermove', onPointerMove);
       document.removeEventListener('pointerup', onPointerUp);
@@ -934,6 +725,14 @@ function makeBoxDraggable(element, nodeData, onDragEnd) {
         const finalLeft = parseFloat(element.style.left);
         const finalTop = parseFloat(element.style.top);
         onDragEnd(finalLeft, finalTop);
+      } else if (!hasDragged && element.dataset.url) {
+        // Single click navigation for subnode links
+        const targetUrl = element.dataset.url;
+        setTimeout(() => {
+          if (!selectedNode || selectedNode.element !== element) {
+            window.location.href = targetUrl;
+          }
+        }, 150);
       }
     };
 
@@ -1061,7 +860,21 @@ async function initRoadmapTree() {
     }
   }
 
-  applyTapRootLayout(currentTreeData);
+  if (currentTreeData.branches) {
+    currentTreeData.branches.forEach(b => {
+      if (b.x !== undefined && (b.x < 10 || b.x > 1800 || b.y < 10 || b.y > 1800)) {
+        delete b.x; delete b.y;
+      }
+      if (b.subnodes) {
+        b.subnodes.forEach(s => {
+          if (s.x !== undefined && (s.x < 10 || s.x > 1800 || s.y < 10 || s.y > 1800)) {
+            delete s.x; delete s.y;
+          }
+        });
+      }
+    });
+  }
+
   renderMindmapNodes(currentTreeData);
 }
 
@@ -1079,8 +892,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateZoom(scale) {
     currentZoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, scale));
-    window.mindmapZoom = currentZoom;
-
     const canvasInner = document.getElementById('mindmap-canvas-inner');
     const badge = document.getElementById('zoom-badge');
 
@@ -1091,6 +902,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (badge) {
       badge.textContent = `${Math.round(currentZoom * 100)}%`;
     }
+    setTimeout(renderOrganicConnectorLines, 60);
   }
 
   const btnZoomIn = document.getElementById('btn-zoom-in');
@@ -1118,8 +930,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
       if (confirm("Reset mindmap canvas layout to pristine tree alignment?")) {
-        delete currentTreeData.rootX;
-        delete currentTreeData.rootY;
         if (currentTreeData.branches) {
           currentTreeData.branches.forEach(b => {
             delete b.x; delete b.y; delete b.w; delete b.h;
@@ -1127,9 +937,9 @@ document.addEventListener('DOMContentLoaded', () => {
               b.subnodes.forEach(s => { delete s.x; delete s.y; delete s.w; delete s.h; });
             }
           });
+          delete currentTreeData.rootX;
+          delete currentTreeData.rootY;
         }
-        applyTapRootLayout(currentTreeData, true);
-        renderMindmapNodes(currentTreeData);
         await saveTreeToRTDB(true);
       }
     });

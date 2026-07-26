@@ -17,7 +17,8 @@ import {
   set, 
   get, 
   child, 
-  update 
+  update,
+  push 
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 import { 
   getStorage, 
@@ -241,12 +242,27 @@ class ActualAuthManager {
     this.currentUser = JSON.parse(localStorage.getItem('roketry-user')) || null;
     
     if (this.currentUser) {
-      this.currentUser.role = (this.currentUser.email && this.currentUser.email.toLowerCase().trim() === EXCLUSIVE_ADMIN_EMAIL) ? "admin" : "user";
+      if (this.isSuperAdmin()) {
+        this.currentUser.role = "admin";
+      }
       localStorage.setItem('roketry-user', JSON.stringify(this.currentUser));
     }
     
     setTimeout(() => this.updateNavUI(), 50);
     this.initAuthStateListener();
+  }
+
+  isSuperAdmin() {
+    return !!(this.currentUser && this.currentUser.email && this.currentUser.email.toLowerCase().trim() === EXCLUSIVE_ADMIN_EMAIL);
+  }
+
+  isAdmin() {
+    if (!this.currentUser) return false;
+    return this.isSuperAdmin() || this.currentUser.role === 'admin';
+  }
+
+  getUser() {
+    return this.currentUser;
   }
 
   initAuthStateListener() {
@@ -255,7 +271,10 @@ class ActualAuthManager {
         if (firebaseUser) {
           let rtdbProfile = await this.fetchRTDBProfile(firebaseUser.uid);
           const email = (firebaseUser.email || "").toLowerCase().trim();
-          const role = (email === EXCLUSIVE_ADMIN_EMAIL) ? "admin" : "user";
+          let role = "user";
+          if (email === EXCLUSIVE_ADMIN_EMAIL || (rtdbProfile && rtdbProfile.role === 'admin')) {
+            role = "admin";
+          }
 
           const profile = {
             uid: firebaseUser.uid,
@@ -277,6 +296,143 @@ class ActualAuthManager {
         this.updateNavUI();
       });
     }
+  }
+
+  // SUBMIT NOTIFICATION (Targeted Recipient & Admin Notifications)
+  async submitNotification(payload) {
+    const notifData = {
+      type: payload.type || 'CONTACT',
+      title: payload.title || '📩 New Notification',
+      senderName: payload.senderName || 'Community Member',
+      senderEmail: payload.senderEmail || 'user@roketry.org',
+      recipientUid: payload.recipientUid || '',
+      recipientEmail: payload.recipientEmail ? payload.recipientEmail.toLowerCase().trim() : '',
+      message: payload.message || '',
+      interest: payload.interest || '',
+      timestamp: payload.timestamp || new Date().toISOString(),
+      read: false
+    };
+
+    if (db) {
+      try {
+        const notifRef = push(dbRef(db, 'notifications'));
+        const newNotif = { id: notifRef.key, ...notifData };
+        await set(notifRef, newNotif);
+        return newNotif;
+      } catch (err) {
+        console.warn("RTDB Submit Notification Error:", err);
+      }
+    }
+
+    const localNotifs = JSON.parse(localStorage.getItem('roketry-local-notifications')) || [];
+    const newNotif = { id: `local_notif_${Date.now()}`, ...notifData };
+    localNotifs.unshift(newNotif);
+    localStorage.setItem('roketry-local-notifications', JSON.stringify(localNotifs));
+    return newNotif;
+  }
+
+  // FETCH NOTIFICATIONS FROM FIREBASE RTDB (FILTERED BY LOGGED-IN RECIPIENT)
+  async fetchNotifications(limitCount = 30) {
+    const user = this.getUser();
+    const userUid = user ? user.uid : null;
+    const userEmail = user && user.email ? user.email.toLowerCase().trim() : null;
+    const isSuper = this.isSuperAdmin();
+
+    let allNotifs = [];
+
+    if (db) {
+      try {
+        const rootRef = dbRef(db);
+        const snapshot = await get(child(rootRef, 'notifications'));
+        if (snapshot.exists()) {
+          const obj = snapshot.val();
+          allNotifs = Object.keys(obj).map(k => ({ id: k, ...obj[k] }));
+        }
+      } catch (err) {
+        console.warn("RTDB Fetch Notifications Error:", err);
+      }
+    } else {
+      allNotifs = JSON.parse(localStorage.getItem('roketry-local-notifications')) || [];
+    }
+
+    // STRICT RECIPIENT FILTERING:
+    // 1. Super Admin (mbatwc@gmail.com): Sees contact forms, join submissions, and admin logs
+    // 2. Targeted User: Sees ONLY notifications addressed directly to their UID or Email
+    const filtered = allNotifs.filter(n => {
+      if (isSuper) return true; // Super Admin sees system management notifications
+
+      const notifTargetUid = n.recipientUid;
+      const notifTargetEmail = n.recipientEmail ? n.recipientEmail.toLowerCase().trim() : null;
+
+      if (notifTargetUid || notifTargetEmail) {
+        if (userUid && notifTargetUid === userUid) return true;
+        if (userEmail && notifTargetEmail === userEmail) return true;
+        return false; // Block broadcast to unrelated users!
+      }
+
+      return false;
+    });
+
+    return filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, limitCount);
+  }
+
+  // MARK NOTIFICATION AS READ
+  async markNotificationAsRead(notifId) {
+    if (db && notifId) {
+      try {
+        await update(dbRef(db, `notifications/${notifId}`), { read: true });
+      } catch (err) {
+        console.warn("RTDB Mark Read Error:", err);
+      }
+    }
+    const localNotifs = JSON.parse(localStorage.getItem('roketry-local-notifications')) || [];
+    const idx = localNotifs.findIndex(n => n.id === notifId);
+    if (idx !== -1) {
+      localNotifs[idx].read = true;
+      localStorage.setItem('roketry-local-notifications', JSON.stringify(localNotifs));
+    }
+    return true;
+  }
+
+  // MARK ALL NOTIFICATIONS AS READ
+  async markAllNotificationsAsRead() {
+    const notifs = await this.fetchNotifications();
+    for (const n of notifs) {
+      if (!n.read) {
+        await this.markNotificationAsRead(n.id);
+      }
+    }
+    return true;
+  }
+
+  // UPDATE USER ROLE (SUPER ADMIN: mbatwc@gmail.com)
+  async updateUserRole(targetUid, newRole) {
+    if (!this.isSuperAdmin()) {
+      alert("Permission Denied: Only Super Admin (mbatwc@gmail.com) can modify user admin privileges.");
+      return false;
+    }
+    if (db && targetUid) {
+      try {
+        await update(dbRef(db, `users/${targetUid}`), {
+          role: newRole,
+          updatedAt: new Date().toISOString()
+        });
+        
+        await this.submitNotification({
+          type: 'ADMIN_PRIVILEGE_CHANGE',
+          title: `👑 Admin Access ${newRole === 'admin' ? 'Granted' : 'Revoked'}`,
+          senderName: this.currentUser?.name || 'Super Admin',
+          senderEmail: EXCLUSIVE_ADMIN_EMAIL,
+          message: `Admin rights ${newRole === 'admin' ? 'granted to' : 'revoked from'} user UID: ${targetUid}`,
+          timestamp: new Date().toISOString()
+        });
+        return true;
+      } catch (err) {
+        console.error("RTDB Update Role Error:", err);
+        return false;
+      }
+    }
+    return false;
   }
 
   // FETCH PROFILE FROM FIREBASE REALTIME DATABASE (users/{uid})
@@ -323,11 +479,12 @@ class ActualAuthManager {
   async saveToRTDB(profile) {
     if (db && profile.uid) {
       try {
+        const isSuper = (profile.email && profile.email.toLowerCase().trim() === EXCLUSIVE_ADMIN_EMAIL);
         await set(dbRef(db, `users/${profile.uid}`), {
           name: profile.name,
           email: profile.email,
           photoURL: profile.photoURL,
-          role: profile.role,
+          role: isSuper ? 'admin' : (profile.role || 'user'),
           bio: profile.bio,
           updatedAt: new Date().toISOString()
         });
@@ -445,16 +602,73 @@ class ActualAuthManager {
     });
   }
 
-  // PUBLISH CUSTOM PROJECT TO FIREBASE REALTIME DATABASE (projects/{id})
-  async publishCustomProjectToRTDB(projectData) {
+  // PUBLISH CUSTOM PROJECT TO FIREBASE REALTIME DATABASE (projects/{id}) WITH VERSIONING & CHANGELOG
+  async publishCustomProjectToRTDB(projectData, commitMessage = 'Published project updates') {
     if (db && projectData.id) {
       try {
-        await set(dbRef(db, `projects/${projectData.id}`), {
+        // Fetch existing project to determine version increment
+        const existingSnap = await get(child(dbRef(db), `projects/${projectData.id}`));
+        let currentVersionNum = 1.0;
+        let existingHistory = [];
+
+        if (existingSnap.exists()) {
+          const oldData = existingSnap.val();
+          if (oldData.versionNum) {
+            currentVersionNum = Math.round((oldData.versionNum + 0.1) * 10) / 10;
+          } else if (oldData.version && oldData.version.startsWith('v')) {
+            const parsed = parseFloat(oldData.version.substring(1));
+            if (!isNaN(parsed)) currentVersionNum = Math.round((parsed + 0.1) * 10) / 10;
+          }
+          if (oldData.history && Array.isArray(oldData.history)) {
+            existingHistory = oldData.history;
+          } else if (oldData.history && typeof oldData.history === 'object') {
+            existingHistory = Object.values(oldData.history);
+          }
+        }
+
+        const newVersionTag = `v${currentVersionNum.toFixed(1)}`;
+        const timestamp = new Date().toISOString();
+        const editorEmail = this.currentUser ? this.currentUser.email : EXCLUSIVE_ADMIN_EMAIL;
+        const editorName = this.currentUser ? this.currentUser.name : 'Admin';
+        const editorPhoto = this.currentUser ? this.currentUser.photoURL : '';
+
+        const newHistoryEntry = {
+          version: newVersionTag,
+          commitMessage: commitMessage || 'Updated project documentation',
+          editedBy: editorEmail,
+          editorName: editorName,
+          editorPhoto: editorPhoto,
+          editedAt: timestamp
+        };
+
+        const updatedProject = {
           ...projectData,
-          publishedBy: this.currentUser ? this.currentUser.email : EXCLUSIVE_ADMIN_EMAIL,
-          publishedAt: new Date().toISOString()
-        });
-        return true;
+          version: newVersionTag,
+          versionNum: currentVersionNum,
+          lastCommitMessage: commitMessage,
+          publishedBy: editorEmail,
+          publishedAt: timestamp,
+          history: [...existingHistory, newHistoryEntry]
+        };
+
+        // 1. Write updated project to RTDB
+        await set(dbRef(db, `projects/${projectData.id}`), updatedProject);
+
+        // 2. Push to global audit changelog
+        const changelogEntry = {
+          projectId: projectData.id,
+          projectTitle: projectData.title || projectData.id,
+          version: newVersionTag,
+          commitMessage: commitMessage || 'Updated project documentation',
+          editedBy: editorEmail,
+          editorName: editorName,
+          editorPhoto: editorPhoto,
+          editedAt: timestamp,
+          changedFields: ['CATALOG UPDATE', newVersionTag]
+        };
+        await push(dbRef(db, 'changelog'), changelogEntry);
+
+        return updatedProject;
       } catch (err) {
         console.error("RTDB Publish Project Error:", err);
       }
@@ -462,7 +676,7 @@ class ActualAuthManager {
     const localProjects = JSON.parse(localStorage.getItem('roketry-custom-projects')) || {};
     localProjects[projectData.id] = projectData;
     localStorage.setItem('roketry-custom-projects', JSON.stringify(localProjects));
-    return true;
+    return projectData;
   }
 
   // FETCH CUSTOM PROJECT FROM FIREBASE REALTIME DATABASE (projects/{id})
@@ -533,7 +747,216 @@ class ActualAuthManager {
   }
 
   isAdmin() {
-    return this.currentUser && this.currentUser.email && this.currentUser.email.toLowerCase().trim() === EXCLUSIVE_ADMIN_EMAIL;
+    if (!this.currentUser) return false;
+    return this.isSuperAdmin() || this.currentUser.role === 'admin';
+  }
+
+  // UPDATE PROJECT IN RTDB AND LOG COMMIT TO CHANGELOG
+  async updateProjectInRTDB(projectId, updatedData, commitMessage, changedFields) {
+    if (db && projectId) {
+      try {
+        // 1. Merge updated fields into existing project
+        await update(dbRef(db, `projects/${projectId}`), {
+          ...updatedData,
+          lastEditedBy: this.currentUser ? this.currentUser.email : EXCLUSIVE_ADMIN_EMAIL,
+          lastEditedAt: new Date().toISOString()
+        });
+
+        // 2. Push a changelog entry
+        const changelogEntry = {
+          projectId: projectId,
+          projectTitle: updatedData.title || projectId,
+          commitMessage: commitMessage || 'Updated project',
+          editedBy: this.currentUser ? this.currentUser.email : EXCLUSIVE_ADMIN_EMAIL,
+          editorName: this.currentUser ? this.currentUser.name : 'Admin',
+          editorPhoto: this.currentUser ? this.currentUser.photoURL : '',
+          editedAt: new Date().toISOString(),
+          changedFields: changedFields || []
+        };
+        await push(dbRef(db, 'changelog'), changelogEntry);
+
+        return true;
+      } catch (err) {
+        console.error('RTDB Update Project Error:', err);
+        return false;
+      }
+    }
+    return false;
+  }
+
+  // FETCH COMMIT CHANGELOG FROM RTDB (newest first)
+  async fetchChangelog(limit = 50) {
+    if (db) {
+      try {
+        const snapshot = await get(dbRef(db, 'changelog'));
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          const entries = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+          // Sort newest first
+          entries.sort((a, b) => new Date(b.editedAt) - new Date(a.editedAt));
+          return entries.slice(0, limit);
+        }
+      } catch (err) {
+        console.warn('RTDB Fetch Changelog Error:', err);
+      }
+    }
+    return [];
+  }
+
+  // DELETE PROJECT FROM RTDB AND LOG TO CHANGELOG
+  async deleteProjectFromRTDB(projectId, projectTitle) {
+    if (db && projectId) {
+      try {
+        // Remove project node
+        await set(dbRef(db, `projects/${projectId}`), null);
+
+        // Log deletion to changelog
+        const changelogEntry = {
+          projectId: projectId,
+          projectTitle: projectTitle || projectId,
+          commitMessage: `🗑️ Deleted project "${projectTitle || projectId}"`,
+          editedBy: this.currentUser ? this.currentUser.email : EXCLUSIVE_ADMIN_EMAIL,
+          editorName: this.currentUser ? this.currentUser.name : 'Admin',
+          editorPhoto: this.currentUser ? this.currentUser.photoURL : '',
+          editedAt: new Date().toISOString(),
+          changedFields: ['DELETED']
+        };
+        await push(dbRef(db, 'changelog'), changelogEntry);
+
+        return true;
+      } catch (err) {
+        console.error('RTDB Delete Project Error:', err);
+        return false;
+      }
+    }
+    // Also remove from localStorage
+    const localProjects = JSON.parse(localStorage.getItem('roketry-custom-projects')) || {};
+    delete localProjects[projectId];
+    localStorage.setItem('roketry-custom-projects', JSON.stringify(localProjects));
+    return true;
+  }
+
+  // FETCH ALL TEAM MEMBERS FROM RTDB
+  async fetchTeamMembers() {
+    if (db) {
+      try {
+        const rootRef = dbRef(db);
+        const snapshot = await get(child(rootRef, 'teamMembers'));
+        if (snapshot.exists()) {
+          const obj = snapshot.val();
+          return Object.keys(obj).map(k => ({ id: k, ...obj[k] }));
+        }
+      } catch (err) {
+        console.warn("RTDB Fetch Team Members Error:", err);
+      }
+    }
+    const localTeam = JSON.parse(localStorage.getItem('roketry-local-team')) || [];
+    if (localTeam.length > 0) return localTeam;
+
+    return [
+      { id: 'team_vance', uid: 'usr_vance', name: 'Dr. Alex Vance', role: 'FOUNDER & LEAD ENGINEER', bio: 'Aerospace engineer specializing in solid propellant formulations and computational fluid dynamics.', photoURL: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80', email: 'alex.vance@roketry.org' },
+      { id: 'team_marcus', uid: 'usr_marcus', name: 'Marcus Chen', role: 'AVIONICS & SOFTWARE LEAD', bio: 'Embedded systems designer crafting dual-deployment flight computers and telemetry stacks.', photoURL: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150&auto=format&fit=crop&q=80', email: 'marcus.chen@roketry.org' },
+      { id: 'team_elena', uid: 'usr_elena', name: 'Elena Rostova', role: 'PROPULSION SYSTEMS LEAD', bio: 'Mechanical engineer leading static thrust test stand instrumentation and nozzle geometry optimization.', photoURL: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80', email: 'elena.rostova@roketry.org' },
+      { id: 'team_david', uid: 'usr_david', name: 'David K.', role: 'STRUCTURES & RECOVERY LEAD', bio: 'Composite materials specialist focusing on carbon-fiber airframes and parachute deployment systems.', photoURL: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80', email: 'david.k@roketry.org' }
+    ];
+  }
+
+  // SAVE OR UPDATE TEAM MEMBER & ASSIGN ROLE (ADMIN ONLY)
+  async saveTeamMember(memberData) {
+    if (!this.isAdmin()) {
+      alert("Permission Denied: Only Admins can manage team members and assign roles.");
+      return false;
+    }
+
+    // Strict Super Admin Check for granting Admin Role
+    if (memberData.makeAdmin && !this.isSuperAdmin()) {
+      alert("Permission Denied: Only Super Admin (mbatwc@gmail.com) can grant or revoke Admin privileges.");
+      return false;
+    }
+
+    const memberId = memberData.id || `team_${Date.now()}`;
+    const payload = {
+      id: memberId,
+      uid: memberData.uid || '',
+      name: memberData.name || 'Team Member',
+      email: memberData.email || '',
+      role: memberData.role || 'CORE CONTRIBUTOR',
+      isAdmin: !!memberData.makeAdmin,
+      bio: memberData.bio || '',
+      photoURL: memberData.photoURL || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+      updatedAt: new Date().toISOString()
+    };
+
+    if (db) {
+      try {
+        await set(dbRef(db, `teamMembers/${memberId}`), payload);
+
+        if (memberData.uid) {
+          const userUpdates = {
+            teamRole: memberData.role,
+            updatedAt: new Date().toISOString()
+          };
+
+          // Only Super Admin can change users/{uid}/role
+          if (this.isSuperAdmin() && memberData.makeAdmin !== undefined) {
+            userUpdates.role = memberData.makeAdmin ? 'admin' : 'user';
+          }
+
+          await update(dbRef(db, `users/${memberData.uid}`), userUpdates);
+        }
+
+        const notifTitle = memberData.makeAdmin 
+          ? `👑 Admin Access Granted: ${memberData.role}`
+          : `🎉 Team Role Assigned: ${memberData.role}`;
+
+        const notifMsg = memberData.makeAdmin
+          ? `Congratulations! ${memberData.name} has been promoted to ADMIN with full editing access by Super Admin.`
+          : `Congratulations! ${memberData.name} has been assigned the team role "${memberData.role}" by Admin.`;
+
+        await this.submitNotification({
+          type: memberData.makeAdmin ? 'ADMIN_PROMOTION' : 'ROLE_ASSIGNMENT',
+          title: notifTitle,
+          senderName: this.currentUser?.name || 'Super Admin',
+          senderEmail: EXCLUSIVE_ADMIN_EMAIL,
+          recipientUid: memberData.uid || '',
+          recipientEmail: memberData.email || '',
+          message: notifMsg,
+          timestamp: new Date().toISOString()
+        });
+
+        return payload;
+      } catch (err) {
+        console.error("RTDB Save Team Member Error:", err);
+      }
+    }
+
+    const localTeam = JSON.parse(localStorage.getItem('roketry-local-team')) || [];
+    const idx = localTeam.findIndex(t => t.id === memberId);
+    if (idx !== -1) localTeam[idx] = payload;
+    else localTeam.push(payload);
+    localStorage.setItem('roketry-local-team', JSON.stringify(localTeam));
+
+    return payload;
+  }
+
+  // DELETE TEAM MEMBER (ADMIN ONLY)
+  async deleteTeamMember(memberId) {
+    if (!this.isAdmin()) {
+      alert("Permission Denied: Only Admins can remove team members.");
+      return false;
+    }
+    if (db && memberId) {
+      try {
+        await set(dbRef(db, `teamMembers/${memberId}`), null);
+        return true;
+      } catch (err) {
+        console.error("RTDB Delete Team Member Error:", err);
+      }
+    }
+    const localTeam = JSON.parse(localStorage.getItem('roketry-local-team')) || [];
+    const filtered = localTeam.filter(t => t.id !== memberId);
+    localStorage.setItem('roketry-local-team', JSON.stringify(filtered));
+    return true;
   }
 
   // ACTUAL GOOGLE SIGN-IN
@@ -568,6 +991,19 @@ class ActualAuthManager {
         return profile;
       } catch (error) {
         console.error("Firebase Google Auth Error:", error);
+        if (error && error.code === 'auth/unauthorized-domain') {
+          const currentHost = window.location.hostname;
+          const currentPort = window.location.port ? `:${window.location.port}` : '';
+          
+          if (currentHost === '127.0.0.1') {
+            const redirectUrl = window.location.href.replace('127.0.0.1', 'localhost');
+            if (confirm("🚨 Firebase Google Login Warning:\n\nThe domain '127.0.0.1' is not authorized in your Firebase Console.\n\nWould you like to automatically redirect to:\n" + redirectUrl + "\nwhere Google Sign-In is authorized?")) {
+              window.location.href = redirectUrl;
+              return null;
+            }
+          }
+          alert("❌ Firebase Authorization Error (auth/unauthorized-domain):\n\nDomain '" + currentHost + "' is not authorized for Google Sign-In.\n\n2 Easy Fix Options:\n1. Open your site at: http://localhost" + currentPort + window.location.pathname + "\n2. Add '127.0.0.1' to Firebase Console -> Authentication -> Settings -> Authorized domains.");
+        }
         return null;
       }
     }
@@ -625,29 +1061,140 @@ class ActualAuthManager {
     return this.currentUser;
   }
 
-  // UPDATE NAVBAR UI ACROSS ALL PAGES
-  updateNavUI() {
-    const authContainer = document.getElementById('auth-nav-widget');
-    if (authContainer) {
-      const user = this.getUser();
-      if (user) {
-        const isAdmin = user.email && user.email.toLowerCase().trim() === EXCLUSIVE_ADMIN_EMAIL;
-        authContainer.innerHTML = `
-          <div class="d-flex align-items-center gap-2 me-md-3">
-            ${isAdmin ? '<a href="admin.html" class="nav-auth-btn" style="background: rgba(16, 185, 129, 0.15); color: #10b981 !important; border: 1px solid #10b981;">⚙️ Admin</a>' : ''}
-            <a href="profile.html" class="d-flex align-items-center text-decoration-none">
-              <img src="${user.photoURL}" class="nav-user-avatar" title="${user.name} (${isAdmin ? 'Admin' : 'Member'})" alt="${user.name}">
-            </a>
+  renderNotificationListHTML(notifications) {
+    if (!notifications || notifications.length === 0) {
+      return '<div class="p-3 text-center subtle-text" style="font-size: 0.8rem;">No notifications recorded yet.</div>';
+    }
+
+    return notifications.map(n => {
+      const d = n.timestamp ? new Date(n.timestamp) : new Date();
+      const timeAgo = d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+      const icon = n.type === 'JOIN' ? '🚀' : (n.type === 'ADMIN_PRIVILEGE_CHANGE' ? '👑' : '📩');
+      const unreadClass = !n.read ? 'unread-item' : '';
+      
+      const title = (n.title && n.title !== 'undefined') ? n.title : (n.type === 'JOIN' ? '🚀 New Join Application' : (n.type === 'ADMIN_PRIVILEGE_CHANGE' ? '👑 Admin Privilege Change' : '📩 New Contact Message'));
+      const sender = (n.senderName && n.senderName !== 'undefined') ? n.senderName : ((n.senderEmail && n.senderEmail !== 'undefined') ? n.senderEmail : 'Community Member');
+      const msg = (n.message && n.message !== 'undefined') ? n.message : (n.interest ? `Interest: ${n.interest}` : 'New submission received');
+
+      return `
+        <div class="notif-item ${unreadClass}">
+          <div class="d-flex align-items-start gap-2">
+            <span style="font-size: 1.1rem;">${icon}</span>
+            <div style="flex: 1; min-width: 0;">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <strong style="font-size: 0.82rem; font-family: var(--font-display); color: var(--text-dark);">${title}</strong>
+                <span class="mono-text subtle-text" style="font-size: 0.7rem;">${timeAgo}</span>
+              </div>
+              <p class="mono-text m-0 mb-1" style="font-size: 0.78rem; color: var(--text-muted); text-overflow: ellipsis; overflow: hidden;">${msg}</p>
+              ${n.interest ? `<span class="badge bg-secondary mb-1" style="font-size: 0.65rem;">${n.interest}</span>` : ''}
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="subtle-text" style="font-size: 0.72rem;">From: <strong>${sender}</strong></span>
+                ${!n.read ? `<button type="button" class="btn-mark-read-item" data-id="${n.id}" style="font-size: 0.7rem; border: none; background: none; color: #2563eb; cursor: pointer; font-weight: 700;">Mark Read</button>` : '<span class="subtle-text" style="font-size: 0.7rem;">✓ Read</span>'}
+              </div>
+            </div>
           </div>
-        `;
-      } else {
-        authContainer.innerHTML = `
-          <button id="btn-nav-login" class="nav-auth-btn me-md-3">🔑 Google Sign-In</button>
-        `;
-        const loginBtn = document.getElementById('btn-nav-login');
-        if (loginBtn) {
-          loginBtn.addEventListener('click', () => this.signInWithGoogle());
-        }
+        </div>
+      `;
+    }).join('');
+  }
+
+  // UPDATE NAVBAR UI ACROSS ALL PAGES (NOTIFICATION BELL RESTRICTED ONLY TO ADMINS)
+  async updateNavUI() {
+    const authContainer = document.getElementById('auth-nav-widget');
+    if (!authContainer) return;
+
+    const user = this.getUser();
+    const isAdmin = this.isAdmin();
+    const isSuper = this.isSuperAdmin();
+
+    let notifHTML = '';
+
+    // ONLY FOR ADMIN USERS: Render Notification Bell Widget & Popover!
+    if (isAdmin) {
+      const notifications = await this.fetchNotifications();
+      const unreadCount = notifications.filter(n => !n.read).length;
+
+      notifHTML = `
+        <div class="nav-notif-wrapper me-md-2">
+          <button type="button" id="btn-nav-notif" class="nav-notif-bell-btn" title="Live Admin Notifications Center">
+            🔔 ${unreadCount > 0 ? `<span class="notif-badge-pill">${unreadCount}</span>` : ''}
+          </button>
+          <div id="nav-notif-popover" class="nav-notif-popover d-none">
+            <div class="notif-popover-header">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <strong style="font-family: var(--font-display); font-size: 0.88rem;">🔔 Admin Notifications</strong>
+                <span class="badge bg-primary rounded-pill">${unreadCount} Unread</span>
+              </div>
+              <button type="button" id="btn-mark-all-read-popover" class="btn btn-sm btn-link p-0 text-decoration-none" style="font-size: 0.75rem; color: #2563eb; font-weight: 700;">Mark all read</button>
+            </div>
+            <div id="notif-popover-list" class="notif-popover-body">
+              ${this.renderNotificationListHTML(notifications)}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    let authHTML = '';
+    if (user) {
+      authHTML = `
+        <div class="d-flex align-items-center gap-2 me-md-2 position-relative">
+          ${isAdmin ? '<a href="admin.html" class="nav-auth-btn" style="background: rgba(16, 185, 129, 0.15); color: #10b981 !important; border: 1px solid #10b981;">⚙️ Admin</a>' : ''}
+          <a href="profile.html" class="d-flex align-items-center text-decoration-none">
+            <img src="${user.photoURL}" class="nav-user-avatar" title="${user.name} (${isSuper ? 'Super Admin' : (isAdmin ? 'Admin' : 'Member')})" alt="${user.name}">
+          </a>
+        </div>
+      `;
+    } else {
+      authHTML = `
+        <button id="btn-nav-login" class="nav-auth-btn me-md-2">🔑 Sign In</button>
+      `;
+    }
+
+    authContainer.innerHTML = notifHTML + authHTML;
+
+    // Attach Login Event
+    const loginBtn = document.getElementById('btn-nav-login');
+    if (loginBtn) {
+      loginBtn.addEventListener('click', () => this.signInWithGoogle());
+    }
+
+    // Attach Notification Popover Toggle (ONLY if admin)
+    if (isAdmin) {
+      const notifBtn = document.getElementById('btn-nav-notif');
+      const popover = document.getElementById('nav-notif-popover');
+      if (notifBtn && popover) {
+        notifBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          popover.classList.toggle('d-none');
+        });
+        document.addEventListener('click', (e) => {
+          if (!popover.contains(e.target) && !notifBtn.contains(e.target)) {
+            popover.classList.add('d-none');
+          }
+        });
+      }
+
+      const markAllBtn = document.getElementById('btn-mark-all-read-popover');
+      if (markAllBtn) {
+        markAllBtn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          await this.markAllNotificationsAsRead();
+          this.updateNavUI();
+        });
+      }
+
+      // Individual mark read buttons
+      const popoverList = document.getElementById('notif-popover-list');
+      if (popoverList) {
+        popoverList.querySelectorAll('.btn-mark-read-item').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const id = btn.getAttribute('data-id');
+            await this.markNotificationAsRead(id);
+            this.updateNavUI();
+          });
+        });
       }
     }
   }

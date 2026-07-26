@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const loggedOutState = document.getElementById('profile-logged-out-state');
   const loggedInState = document.getElementById('profile-logged-in-state');
 
-  function checkAndRenderProfile() {
+  async function checkAndRenderProfile() {
     const auth = window.authManager;
     const user = auth ? auth.getUser() : null;
     if (skeletonState) skeletonState.classList.add('d-none');
@@ -170,25 +170,64 @@ document.addEventListener('DOMContentLoaded', () => {
       loggedOutState.classList.add('d-none');
       loggedInState.classList.remove('d-none');
 
-      document.getElementById('profile-dp-img').src = user.photoURL;
-      document.getElementById('profile-display-name').textContent = user.name;
+      let rtdbData = null;
+      if (auth && user.uid) {
+        rtdbData = await auth.fetchRTDBProfile(user.uid);
+      }
+
+      const displayName = rtdbData?.name || user.name;
+      const photoURL = rtdbData?.photoURL || user.photoURL;
+      const bio = rtdbData?.bio || user.bio || '';
+      const assignedRole = rtdbData?.teamRole || (user.email && user.email.toLowerCase().trim() === 'mbatwc@gmail.com' ? 'SUPER ADMIN' : 'CORE MEMBER');
+
+      document.getElementById('profile-dp-img').src = photoURL;
+      document.getElementById('profile-display-name').textContent = displayName;
       document.getElementById('profile-display-email').textContent = user.email;
 
       const isAdmin = user.email && user.email.toLowerCase().trim() === 'mbatwc@gmail.com';
       const roleBadge = document.getElementById('profile-display-role');
-      roleBadge.textContent = isAdmin ? 'ADMIN' : 'MEMBER';
-      if (isAdmin) {
-        roleBadge.style.background = 'rgba(16, 185, 129, 0.15)';
-        roleBadge.style.color = '#10b981';
-      } else {
-        roleBadge.style.background = 'rgba(59, 130, 246, 0.15)';
-        roleBadge.style.color = '#3b82f6';
+
+      const roleUpper = assignedRole.toUpperCase().trim();
+      let bg = 'rgba(59, 130, 246, 0.15)';
+      let color = '#60a5fa';
+      let border = 'rgba(59, 130, 246, 0.35)';
+      let icon = '🚀';
+
+      if (isAdmin || roleUpper.includes('ADMIN')) {
+        bg = 'rgba(239, 68, 68, 0.15)';
+        color = '#f87171';
+        border = 'rgba(239, 68, 68, 0.35)';
+        icon = '👑';
+      } else if (roleUpper.includes('AVIONICS') || roleUpper.includes('SOFTWARE')) {
+        bg = 'rgba(59, 130, 246, 0.15)';
+        color = '#60a5fa';
+        border = 'rgba(59, 130, 246, 0.35)';
+        icon = '⚡';
+      } else if (roleUpper.includes('PROPULSION') || roleUpper.includes('SOLID') || roleUpper.includes('LIQUID')) {
+        bg = 'rgba(139, 92, 246, 0.15)';
+        color = '#c084fc';
+        border = 'rgba(139, 92, 246, 0.35)';
+        icon = '🔥';
+      } else if (roleUpper.includes('STRUCTURE') || roleUpper.includes('RECOVERY') || roleUpper.includes('AIRFRAME')) {
+        bg = 'rgba(245, 158, 11, 0.15)';
+        color = '#fbbf24';
+        border = 'rgba(245, 158, 11, 0.35)';
+        icon = '🛡️';
+      } else if (roleUpper.includes('FOUNDER') || roleUpper.includes('CORE') || roleUpper.includes('LEAD ENGINEER')) {
+        bg = 'rgba(16, 185, 129, 0.15)';
+        color = '#34d399';
+        border = 'rgba(16, 185, 129, 0.35)';
+        icon = '✨';
       }
+
+      roleBadge.innerHTML = `<span class="notion-role-pill" style="background: ${bg}; color: ${color}; border: 1px solid ${border}; font-size: 0.82rem; padding: 0.3rem 0.85rem;"><span>${icon}</span>${roleUpper} ${isAdmin ? '<span class="badge bg-danger text-white ms-1" style="font-size:0.65rem;">ADMIN</span>' : ''}</span>`;
+      roleBadge.style.background = 'transparent';
+      roleBadge.style.padding = '0';
       
-      document.getElementById('input-name').value = user.name;
+      document.getElementById('input-name').value = displayName;
       document.getElementById('input-email').value = user.email;
-      document.getElementById('input-photo').value = user.photoURL;
-      document.getElementById('input-bio').value = user.bio || '';
+      document.getElementById('input-photo').value = photoURL;
+      document.getElementById('input-bio').value = bio;
     }
   }
 

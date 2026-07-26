@@ -47,6 +47,93 @@
   </div>
 </nav>
 
+<!-- CONFIRM DELETE PROJECT MODAL -->
+<div class="modal fade" id="confirmDeleteProjectModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background: var(--bg-card); color: var(--text-dark); border: 1px solid #ef4444; border-radius: 14px;">
+      <div class="modal-header" style="border-bottom: 1px solid var(--border-color);">
+        <h5 class="modal-title fw-bold text-danger" style="font-family: var(--font-display);">🗑️ Confirm Delete Project</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p style="color: var(--text-muted);">Are you sure you want to permanently delete this project from Firebase Realtime Database?</p>
+        <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+          <h4 id="del-proj-title" style="font-size: 1.1rem; font-weight: 700; color: #ef4444; margin-bottom: 0.25rem;"></h4>
+          <span id="del-proj-id" class="mono-text subtle-text" style="font-size: 0.8rem;"></span>
+        </div>
+        <p class="mono-text text-danger m-0" style="font-size: 0.78rem;">⚠️ Warning: This operation is irreversible and will log the deletion in the audit changelog.</p>
+      </div>
+      <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+        <button type="button" class="repo-action-btn" data-bs-dismiss="modal">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- PER-PROJECT COMMIT HISTORY MODAL -->
+<div class="modal fade" id="projectChangelogModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content" style="background: var(--bg-card); color: var(--text-dark); border: 1px solid var(--border-color); border-radius: 14px;">
+      <div class="modal-header d-flex justify-content-between align-items-center" style="border-bottom: 1px solid var(--border-color);">
+        <div>
+          <h5 class="modal-title fw-bold" style="font-family: var(--font-display);">📜 Project Commit History</h5>
+          <span id="modal-proj-subtitle" class="mono-text subtle-text" style="font-size: 0.8rem;"></span>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-0">
+        <div class="table-responsive">
+          <table class="table table-bordered repo-table style-box mb-0">
+            <thead>
+              <tr>
+                <th style="width: 130px;">Date & Time</th>
+                <th style="width: 80px;">Version</th>
+                <th>Commit Message</th>
+                <th>Changed Fields</th>
+                <th>Editor</th>
+              </tr>
+            </thead>
+            <tbody id="modal-proj-changelog-tbody">
+              <!-- Populated via JS for selected project -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+        <button type="button" class="repo-action-btn" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- CONFIRM DELETE PROJECT MODAL -->
+<div class="modal fade" id="confirmDeleteProjectModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background: var(--bg-card); color: var(--text-dark); border: 1px solid #ef4444; border-radius: 14px;">
+      <div class="modal-header" style="border-bottom: 1px solid var(--border-color);">
+        <h5 class="modal-title fw-bold text-danger" style="font-family: var(--font-display);">🗑️ Confirm Delete Project</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p style="color: var(--text-muted);">Are you sure you want to permanently delete this project from Firebase Realtime Database?</p>
+        <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+          <h4 id="del-proj-title" style="font-size: 1.1rem; font-weight: 700; color: #ef4444; margin-bottom: 0.25rem;"></h4>
+          <span id="del-proj-id" class="mono-text subtle-text" style="font-size: 0.8rem;"></span>
+        </div>
+        <p class="mono-text text-danger m-0" style="font-size: 0.78rem;">⚠️ Warning: This operation is irreversible and will log the deletion in the audit changelog.</p>
+      </div>
+      <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+        <button type="button" class="repo-action-btn" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" id="btn-confirm-final-delete" class="btn-delete-animated"><span class="trash-icon">🗑️</span> Delete Permanently</button>
+      </div>
+    </div>
+  </div>
+</div>
+      <button class="theme-toggle-btn" type="button"><span>🌙</span> Dark</button>
+    </div>
+  </div>
+</nav>
+
 <!-- ACCESS DENIED FOR NON-ADMINS -->
 <div id="admin-access-denied" class="doc-section-card d-none text-center style-box" style="max-width: 620px; margin: calc(var(--nav-height) + 3rem) auto; padding: 3.5rem 2rem;">
   <div style="font-size: 3rem; margin-bottom: 1rem;">🔒</div>
@@ -149,10 +236,52 @@
                 <th>Gmail Address</th>
                 <th>Specialty / Bio</th>
                 <th>Account Role</th>
+                <th style="width: 170px;">Admin Control</th>
               </tr>
             </thead>
             <tbody id="dash-members-tbody">
               <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- COMMIT CHANGELOG TABLE -->
+      <div class="doc-section-card" style="margin-top: 1.5rem;">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+          <div>
+            <h3 class="doc-section-heading mb-1">📝 Commit Changelog & Audit Logs</h3>
+            <p class="subtle-text m-0" style="font-size: 0.82rem;">Project version history & edit logs tracked in Firebase RTDB (<code>changelog/</code>):</p>
+          </div>
+
+          <!-- PROJECT-WISE TOGGLE FILTER -->
+          <div class="d-flex align-items-center gap-2">
+            <span class="mono-text subtle-text" style="font-size: 0.78rem;">Project Filter:</span>
+            <select id="filter-changelog-project" class="editor-input-title mono-text" style="font-size: 0.8rem; padding: 0.35rem 0.7rem; min-width: 210px; background: var(--bg-tree-bg);">
+              <option value="ALL">🌐 View All Projects</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-bordered repo-table style-box mb-0">
+            <thead>
+              <tr>
+                <th style="width: 130px;">Date & Time</th>
+                <th style="width: 90px;">Version</th>
+                <th>Project</th>
+                <th>Commit Message</th>
+                <th>Changed Fields</th>
+                <th style="width: 140px;">Editor</th>
+              </tr>
+            </thead>
+            <tbody id="dash-changelog-tbody">
+              <!-- Dynamically populated -->
+              <tr>
+                <td colspan="6" class="text-center subtle-text" style="padding: 2rem;">
+                  <span class="skeleton-box" style="height: 16px; width: 200px; display: inline-block;"></span>
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -223,21 +352,27 @@
           <!-- LEFT: HIERARCHICAL SECTIONS CANVAS (STARTS EMPTY FOR NEW PROJECTS) -->
           <article class="doc-main-article">
             
-            <!-- TOP SECTION CREATOR BANNER -->
-            <div class="d-flex justify-content-between align-items-center p-3 mb-3 style-box" style="background: var(--bg-card); border: 2px dashed var(--border-color); border-radius: 10px;">
-              <div>
-                <h4 style="font-family: var(--font-display); font-weight: 800; font-size: 1.1rem; margin: 0;">Modular Project Canvas</h4>
-                <p class="subtle-text m-0" style="font-size: 0.82rem;">Add top-level document sections, then add components under each section:</p>
-              </div>
-
-              <button type="button" id="btn-add-top-section" class="primary-btn" style="padding: 0.6rem 1.4rem; font-size: 0.9rem;">
-                ➕ Add New Section
-              </button>
+            <!-- CANVAS TITLE -->
+            <div class="mb-3">
+              <h4 style="font-family: var(--font-display); font-weight: 800; font-size: 1.2rem; margin-bottom: 0.2rem;">Modular Project Canvas</h4>
+              <p class="subtle-text m-0" style="font-size: 0.85rem;">Build document sections and drag-and-drop components:</p>
             </div>
 
             <!-- CONTAINER FOR HIERARCHICAL SECTIONS -->
-            <div id="hierarchical-sections-container" class="d-flex flex-column gap-4">
+            <div id="hierarchical-sections-container" class="d-flex flex-column gap-4 mb-4">
               <!-- Dynamically generated sections will appear here -->
+            </div>
+
+            <!-- BOTTOM SECTION CREATOR BANNER -->
+            <div class="d-flex justify-content-between align-items-center p-3 style-box" style="background: var(--bg-card); border: 2px dashed var(--border-color); border-radius: 12px;">
+              <div>
+                <h5 style="font-family: var(--font-display); font-weight: 700; font-size: 1rem; margin: 0;">+ Add Another Document Section</h5>
+                <p class="subtle-text m-0" style="font-size: 0.8rem;">Append a new top-level section to your rocket project:</p>
+              </div>
+
+              <button type="button" id="btn-add-top-section" class="primary-btn" style="padding: 0.65rem 1.5rem; font-size: 0.9rem;">
+                ➕ Add New Section
+              </button>
             </div>
 
           </article>
@@ -288,23 +423,32 @@
               </div>
             </div>
 
-            <!-- RELATED SYSTEMS MANAGER -->
+            <!-- SUB SYSTEMS & NOTION PROJECT LINKING MANAGER -->
             <div class="repo-sidebar-box">
-              <h4>Related Systems</h4>
-              <p class="subtle-text mb-2" style="font-size: 0.78rem;">Add links to related systems or rocket projects:</p>
+              <h4>🧩 Sub Systems</h4>
+              <p class="subtle-text mb-2" style="font-size: 0.78rem;">Link sub-systems and connected rocket projects:</p>
               
-              <div id="ed-related-list" class="mb-2">
-                <div class="related-item d-flex justify-content-between align-items-center mb-1 p-1 style-box" style="font-size: 0.8rem;" data-title="Rocket Model-II" data-url="model2">
-                  <span>🚀 Rocket Model-II</span>
-                  <button type="button" class="btn-close btn-sm btn-del-rel" aria-label="Remove"></button>
+              <div id="ed-subsystems-list" class="mb-2">
+                <div class="subsystem-item d-flex justify-content-between align-items-center mb-1 p-1 style-box" style="font-size: 0.8rem;" data-title="Rocket Model-II" data-url="model2" data-color="blue">
+                  <span>🚀 Rocket Model-II (model2)</span>
+                  <button type="button" class="btn-del-icon btn-del-subsystem" aria-label="Remove" title="Remove Link"><span class="trash-icon">🗑️</span></button>
                 </div>
               </div>
 
-              <div class="d-flex gap-1 mb-2">
-                <input type="text" id="input-related-title" class="editor-input-title" placeholder="System Name" style="font-size: 0.78rem;">
-                <input type="text" id="input-related-url" class="editor-input-title" placeholder="Slug ID" style="font-size: 0.78rem;">
+              <!-- PROJECT RELATION LINK SELECTOR -->
+              <div class="mb-2 p-2 style-box" style="background: var(--bg-tree-bg); border-radius: 8px;">
+                <label class="form-label-mono mb-1">🔗 Link Existing System Project</label>
+                <select id="select-notion-subsystem-preset" class="editor-input-title mono-text mb-2" style="font-size: 0.78rem; padding: 0.35rem;">
+                  <option value="">-- Pick Published Project --</option>
+                </select>
+                <button type="button" id="btn-add-notion-preset" class="repo-action-btn w-100 mb-1" style="font-size: 0.75rem;">+ Link Selected Project</button>
               </div>
-              <button type="button" id="btn-add-related-sys" class="repo-action-btn w-100" style="font-size: 0.75rem;">+ Add Related System</button>
+
+              <div class="d-flex gap-1 mb-2">
+                <input type="text" id="input-subsystem-title" class="editor-input-title" placeholder="Custom Sub-System Name" style="font-size: 0.78rem;">
+                <input type="text" id="input-subsystem-url" class="editor-input-title" placeholder="Slug ID" style="font-size: 0.78rem;">
+              </div>
+              <button type="button" id="btn-add-subsystem" class="repo-action-btn w-100" style="font-size: 0.75rem;">+ Add Custom Sub System</button>
             </div>
 
             <!-- PUBLISH BUTTON BOX -->
@@ -348,9 +492,9 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <p style="color: var(--text-muted);">Confirm publishing project documentation to Firebase Realtime Database:</p>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Confirm publishing project documentation to Firebase Realtime Database:</p>
         
-        <ul class="list-unstyled mono-text" style="font-size: 0.88rem; background: var(--bg-tree-bg); padding: 1rem; border-radius: 8px;">
+        <ul class="list-unstyled mono-text" style="font-size: 0.85rem; background: var(--bg-tree-bg); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
           <li class="mb-2"><strong>Title:</strong> <span id="conf-title"></span></li>
           <li class="mb-2"><strong>Category Domain:</strong> <span id="conf-cat-domain"></span></li>
           <li class="mb-2"><strong>Page Slug ID:</strong> <span id="conf-id"></span></li>
@@ -358,6 +502,11 @@
           <li class="mb-2"><strong>Sections Count:</strong> <span id="conf-sections-count"></span></li>
           <li><strong>Firebase Target:</strong> asia-southeast1 RTDB</li>
         </ul>
+
+        <div>
+          <label class="form-label-mono mb-1">📝 Commit Message / Version Log</label>
+          <textarea id="conf-commit-msg" class="form-control mono-text" rows="2" style="font-size: 0.85rem; background: var(--bg-tree-bg); border: 1px solid var(--border-color); color: var(--text-dark);" placeholder="e.g. Updated thrust specifications and revised schematic diagram..."></textarea>
+        </div>
       </div>
       <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
         <button type="button" class="repo-action-btn" data-bs-dismiss="modal">Cancel</button>
@@ -376,6 +525,47 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+  // IMAGE URL SANITIZATION HELPER (PREVENTS BROWSER 404 ON EMPTY/TEMPLATED URLS)
+  function getValidImageURL(url, fallbackURL) {
+    if (!url || typeof url !== 'string') return fallbackURL;
+    const trimmed = url.trim();
+    if (trimmed.length <= 5 || trimmed.includes('${') || trimmed === 'undefined' || trimmed === 'null') {
+      return fallbackURL;
+    }
+    return trimmed;
+  }
+
+  // STRICT ADMIN ACCESS GUARD
+  function checkAdminGuard() {
+    const accessDenied = document.getElementById('admin-access-denied');
+    const adminWorkspace = document.getElementById('admin-workspace');
+    const isAdmin = window.authManager && window.authManager.isAdmin();
+
+    if (!isAdmin) {
+      if (adminWorkspace) adminWorkspace.classList.add('d-none');
+      if (accessDenied) accessDenied.classList.remove('d-none');
+      return false;
+    } else {
+      if (adminWorkspace) adminWorkspace.classList.remove('d-none');
+      if (accessDenied) accessDenied.classList.add('d-none');
+      return true;
+    }
+  }
+
+  checkAdminGuard();
+  setTimeout(checkAdminGuard, 300);
+  setTimeout(checkAdminGuard, 1000);
+
+  const btnAdminLoginNow = document.getElementById('btn-admin-login-now');
+  if (btnAdminLoginNow) {
+    btnAdminLoginNow.addEventListener('click', async () => {
+      if (window.authManager) {
+        await window.authManager.signInWithGoogle();
+        checkAdminGuard();
+      }
+    });
+  }
+
   let coverImageURL = 'sketch_srm.png';
   let sectionCounter = 0;
   const sectionsContainer = document.getElementById('hierarchical-sections-container');
@@ -585,7 +775,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <option value="stack">↕️ 1-Column Stack Layout</option>
             <option value="grid-2col">↔️ 2-Column Side-by-Side Grid</option>
           </select>
-          <button type="button" class="btn-close btn-del-top-sec" aria-label="Remove Section" title="Delete Section"></button>
+          <button type="button" class="btn-del-icon btn-del-top-sec" aria-label="Remove Section" title="Delete Section"><span class="trash-icon">🗑️</span></button>
         </div>
       </div>
 
@@ -655,7 +845,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let innerHTML = `
       <div class="d-flex justify-content-between align-items-center mb-2">
         <span class="drag-handle" title="Drag component to reorder">⣿ <span class="mono-text" style="font-size: 0.72rem; color: var(--text-subtle);">${type.toUpperCase()} COMPONENT</span></span>
-        <button type="button" class="btn-close btn-sm btn-del-cmp" aria-label="Remove Component"></button>
+        <button type="button" class="btn-del-icon btn-del-cmp" aria-label="Remove Component" title="Delete Component"><span class="trash-icon">🗑️</span></button>
       </div>
     `;
 
@@ -786,40 +976,178 @@ void setup() { Serial.begin(115200); }</textarea>
     if (window.authManager) {
       registeredUsersList = await window.authManager.fetchAllRTDBUsers();
       
-      // Update Dashboard Published Systems Count
+      // Update Dashboard Published Systems Count & Preset Select
       const dbProjects = await window.authManager.fetchAllCustomProjectsFromRTDB();
       const projCountEl = document.getElementById('dash-projects-count');
       if (projCountEl && dbProjects) {
         projCountEl.textContent = `${dbProjects.length} Projects`;
       }
 
+      // Populate Registered Contributor Select Dropdown
+      const regUserSelect = document.getElementById('select-registered-user');
+      if (regUserSelect) {
+        regUserSelect.innerHTML = '<option value="">-- Select Registered Profile --</option>' + registeredUsersList.map(u => `
+          <option value="${u.uid}">👤 ${u.name || u.email} (${u.role || 'Member'})</option>
+        `).join('');
+      }
+
+      // Populate Published System Projects Preset Dropdown
+      const presetSelect = document.getElementById('select-notion-subsystem-preset');
+      if (presetSelect && dbProjects) {
+        const colors = ['blue', 'green', 'purple', 'orange', 'pink'];
+        presetSelect.innerHTML = '<option value="">-- Pick Published Project --</option>' + dbProjects.map((p, idx) => `
+          <option value="${p.id}|${p.title}|${colors[idx % colors.length]}">🚀 ${p.title} (${p.id})</option>
+        `).join('');
+      }
+
       // Dashboard Table Update
       document.getElementById('dash-members-count').textContent = `${registeredUsersList.length} Registered`;
       const dashTbody = document.getElementById('dash-members-tbody');
       if (dashTbody) {
-        dashTbody.innerHTML = registeredUsersList.map(u => `
-          <tr>
-            <td style="width: 50px;"><img src="${u.photoURL}" class="avatar-circle" style="width: 36px; height: 36px; object-fit: cover;" alt="${u.name}"></td>
-            <td><strong>${u.name}</strong></td>
-            <td class="mono-text" style="font-size: 0.85rem;">${u.email}</td>
-            <td style="font-size: 0.85rem;">${u.bio || 'Aerospace Developer'}</td>
-            <td><span class="profile-role-badge">${(u.role || 'USER').toUpperCase()}</span></td>
-          </tr>
-        `).join('');
-      }
+        const isCurrentSuper = window.authManager.isSuperAdmin();
 
-      // Editor Dropdown Update
-      const select = document.getElementById('select-registered-user');
-      if (select && registeredUsersList.length > 0) {
-        select.innerHTML = '<option value="">-- Select Registered Member --</option>';
-        registeredUsersList.forEach(u => {
-          const opt = document.createElement('option');
-          opt.value = u.uid;
-          opt.textContent = `${u.name} (${u.email})`;
-          select.appendChild(opt);
+        dashTbody.innerHTML = registeredUsersList.map(u => {
+          const isTargetSuper = (u.email && u.email.toLowerCase().trim() === 'mbatwc@gmail.com');
+          const isTargetAdmin = (u.role === 'admin' || isTargetSuper);
+
+          let controlBtn = '<span class="subtle-text" style="font-size: 0.75rem;">—</span>';
+          if (isCurrentSuper && !isTargetSuper) {
+            if (isTargetAdmin) {
+              controlBtn = `<button type="button" class="btn btn-sm btn-outline-danger btn-toggle-role" data-uid="${u.uid}" data-role="user" style="font-size: 0.75rem;">👤 Revoke Admin</button>`;
+            } else {
+              controlBtn = `<button type="button" class="btn btn-sm btn-outline-primary btn-toggle-role" data-uid="${u.uid}" data-role="admin" style="font-size: 0.75rem;">👑 Grant Admin</button>`;
+            }
+          } else if (isTargetSuper) {
+            controlBtn = '<span class="badge bg-warning text-dark" style="font-size: 0.7rem;">👑 Super Admin</span>';
+          }
+
+          const userPhoto = getValidImageURL(u.photoURL, 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80');
+
+          return `
+            <tr>
+              <td style="width: 50px;"><img src="${userPhoto}" class="avatar-circle" style="width: 36px; height: 36px; object-fit: cover;" alt="${u.name}"></td>
+              <td><strong>${u.name}</strong> ${isTargetSuper ? '<span class="badge bg-warning text-dark ms-1" style="font-size: 0.65rem;">SUPER ADMIN</span>' : ''}</td>
+              <td class="mono-text" style="font-size: 0.85rem;">${u.email}</td>
+              <td style="font-size: 0.85rem;">${u.bio || 'Aerospace Developer'}</td>
+              <td><span class="profile-role-badge" style="${isTargetAdmin ? 'background: rgba(16, 185, 129, 0.15); color: #10b981;' : ''}">${(isTargetAdmin ? 'ADMIN' : 'USER')}</span></td>
+              <td style="width: 170px;">${controlBtn}</td>
+            </tr>
+          `;
+        }).join('');
+
+        dashTbody.querySelectorAll('.btn-toggle-role').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            const uid = btn.getAttribute('data-uid');
+            const newRole = btn.getAttribute('data-role');
+            const confirmText = newRole === 'admin' 
+              ? `Grant ADMIN privileges to user? They will be able to edit projects and view live notifications.`
+              : `Revoke admin privileges from user?`;
+            
+            if (confirm(confirmText)) {
+              btn.disabled = true;
+              btn.textContent = 'Updating...';
+              await window.authManager.updateUserRole(uid, newRole);
+              alert(`🎉 Role updated to ${newRole.toUpperCase()}!`);
+              loadRegisteredMembers();
+            }
+          });
         });
       }
+
+      // 4. Render Commit Changelog Audit Table from RTDB
+      await renderChangelogTable();
     }
+  }
+
+  let allChangelogsList = [];
+  async function renderChangelogTable(filterProjId = 'ALL') {
+    const tbody = document.getElementById('dash-changelog-tbody');
+    const filterSelect = document.getElementById('filter-changelog-project');
+    if (!tbody || !window.authManager) return;
+
+    allChangelogsList = await window.authManager.fetchChangelog(100);
+
+    // Populate filter dropdown with all published database projects & unique changelog project IDs
+    if (filterSelect) {
+      const currentSelected = filterSelect.value || filterProjId;
+      const projectMap = new Map();
+
+      // Fetch all published custom projects from DB
+      const dbProjects = await window.authManager.fetchAllCustomProjectsFromRTDB();
+      if (dbProjects && Array.isArray(dbProjects)) {
+        dbProjects.forEach(p => {
+          if (p.id) projectMap.set(p.id, p.title || p.id);
+        });
+      }
+
+      // Add projects found in changelog list
+      allChangelogsList.forEach(c => {
+        if (c.projectId && !projectMap.has(c.projectId)) {
+          projectMap.set(c.projectId, c.projectTitle || c.projectId);
+        }
+      });
+
+      filterSelect.innerHTML = '<option value="ALL">🌐 View All Projects</option>';
+      projectMap.forEach((title, id) => {
+        const opt = document.createElement('option');
+        opt.value = id;
+        opt.textContent = `🚀 ${title} (${id})`;
+        filterSelect.appendChild(opt);
+      });
+
+      filterSelect.value = currentSelected;
+    }
+
+    const filterVal = (filterSelect ? filterSelect.value : filterProjId) || 'ALL';
+    const target = filterVal.trim().toLowerCase();
+
+    const filteredLogs = (target === 'all')
+      ? allChangelogsList
+      : allChangelogsList.filter(c => {
+          const pid = (c.projectId || c.id || '').trim().toLowerCase();
+          const ptitle = (c.projectTitle || '').trim().toLowerCase();
+          return pid === target || ptitle === target || pid.includes(target);
+        });
+
+    if (filteredLogs.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="6" class="text-center subtle-text p-4" style="font-size: 0.85rem;">
+            No commit logs found ${target !== 'all' ? `for selected project` : 'in database'}.
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    tbody.innerHTML = filteredLogs.map(c => {
+      const dt = c.editedAt ? new Date(c.editedAt).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Live';
+      const fields = Array.isArray(c.changedFields) ? c.changedFields.join(', ') : (c.changedFields || 'Metadata');
+      const editorPhoto = getValidImageURL(c.editorPhoto, 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80');
+
+      return `
+        <tr>
+          <td class="mono-text" style="font-size: 0.78rem;">${dt}</td>
+          <td><span class="changelog-field-badge field-title">${c.version || 'v1.0'}</span></td>
+          <td><strong>${c.projectTitle || c.projectId || 'Rocket System'}</strong></td>
+          <td style="font-size: 0.85rem;">${c.commitMessage || 'Published project update'}</td>
+          <td><span class="badge bg-secondary" style="font-size: 0.7rem;">${fields}</span></td>
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              <img src="${editorPhoto}" class="avatar-circle" style="width: 24px; height: 24px; object-fit: cover;" alt="${c.editorName || 'Editor'}">
+              <span style="font-size: 0.8rem; font-weight: 600;">${c.editorName || c.editedBy || 'Admin'}</span>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  const filterChangelogSelect = document.getElementById('filter-changelog-project');
+  if (filterChangelogSelect) {
+    filterChangelogSelect.addEventListener('change', (e) => {
+      renderChangelogTable(e.target.value);
+    });
   }
 
   document.getElementById('btn-add-registered-member').addEventListener('click', () => {
@@ -843,7 +1171,7 @@ void setup() { Serial.begin(115200); }</textarea>
           <div style="font-size: 0.85rem; font-weight: 700;">${userObj.name}</div>
           <span class="subtle-text">${role} • ${userObj.email}</span>
         </div>
-        <button type="button" class="btn-close btn-sm position-absolute top-0 end-0 m-1 btn-del-member" aria-label="Remove"></button>
+        <button type="button" class="btn-del-icon position-absolute top-0 end-0 m-1 btn-del-member" aria-label="Remove" title="Remove Member"><span class="trash-icon">🗑️</span></button>
       `;
       item.querySelector('.btn-del-member').addEventListener('click', () => item.remove());
       document.getElementById('contributors-list').appendChild(item);
@@ -867,36 +1195,64 @@ void setup() { Serial.begin(115200); }</textarea>
     }
   });
 
-  // RELATED SYSTEMS MANAGER HANDLER
-  document.querySelectorAll('#ed-related-list .btn-del-rel').forEach(btn => {
-    btn.addEventListener('click', (e) => e.target.closest('.related-item').remove());
-  });
+  // HELPER FUNCTION: CREATE SUBSYSTEM TAG ELEMENT WITH DELETE BUTTON
+  function createSubsystemTagElement(name, slug, color = 'blue') {
+    const item = document.createElement('div');
+    item.className = 'subsystem-item d-flex justify-content-between align-items-center mb-1 p-1 style-box';
+    item.style.fontSize = '0.8rem';
+    item.dataset.title = name;
+    item.dataset.url = slug;
+    item.dataset.color = color;
+    item.innerHTML = `
+      <span>🚀 ${name} (${slug})</span>
+      <button type="button" class="btn-del-icon btn-del-subsystem" aria-label="Remove" title="Remove Link"><span class="trash-icon">🗑️</span></button>
+    `;
+    item.querySelector('.btn-del-subsystem').addEventListener('click', () => item.remove());
+    return item;
+  }
 
-  document.getElementById('btn-add-related-sys').addEventListener('click', () => {
-    const titleInput = document.getElementById('input-related-title');
-    const urlInput = document.getElementById('input-related-url');
-    const relTitle = titleInput.value.trim();
-    const relUrl = urlInput.value.trim().toLowerCase();
+  // NOTION PROJECT RELATION LINK BUTTON
+  const btnAddNotionPreset = document.getElementById('btn-add-notion-preset');
+  if (btnAddNotionPreset) {
+    btnAddNotionPreset.addEventListener('click', () => {
+      const presetSelect = document.getElementById('select-notion-subsystem-preset');
+      const val = presetSelect.value;
+      if (val) {
+        const [id, title, color] = val.split('|');
+        const list = document.getElementById('ed-subsystems-list');
+        if (list) {
+          const el = createSubsystemTagElement(title, id, color || 'blue');
+          list.appendChild(el);
+          presetSelect.value = '';
+        }
+      } else {
+        alert("Please select a published Notion project from the dropdown.");
+      }
+    });
+  }
 
-    if (relTitle && relUrl) {
-      const item = document.createElement('div');
-      item.className = 'related-item d-flex justify-content-between align-items-center mb-1 p-1 style-box';
-      item.style.fontSize = '0.8rem';
-      item.dataset.title = relTitle;
-      item.dataset.url = relUrl;
-      item.innerHTML = `
-        <span>🔗 ${relTitle}</span>
-        <button type="button" class="btn-close btn-sm btn-del-rel" aria-label="Remove"></button>
-      `;
-      item.querySelector('.btn-del-rel').addEventListener('click', () => item.remove());
-      document.getElementById('ed-related-list').appendChild(item);
+  // CUSTOM SUB SYSTEM LINK BUTTON
+  const btnAddSubsystem = document.getElementById('btn-add-subsystem');
+  if (btnAddSubsystem) {
+    btnAddSubsystem.addEventListener('click', () => {
+      const titleInput = document.getElementById('input-subsystem-title');
+      const urlInput = document.getElementById('input-subsystem-url');
+      const relTitle = titleInput.value.trim();
+      const relUrl = urlInput.value.trim().toLowerCase();
 
-      titleInput.value = '';
-      urlInput.value = '';
-    } else {
-      alert("Please enter both System Name and Slug ID.");
-    }
-  });
+      if (relTitle && relUrl) {
+        const list = document.getElementById('ed-subsystems-list');
+        if (list) {
+          const el = createSubsystemTagElement(relTitle, relUrl, 'blue');
+          list.appendChild(el);
+          titleInput.value = '';
+          urlInput.value = '';
+        }
+      } else {
+        alert("Please enter both Sub-System Name and Slug ID.");
+      }
+    });
+  }
 
   // CONFIRMATION & PUBLISHING ACTION
   const modal = new bootstrap.Modal(document.getElementById('confirmPublishModal'));
@@ -934,12 +1290,15 @@ void setup() { Serial.begin(115200); }</textarea>
     const author = document.getElementById('ed-author').value;
     const verification = document.getElementById('ed-verification').value || 'Field Verified';
 
-    const related = [];
-    document.querySelectorAll('#ed-related-list .related-item').forEach(item => {
-      const relTitle = item.dataset.title || item.querySelector('span')?.textContent.replace('🔗 ', '');
-      const relUrl = item.dataset.url;
-      if (relTitle && relUrl) related.push({ title: relTitle, url: relUrl });
+    const subsystems = [];
+    document.querySelectorAll('#ed-subsystems-list .subsystem-item, #ed-subsystems-list .notion-tag, #ed-subsystems-list .related-item').forEach(item => {
+      const name = item.dataset.title || item.dataset.name || item.querySelector('span')?.textContent.replace('🚀', '').replace('🧩', '').replace('🔗', '').trim();
+      const slug = item.dataset.url || item.dataset.slug || '';
+      const color = item.dataset.color || 'blue';
+      if (name) subsystems.push({ name, slug, color });
     });
+
+    const related = subsystems.map(s => ({ title: s.name, url: s.slug }));
 
     const authors = [];
     document.querySelectorAll('#contributors-list .contributor-item').forEach(item => {
@@ -995,6 +1354,7 @@ void setup() { Serial.begin(115200); }</textarea>
       p1: sections[0]?.components[0]?.content || subtitle,
       p2: 'Published via Roketry Modular Drag-and-Drop Page Builder.',
       verification,
+      subsystems,
       related,
       authors,
       sections,
@@ -1004,10 +1364,12 @@ void setup() { Serial.begin(115200); }</textarea>
       ]
     };
 
+    const commitMsg = document.getElementById('conf-commit-msg')?.value.trim() || 'Published project updates';
+
     if (window.authManager) {
-      await window.authManager.publishCustomProjectToRTDB(projectData);
+      const result = await window.authManager.publishCustomProjectToRTDB(projectData, commitMsg);
       modal.hide();
-      alert(`🎉 Project "${title}" Published Live!\n\nView Page: project-detail.html?id=${slug}`);
+      alert(`🎉 Project "${title}" (${result?.version || 'v1.0'}) Published Live!\n\nCommit: "${commitMsg}"\n\nView Page: project-detail.html?id=${slug}`);
       window.location.href = `project-detail.html?id=${slug}`;
     }
   });
@@ -1027,7 +1389,9 @@ void setup() { Serial.begin(115200); }</textarea>
       title: cp.title,
       category: cp.category || 'fleet',
       badge: cp.badge || 'ROCKET FLEET',
-      img: cp.sketchImg || 'sketch_srm.png'
+      version: cp.version || 'v1.0',
+      lastCommitMessage: cp.lastCommitMessage || '',
+      img: getValidImageURL(cp.sketchImg, 'sketch_srm.png')
     }));
 
     grid.innerHTML = allProjects.map(p => `
@@ -1035,11 +1399,17 @@ void setup() { Serial.begin(115200); }</textarea>
         <div class="card-sketch-wrap">
           <img src="${p.img}" alt="${p.title}">
         </div>
-        <span class="profile-role-badge mt-2" style="background: rgba(59, 130, 246, 0.15); color: #3b82f6;">${p.badge}</span>
-        <h4 style="font-size: 1.1rem; font-weight: 700; margin: 0.5rem 0;">${p.title}</h4>
-        <div class="d-flex gap-2 mt-3">
+        <div class="d-flex align-items-center justify-content-between mt-2">
+          <span class="profile-role-badge" style="background: rgba(59, 130, 246, 0.15); color: #3b82f6;">${p.badge}</span>
+          <span class="changelog-field-badge field-title">${p.version}</span>
+        </div>
+        <h4 style="font-size: 1.1rem; font-weight: 700; margin: 0.5rem 0 0.25rem 0;">${p.title}</h4>
+        ${p.lastCommitMessage ? `<p class="mono-text subtle-text m-0 mb-2" style="font-size: 0.76rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${p.lastCommitMessage}">💬 ${p.lastCommitMessage}</p>` : ''}
+        <div class="d-flex gap-2 mt-2">
           <a href="project-detail.html?id=${p.id}" class="repo-action-btn primary-btn" style="font-size: 0.75rem; flex: 1;">View Page</a>
           <button type="button" class="repo-action-btn btn-edit-proj" data-id="${p.id}" style="font-size: 0.75rem;">✏️ Edit</button>
+          <button type="button" class="repo-action-btn btn-view-logs" data-id="${p.id}" data-title="${p.title}" style="font-size: 0.75rem;" title="View Project Commit Logs">📜 Logs</button>
+          <button type="button" class="btn-delete-animated btn-del-proj-card" data-id="${p.id}" data-title="${p.title}" style="font-size: 0.75rem; padding: 4px 10px;" title="Delete Project"><span class="trash-icon">🗑️</span></button>
         </div>
       </div>
     `).join('');
@@ -1050,6 +1420,54 @@ void setup() { Serial.begin(115200); }</textarea>
         editProject(id);
       });
     });
+
+    grid.querySelectorAll('.btn-view-logs').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-id');
+        const title = btn.getAttribute('data-title');
+        openProjectLogsModal(id, title);
+      });
+    });
+
+    let targetDeleteId = null;
+    let targetDeleteTitle = null;
+    const deleteModalEl = document.getElementById('confirmDeleteProjectModal');
+    const deleteModal = deleteModalEl ? new bootstrap.Modal(deleteModalEl) : null;
+
+    grid.querySelectorAll('.btn-del-proj-card').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        targetDeleteId = btn.getAttribute('data-id');
+        targetDeleteTitle = btn.getAttribute('data-title');
+        document.getElementById('del-proj-title').textContent = targetDeleteTitle;
+        document.getElementById('del-proj-id').textContent = `ID: ${targetDeleteId}`;
+        if (deleteModal) deleteModal.show();
+      });
+    });
+
+    const confirmDelBtn = document.getElementById('btn-confirm-final-delete');
+    if (confirmDelBtn && !confirmDelBtn.dataset.bound) {
+      confirmDelBtn.dataset.bound = "true";
+      confirmDelBtn.addEventListener('click', async () => {
+        if (!targetDeleteId) return;
+        confirmDelBtn.disabled = true;
+        confirmDelBtn.textContent = '⏳ Deleting...';
+
+        const success = await window.authManager.deleteProjectFromRTDB(targetDeleteId, targetDeleteTitle);
+
+        confirmDelBtn.disabled = false;
+        confirmDelBtn.innerHTML = '<span class="trash-icon">🗑️</span> Delete Permanently';
+
+        if (deleteModal) deleteModal.hide();
+
+        if (success) {
+          await renderAdminCatalog();
+          await fetchRegisteredEngineers();
+        } else {
+          alert('Failed to delete project.');
+        }
+      });
+    }
   }
 
   // EDIT EXISTING PROJECT IN MODULAR BUILDER
@@ -1084,40 +1502,51 @@ void setup() { Serial.begin(115200); }</textarea>
         const item = document.createElement('div');
         item.className = 'contributor-item position-relative';
         item.dataset.name = a.name;
-        item.dataset.photo = a.photoURL || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80';
+        item.dataset.photo = getValidImageURL(a.photoURL, 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80');
         item.innerHTML = `
           <img src="${item.dataset.photo}" class="avatar-circle" style="object-fit: cover;" alt="${a.name}">
           <div>
             <div style="font-size: 0.85rem; font-weight: 700;">${a.name}</div>
             <span class="subtle-text">${a.role || 'Contributor'}</span>
           </div>
-          <button type="button" class="btn-close btn-sm position-absolute top-0 end-0 m-1 btn-del-member" aria-label="Remove"></button>
+          <button type="button" class="btn-del-icon position-absolute top-0 end-0 m-1 btn-del-member" aria-label="Remove" title="Remove Member"><span class="trash-icon">🗑️</span></button>
         `;
         item.querySelector('.btn-del-member').addEventListener('click', () => item.remove());
         contribList.appendChild(item);
       });
     }
 
-    // Populate Verification & Related Systems
+    // Populate Verification & Subsystems
     document.getElementById('ed-verification').value = projData.verification || 'Field Verified';
-    const relContainer = document.getElementById('ed-related-list');
-    if (relContainer) {
-      relContainer.innerHTML = '';
-      if (projData.related && projData.related.length > 0) {
-        projData.related.forEach(r => {
-          const item = document.createElement('div');
-          item.className = 'related-item d-flex justify-content-between align-items-center mb-1 p-1 style-box';
-          item.style.fontSize = '0.8rem';
-          item.dataset.title = r.title;
-          item.dataset.url = r.url;
-          item.innerHTML = `
-            <span>🔗 ${r.title}</span>
-            <button type="button" class="btn-close btn-sm btn-del-rel" aria-label="Remove"></button>
-          `;
-          item.querySelector('.btn-del-rel').addEventListener('click', () => item.remove());
-          relContainer.appendChild(item);
-        });
+    const subContainer = document.getElementById('ed-subsystems-list');
+    if (subContainer) {
+      subContainer.innerHTML = '';
+      let subList = [];
+      if (Array.isArray(projData.subsystems)) {
+        subList = projData.subsystems;
+      } else if (projData.subsystems && typeof projData.subsystems === 'object') {
+        subList = Object.values(projData.subsystems);
+      } else if (Array.isArray(projData.related)) {
+        subList = projData.related.map(r => ({ name: r.title, slug: r.url, color: 'blue' }));
+      } else if (projData.related && typeof projData.related === 'object') {
+        subList = Object.values(projData.related).map(r => ({ name: r.title, slug: r.url, color: 'blue' }));
       }
+
+      const colors = ['blue', 'green', 'purple', 'orange', 'pink'];
+      subList.forEach((s, idx) => {
+        const tagEl = createSubsystemTagElement(s.name || s.title, s.slug || s.url || '', s.color || colors[idx % colors.length]);
+        subContainer.appendChild(tagEl);
+      });
+    }
+
+    // Populate preset dropdown with all existing catalog projects
+    const presetSelect = document.getElementById('select-subsystem-preset');
+    if (presetSelect && window.authManager) {
+      const allProjects = await window.authManager.fetchAllCustomProjectsFromRTDB();
+      const colors = ['blue', 'green', 'purple', 'orange', 'pink'];
+      presetSelect.innerHTML = '<option value="">-- Pick Existing Project --</option>' + allProjects.map((p, idx) => `
+        <option value="${p.id}|${p.title}|${colors[idx % colors.length]}">🚀 ${p.title} (${p.id})</option>
+      `).join('');
     }
 
     // Populate Sections & Components

@@ -287,6 +287,9 @@ File dataFile;
         <div class="repo-sidebar-box">
           <h4>Document Meta</h4>
           <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+            <strong>Version:</strong> <span id="doc-meta-version" class="changelog-field-badge field-title">v1.0</span>
+          </p>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">
             <strong>Lead Author:</strong> <span id="doc-meta-author"><span class="skeleton-box" style="height: 14px; width: 100px; display: inline-block;"></span></span>
           </p>
           <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">
@@ -297,13 +300,22 @@ File dataFile;
           </p>
         </div>
 
-        <!-- RELATED SUBSYSTEMS BOX -->
-        <div class="repo-sidebar-box">
-          <h4>Related Systems</h4>
-          <ul class="sidebar-nav-links" id="doc-related-links">
-            <li><span class="skeleton-box mb-2" style="height: 18px; width: 90%;"></span></li>
-            <li><span class="skeleton-box mb-2" style="height: 18px; width: 85%;"></span></li>
+        <!-- REVISION HISTORY LOG BOX -->
+        <div class="repo-sidebar-box" id="doc-history-box" style="display: none;">
+          <h4>📜 Revision Log</h4>
+          <ul class="sidebar-nav-links" id="doc-history-list" style="font-size: 0.78rem;">
+            <!-- Dynamically populated history entries -->
           </ul>
+        </div>
+
+        <!-- SUB SYSTEMS BOX (SYSTEMS ENGINEERING ARCHITECTURE) -->
+        <div class="repo-sidebar-box">
+          <h4>🧩 Sub Systems</h4>
+          <p class="subtle-text mb-2" style="font-size: 0.75rem;">Connected vehicle architecture & subcomponents:</p>
+          <div id="doc-subsystem-tags" class="d-flex flex-wrap gap-2 mt-2">
+            <span class="skeleton-box" style="height: 24px; width: 100px; display: inline-block;"></span>
+            <span class="skeleton-box" style="height: 24px; width: 80px; display: inline-block;"></span>
+          </div>
         </div>
 
       </aside>
@@ -313,7 +325,6 @@ File dataFile;
   </div>
 </section>
 
-<!-- Firebase & Auth Script -->
 <script type="module" src="firebase-config.js"></script>
 <script src="script.js"></script>
 
