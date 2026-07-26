@@ -56,13 +56,66 @@
         </li>
       </ul>
       <div id="auth-nav-widget" class="d-flex align-items-center ms-md-3"></div>
-      <button class="theme-toggle-btn" type="button"><span>🌙</span> Dark</button>
+      
+      <!-- NOTION-STYLE PAGE SETTINGS DROPDOWN -->
+      <div class="dropdown notion-settings-dropdown ms-md-2">
+        <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center justify-content-center mono-text notion-dots-btn" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" title="Page Style & Settings" style="border-radius: 8px; font-size: 1.1rem; padding: 0.25rem 0.6rem; min-width: 36px;">
+          •••
+        </button>
+        <div class="dropdown-menu dropdown-menu-end p-3 style-box shadow-lg" style="min-width: 280px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; font-size: 0.85rem;">
+          
+          <!-- FONT FAMILY SELECTOR (SANS, SERIF, MONO) -->
+          <div class="mb-3">
+            <div class="mono-text subtle-text mb-1" style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase;">Font Style</div>
+            <div class="btn-group w-100 notion-font-group" role="group">
+              <button type="button" class="btn btn-sm btn-outline-primary notion-font-btn active" data-font="sans" style="font-family: var(--font-display);">Aa Sans</button>
+              <button type="button" class="btn btn-sm btn-outline-primary notion-font-btn" data-font="serif" style="font-family: 'Georgia', serif;">Aa Serif</button>
+              <button type="button" class="btn btn-sm btn-outline-primary notion-font-btn" data-font="mono" style="font-family: var(--font-mono);">Aa Mono</button>
+            </div>
+          </div>
+
+          <!-- FONT SIZE SELECTOR (SMALL, MEDIUM, LARGE) -->
+          <div class="mb-3">
+            <div class="mono-text subtle-text mb-1" style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase;">Font Size</div>
+            <div class="btn-group w-100 notion-size-group" role="group">
+              <button type="button" class="btn btn-sm btn-outline-secondary notion-size-btn" data-size="small" style="font-size: 0.75rem;">Small</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary notion-size-btn active" data-size="medium" style="font-size: 0.82rem;">Default</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary notion-size-btn" data-size="large" style="font-size: 0.9rem;">Large</button>
+            </div>
+          </div>
+
+          <hr class="my-2" style="border-color: var(--border-color); opacity: 0.4;">
+
+          <!-- FULL PAGE WIDTH TOGGLE SWITCH -->
+          <div class="d-flex justify-content-between align-items-center mb-2 py-1">
+            <div class="d-flex align-items-center gap-2">
+              <span>↔️</span>
+              <span class="fw-bold" style="font-size: 0.82rem;">Full Width Page</span>
+            </div>
+            <div class="form-check form-switch m-0">
+              <input class="form-check-input notion-fullpage-switch" type="checkbox" role="switch" style="cursor: pointer;">
+            </div>
+          </div>
+
+          <!-- DARK MODE TOGGLE SWITCH -->
+          <div class="d-flex justify-content-between align-items-center py-1">
+            <div class="d-flex align-items-center gap-2">
+              <span class="theme-icon">🌙</span>
+              <span class="fw-bold" style="font-size: 0.82rem;">Dark Mode</span>
+            </div>
+            <div class="form-check form-switch m-0">
+              <input class="form-check-input notion-dark-switch" type="checkbox" role="switch" style="cursor: pointer;">
+            </div>
+          </div>
+
+        </div>
+      </div>
     </div>
   </div>
 </nav>
 
 <!-- TECHNICAL DOCUMENTATION HEADER (NOTION-STYLE WITH RIGHT SKETCH SHOWCASE) -->
-<section class="doc-header-section page-section bg-white-theme" style="padding-bottom: 2.5rem;">
+<section class="doc-header-section page-section bg-white-theme" style="padding-top: calc(var(--nav-height) + 1.25rem); padding-bottom: 1.25rem;">
   <div class="container-centered">
     
     <div class="doc-header-layout">
@@ -98,7 +151,7 @@
 </section>
 
 <!-- MAIN DOCUMENTATION ARTICLE & SIDEBAR (2-COLUMN LAPTOP, 1-COLUMN MOBILE) -->
-<section class="page-section bg-gray-theme" style="padding-top: 2.5rem;">
+<section class="page-section bg-gray-theme" style="padding-top: 1.25rem; padding-bottom: 3rem;">
   <div class="container-centered">
     
     <div class="repo-detail-layout">
@@ -106,169 +159,14 @@
       <!-- LEFT MAIN DOCUMENTATION ARTICLE -->
       <article class="doc-main-article">
         
-        <!-- SECTION 1: OVERVIEW & OBJECTIVES -->
-        <div class="doc-section-card" id="overview">
-          <h2 class="doc-section-heading">1. System Overview & Objectives</h2>
-          <p id="doc-overview-p1">
-            <span class="skeleton-box mb-2" style="height: 16px; width: 100%;"></span>
-            <span class="skeleton-box mb-2" style="height: 16px; width: 95%;"></span>
-            <span class="skeleton-box" style="height: 16px; width: 80%;"></span>
-          </p>
-          <p id="doc-overview-p2"></p>
-        </div>
-
-        <!-- SECTION 2: TECHNICAL SPECIFICATIONS TABLE -->
-        <div class="doc-section-card" id="specifications">
-          <h2 class="doc-section-heading">2. Technical Specifications</h2>
-          <p>Comprehensive engineering parameters measured across ground static test firings and CFD simulations:</p>
-          
-          <div class="specs-table-wrapper">
-            <table class="specs-table">
-              <thead>
-                <tr>
-                  <th>Engineering Parameter</th>
-                  <th>Metric Value</th>
-                  <th>Design Margin / Notes</th>
-                </tr>
-              </thead>
-              <tbody id="doc-specs-body">
-                <tr>
-                  <td>Total Impulse</td>
-                  <td>1,280 Ns (K-Class)</td>
-                  <td>K550 Equivalent Class</td>
-                </tr>
-                <tr>
-                  <td>Peak Thrust</td>
-                  <td>820 N</td>
-                  <td>Occurs at t = 0.45s ignition phase</td>
-                </tr>
-                <tr>
-                  <td>Burn Duration</td>
-                  <td>2.35 Seconds</td>
-                  <td>Neutral BATES grain geometry</td>
-                </tr>
-                <tr>
-                  <td>Chamber Pressure</td>
-                  <td>4.2 MPa (610 PSI)</td>
-                  <td>6061-T6 Aluminum (Safety factor 2.2)</td>
-                </tr>
-                <tr>
-                  <td>Nozzle Expansion Ratio</td>
-                  <td>6.25:1</td>
-                  <td>Optimized for sea-level to 10k ft</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- SECTION 3: SYSTEM ARCHITECTURE & DIAGRAM -->
-        <div class="doc-section-card" id="architecture">
-          <h2 class="doc-section-heading">3. System Architecture & Diagram</h2>
-          <p>The mechanical and electronic subsystem architecture balances passive pressure containment with active telemetry feedback.</p>
-          
-          <div class="diagram-box">
-            <div class="diagram-title">SYSTEM FLOW DIAGRAM</div>
-            <pre class="code-block">
-+-------------------------------------------------------------------+
-|                     GROUND CONTROL COMMAND                        |
-+-------------------------------------------------------------------+
-                                  | (915MHz Encrypted LoRa Link)
-                                  v
-+-------------------------------------------------------------------+
-|                    IGNITION & SAFETY INTERLOCK                     |
-|  [Hardware Safety Key] ---> [Relay Driver] ---> [Igniter Pyro]   |
-+-------------------------------------------------------------------+
-                                  | (Flame Front Ignition)
-                                  v
-+-------------------------------------------------------------------+
-|                    SOLID MOTOR PROPULSION SYSTEM                  |
-|  [BATES Grains] --> [Combustion Chamber (4.2MPa)] --> [De Laval]  |
-+-------------------------------------------------------------------+
-                                  | (High-Freq Sample 80Hz)
-                                  v
-+-------------------------------------------------------------------+
-|                   GROUND TEST LOAD CELL SENSOR                    |
-|  [S-Type 1000kg Sensor] --> [HX711 Amp] --> [SD Data Logging]    |
-+-------------------------------------------------------------------+
-            </pre>
-          </div>
-        </div>
-
-        <!-- SECTION 4: FIRMWARE & CIRCUIT DIAGRAM -->
-        <div class="doc-section-card" id="circuit-code">
-          <h2 class="doc-section-heading">4. Circuit Schematics & Control Firmware</h2>
-          <p>Below is the micro-controller firmware script used for sensor calibration, safety arming, and high-frequency static test data capture:</p>
-          
-          <div class="code-editor-box">
-            <div class="code-header">
-              <span>main_test_stand_controller.cpp</span>
-              <span>C++17 • Arduino / ESP32 Platform</span>
-            </div>
-            <pre class="code-block">
-<span class="code-keyword">#include</span> &lt;Arduino.h&gt;
-<span class="code-keyword">#include</span> &lt;HX711.h&gt;
-<span class="code-keyword">#include</span> &lt;SPI.h&gt;
-<span class="code-keyword">#include</span> &lt;SD.h&gt;
-
-<span class="code-comment">// Pin Definitions</span>
-<span class="code-keyword">const int</span> LOADCELL_DOUT = 16;
-<span class="code-keyword">const int</span> LOADCELL_SCK  = 17;
-<span class="code-keyword">const int</span> PYRO_ARM_PIN  = 22;
-<span class="code-keyword">const int</span> PYRO_FIRE_PIN = 23;
-
-HX711 scale;
-File dataFile;
-
-<span class="code-keyword">void</span> setup() {
-  Serial.begin(115200);
-  pinMode(PYRO_ARM_PIN, INPUT_PULLDOWN);
-  pinMode(PYRO_FIRE_PIN, OUTPUT);
-  digitalWrite(PYRO_FIRE_PIN, LOW);
-
-  scale.begin(LOADCELL_DOUT, LOADCELL_SCK);
-  scale.set_scale(2280.f); <span class="code-comment">// Load cell calibration factor</span>
-  scale.tare();
-
-  <span class="code-keyword">if</span> (!SD.begin(5)) {
-    Serial.println(<span class="code-string">"[ERROR] SD Card Initialization Failed!"</span>);
-  }
-  Serial.println(<span class="code-string">"[SYSTEM READY] Awaiting Arming Signal..."</span>);
-}
-
-<span class="code-keyword">void</span> loop() {
-  <span class="code-keyword">if</span> (digitalRead(PYRO_ARM_PIN) == HIGH) {
-    <span class="code-keyword">float</span> force_N = scale.get_units() * 9.81f;
-    uint32_t t_ms = millis();
-
-    <span class="code-comment">// Stream telemetry over serial & log to SD</span>
-    Serial.printf(<span class="code-string">"T=%dms, Force=%.2fN\n"</span>, t_ms, force_N);
-  }
-}
-            </pre>
-          </div>
-        </div>
-
-        <!-- SECTION 5: ENGINEERING JOURNAL & TEST LOGS -->
-        <div class="doc-section-card" id="journal">
-          <h2 class="doc-section-heading">5. Engineering Journal & Test Logs</h2>
-          
-          <div class="journal-entry">
-            <div class="journal-date">OCTOBER 14, 2024 • STATIC FIRING #04</div>
-            <h3>Successful Full-Duration Ground Test Firing</h3>
-            <p>
-              Static test #04 was conducted at the field test stand. The motor achieved full chamber pressure within 0.12 seconds of ignition. Load-cell thrust curve closely matched CFD predictions with zero phenolic nozzle erosion observed.
-            </p>
-          </div>
-
-          <div class="journal-entry">
-            <div class="journal-date">SEPTEMBER 28, 2024 • DESIGN ITERATION</div>
-            <h3>Nozzle Throat Expansion Ratio Revision</h3>
-            <p>
-              Replaced initial aluminum nozzle insert with a graphite-phenolic composite nozzle to handle throat heat flux exceeding 2,400 K during peak combustion.
-            </p>
-          </div>
-
+        <!-- SHIMMER LOADING PLACEHOLDER (Replaced dynamically when project data finishes fetching) -->
+        <div class="doc-section-card skeleton-card">
+          <div class="skeleton-box mb-3" style="height: 28px; width: 45%;"></div>
+          <div class="skeleton-box mb-2" style="height: 16px; width: 100%;"></div>
+          <div class="skeleton-box mb-2" style="height: 16px; width: 92%;"></div>
+          <div class="skeleton-box mb-4" style="height: 16px; width: 80%;"></div>
+          <div class="skeleton-box mb-3" style="height: 28px; width: 40%;"></div>
+          <div class="skeleton-box" style="height: 180px; width: 100%;"></div>
         </div>
 
       </article>
@@ -302,6 +200,14 @@ File dataFile;
           <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0;">
             <strong>Verification:</strong> <span id="doc-meta-verification"><span class="skeleton-box" style="height: 14px; width: 80px; display: inline-block;"></span></span>
           </p>
+        </div>
+
+        <!-- AUTHORS & TEAM MEMBERS BOX -->
+        <div class="repo-sidebar-box">
+          <h4 class="mb-2">👥 Authors & Engineering Team</h4>
+          <div id="doc-team-members-list" class="d-flex flex-column gap-2 mt-2">
+            <span class="skeleton-box" style="height: 44px; width: 100%; border-radius: 8px;"></span>
+          </div>
         </div>
 
         <!-- REVISION HISTORY LOG BOX -->

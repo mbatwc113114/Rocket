@@ -49,51 +49,107 @@
         </li>
       </ul>
       <div id="auth-nav-widget" class="d-flex align-items-center ms-md-3"></div>
-      <button class="theme-toggle-btn" type="button"><span>🌙</span> Dark</button>
+      
+      <!-- NOTION-STYLE PAGE SETTINGS DROPDOWN -->
+      <div class="dropdown notion-settings-dropdown ms-md-2">
+        <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center justify-content-center mono-text notion-dots-btn" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" title="Page Style & Settings" style="border-radius: 8px; font-size: 1.1rem; padding: 0.25rem 0.6rem; min-width: 36px;">
+          •••
+        </button>
+        <div class="dropdown-menu dropdown-menu-end p-3 style-box shadow-lg" style="min-width: 280px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; font-size: 0.85rem;">
+          
+          <!-- FONT FAMILY SELECTOR (SANS, SERIF, MONO) -->
+          <div class="mb-3">
+            <div class="mono-text subtle-text mb-1" style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase;">Font Style</div>
+            <div class="btn-group w-100 notion-font-group" role="group">
+              <button type="button" class="btn btn-sm btn-outline-primary notion-font-btn active" data-font="sans" style="font-family: var(--font-display);">Aa Sans</button>
+              <button type="button" class="btn btn-sm btn-outline-primary notion-font-btn" data-font="serif" style="font-family: 'Georgia', serif;">Aa Serif</button>
+              <button type="button" class="btn btn-sm btn-outline-primary notion-font-btn" data-font="mono" style="font-family: var(--font-mono);">Aa Mono</button>
+            </div>
+          </div>
+
+          <!-- FONT SIZE SELECTOR (SMALL, MEDIUM, LARGE) -->
+          <div class="mb-3">
+            <div class="mono-text subtle-text mb-1" style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase;">Font Size</div>
+            <div class="btn-group w-100 notion-size-group" role="group">
+              <button type="button" class="btn btn-sm btn-outline-secondary notion-size-btn" data-size="small" style="font-size: 0.75rem;">Small</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary notion-size-btn active" data-size="medium" style="font-size: 0.82rem;">Default</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary notion-size-btn" data-size="large" style="font-size: 0.9rem;">Large</button>
+            </div>
+          </div>
+
+          <hr class="my-2" style="border-color: var(--border-color); opacity: 0.4;">
+
+          <!-- FULL PAGE WIDTH TOGGLE SWITCH -->
+          <div class="d-flex justify-content-between align-items-center mb-2 py-1">
+            <div class="d-flex align-items-center gap-2">
+              <span>↔️</span>
+              <span class="fw-bold" style="font-size: 0.82rem;">Full Width Page</span>
+            </div>
+            <div class="form-check form-switch m-0">
+              <input class="form-check-input notion-fullpage-switch" type="checkbox" role="switch" style="cursor: pointer;">
+            </div>
+          </div>
+
+          <!-- DARK MODE TOGGLE SWITCH -->
+          <div class="d-flex justify-content-between align-items-center py-1">
+            <div class="d-flex align-items-center gap-2">
+              <span class="theme-icon">🌙</span>
+              <span class="fw-bold" style="font-size: 0.82rem;">Dark Mode</span>
+            </div>
+            <div class="form-check form-switch m-0">
+              <input class="form-check-input notion-dark-switch" type="checkbox" role="switch" style="cursor: pointer;">
+            </div>
+          </div>
+
+        </div>
+      </div>
     </div>
   </div>
 </nav>
 
-<!-- HERO -->
-<section class="hero-standalone page-section bg-white-theme">
-  <div class="text-center-wrapper">
-    <h1 class="title-centered">Roketry Vehicle Fleet & Systems</h1>
-    <p class="subtitle">DEVELOPMENT LINEUP OF SOLID STABILITY ROCKETS, MULTISTAGE PAYLOAD LAUNCHERS, LIQUID LANDERS & HARDWARE SIMULATORS.</p>
-  </div>
-</section>
+<!-- ================= SCROLL SNAP CONTAINER ================= -->
+<div class="snap-container">
 
-<!-- CATEGORIZED PROJECTS SECTION -->
-<section class="page-section bg-gray-theme">
-  <div class="container-centered">
-
-    <!-- SEARCH BOX -->
-    <div class="search-box-wrapper">
-      <input type="text" id="project-search" placeholder="Search rocket models or subsystems (e.g. Model-I, Liquid, Simulator, Test Stand)...">
+  <!-- HERO -->
+  <section class="snap hero-standalone page-section bg-white-theme">
+    <div class="text-center-wrapper">
+      <h1 class="title-centered">Roketry Vehicle Fleet & Systems</h1>
+      <p class="subtitle">DEVELOPMENT LINEUP OF SOLID STABILITY ROCKETS, MULTISTAGE PAYLOAD LAUNCHERS, LIQUID LANDERS & HARDWARE SIMULATORS.</p>
     </div>
+  </section>
 
-    <!-- CLEAN CATEGORY FILTER TABS -->
-    <div class="filter-bar">
-      <button class="filter-btn active" data-filter="all">All Fleet & Systems</button>
-      <button class="filter-btn" data-filter="fleet">Rocket Fleet (Models)</button>
-      <button class="filter-btn" data-filter="simulators">Simulators & Test Bench</button>
-      <button class="filter-btn" data-filter="subsystems">Subcomponents & Recovery</button>
+  <!-- CATEGORIZED PROJECTS SECTION -->
+  <section class="snap page-section bg-gray-theme" style="padding-top: 2rem; padding-bottom: 3rem;">
+    <div class="container-centered">
+
+      <!-- SEARCH BOX -->
+      <div class="search-box-wrapper">
+        <input type="text" id="project-search" placeholder="Search rocket models or subsystems (e.g. Model-I, Liquid, Simulator, Test Stand)...">
+      </div>
+
+      <!-- CLEAN CATEGORY FILTER TABS -->
+      <div class="filter-bar flex-wrap gap-2 justify-content-center">
+        <button class="filter-btn active" data-filter="all">🌐 All Fleet & Systems</button>
+        <button class="filter-btn" data-filter="fleet">🚀 Rocket Fleet</button>
+        <button class="filter-btn" data-filter="simulators">⚡ Simulators & Benches</button>
+        <button class="filter-btn" data-filter="subsystems">🛠️ Subsystems</button>
+        <button class="filter-btn" data-filter="avionics">📡 Avionics & Telemetry</button>
+        <button class="filter-btn" data-filter="propulsion">🔥 Propulsion Motors</button>
+        <button class="filter-btn" data-filter="payload">🧪 Instruments & Payloads</button>
+      </div>
+
+      <!-- SPACIOUS 3-COLUMN PROJECTS GRID WITH YOUTUBE-STYLE SKELETON BUFFER -->
+      <div class="projects-clean-grid" id="projects-container">
+        <div class="project-card skeleton-card"><div class="skeleton-box mb-3" style="height: 170px; width: 100%;"></div><div class="skeleton-box mb-2" style="height: 18px; width: 35%;"></div><div class="skeleton-box mb-2" style="height: 24px; width: 85%;"></div><div class="skeleton-box mb-3" style="height: 16px; width: 95%;"></div><div class="skeleton-box" style="height: 32px; width: 110px;"></div></div>
+        <div class="project-card skeleton-card"><div class="skeleton-box mb-3" style="height: 170px; width: 100%;"></div><div class="skeleton-box mb-2" style="height: 18px; width: 35%;"></div><div class="skeleton-box mb-2" style="height: 24px; width: 85%;"></div><div class="skeleton-box mb-3" style="height: 16px; width: 95%;"></div><div class="skeleton-box" style="height: 32px; width: 110px;"></div></div>
+        <div class="project-card skeleton-card"><div class="skeleton-box mb-3" style="height: 170px; width: 100%;"></div><div class="skeleton-box mb-2" style="height: 18px; width: 35%;"></div><div class="skeleton-box mb-2" style="height: 24px; width: 85%;"></div><div class="skeleton-box mb-3" style="height: 16px; width: 95%;"></div><div class="skeleton-box" style="height: 32px; width: 110px;"></div></div>
+      </div>
+
     </div>
+  </section>
 
-    <!-- SPACIOUS 3-COLUMN PROJECTS GRID WITH YOUTUBE-STYLE SKELETON BUFFER -->
-    <div class="projects-clean-grid" id="projects-container">
-      <div class="project-card skeleton-card"><div class="skeleton-box mb-3" style="height: 170px; width: 100%;"></div><div class="skeleton-box mb-2" style="height: 18px; width: 35%;"></div><div class="skeleton-box mb-2" style="height: 24px; width: 85%;"></div><div class="skeleton-box mb-3" style="height: 16px; width: 95%;"></div><div class="skeleton-box" style="height: 32px; width: 110px;"></div></div>
-      <div class="project-card skeleton-card"><div class="skeleton-box mb-3" style="height: 170px; width: 100%;"></div><div class="skeleton-box mb-2" style="height: 18px; width: 35%;"></div><div class="skeleton-box mb-2" style="height: 24px; width: 85%;"></div><div class="skeleton-box mb-3" style="height: 16px; width: 95%;"></div><div class="skeleton-box" style="height: 32px; width: 110px;"></div></div>
-      <div class="project-card skeleton-card"><div class="skeleton-box mb-3" style="height: 170px; width: 100%;"></div><div class="skeleton-box mb-2" style="height: 18px; width: 35%;"></div><div class="skeleton-box mb-2" style="height: 24px; width: 85%;"></div><div class="skeleton-box mb-3" style="height: 16px; width: 95%;"></div><div class="skeleton-box" style="height: 32px; width: 110px;"></div></div>
-      <div class="project-card skeleton-card"><div class="skeleton-box mb-3" style="height: 170px; width: 100%;"></div><div class="skeleton-box mb-2" style="height: 18px; width: 35%;"></div><div class="skeleton-box mb-2" style="height: 24px; width: 85%;"></div><div class="skeleton-box mb-3" style="height: 16px; width: 95%;"></div><div class="skeleton-box" style="height: 32px; width: 110px;"></div></div>
-      <div class="project-card skeleton-card"><div class="skeleton-box mb-3" style="height: 170px; width: 100%;"></div><div class="skeleton-box mb-2" style="height: 18px; width: 35%;"></div><div class="skeleton-box mb-2" style="height: 24px; width: 85%;"></div><div class="skeleton-box mb-3" style="height: 16px; width: 95%;"></div><div class="skeleton-box" style="height: 32px; width: 110px;"></div></div>
-      <div class="project-card skeleton-card"><div class="skeleton-box mb-3" style="height: 170px; width: 100%;"></div><div class="skeleton-box mb-2" style="height: 18px; width: 35%;"></div><div class="skeleton-box mb-2" style="height: 24px; width: 85%;"></div><div class="skeleton-box mb-3" style="height: 16px; width: 95%;"></div><div class="skeleton-box" style="height: 32px; width: 110px;"></div></div>
-    </div>
-
-  </div>
-</section>
-
-<!-- HIERARCHY TREE SECTION -->
-<section id="tree" class="tree-section">
+  <!-- HIERARCHY TREE SECTION -->
+  <section id="tree" class="snap tree-section">
   <div class="tree-container">
     <div class="text-center-wrapper" style="margin-bottom: 2rem;">
       <h2 class="projects-title">Vehicle Fleet & System Hierarchy</h2>
@@ -116,6 +172,8 @@
 
   </div>
 </section>
+
+</div>
 
 <!-- Firebase & Auth Script -->
 <script type="module" src="../js/core/firebase-config.js"></script>

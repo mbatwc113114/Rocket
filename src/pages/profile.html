@@ -39,20 +39,65 @@
         <li class="nav-item"><a class="nav-link" href="join.html">Join</a></li>
       </ul>
       <div id="auth-nav-widget" class="d-flex align-items-center ms-md-3"></div>
-      <button class="theme-toggle-btn" type="button"><span>🌙</span> Dark</button>
+      
+      <!-- NOTION-STYLE PAGE SETTINGS DROPDOWN -->
+      <div class="dropdown notion-settings-dropdown ms-md-2">
+        <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center justify-content-center mono-text notion-dots-btn" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" title="Page Style & Settings" style="border-radius: 8px; font-size: 1.1rem; padding: 0.25rem 0.6rem; min-width: 36px;">
+          •••
+        </button>
+        <div class="dropdown-menu dropdown-menu-end p-3 style-box shadow-lg" style="min-width: 280px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; font-size: 0.85rem;">
+          
+          <!-- FONT FAMILY SELECTOR (SANS, SERIF, MONO) -->
+          <div class="mb-3">
+            <div class="mono-text subtle-text mb-1" style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase;">Font Style</div>
+            <div class="btn-group w-100 notion-font-group" role="group">
+              <button type="button" class="btn btn-sm btn-outline-primary notion-font-btn active" data-font="sans" style="font-family: var(--font-display);">Aa Sans</button>
+              <button type="button" class="btn btn-sm btn-outline-primary notion-font-btn" data-font="serif" style="font-family: 'Georgia', serif;">Aa Serif</button>
+              <button type="button" class="btn btn-sm btn-outline-primary notion-font-btn" data-font="mono" style="font-family: var(--font-mono);">Aa Mono</button>
+            </div>
+          </div>
+
+          <!-- FONT SIZE SELECTOR (SMALL, MEDIUM, LARGE) -->
+          <div class="mb-3">
+            <div class="mono-text subtle-text mb-1" style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase;">Font Size</div>
+            <div class="btn-group w-100 notion-size-group" role="group">
+              <button type="button" class="btn btn-sm btn-outline-secondary notion-size-btn" data-size="small" style="font-size: 0.75rem;">Small</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary notion-size-btn active" data-size="medium" style="font-size: 0.82rem;">Default</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary notion-size-btn" data-size="large" style="font-size: 0.9rem;">Large</button>
+            </div>
+          </div>
+
+          <hr class="my-2" style="border-color: var(--border-color); opacity: 0.4;">
+
+          <!-- FULL PAGE WIDTH TOGGLE SWITCH -->
+          <div class="d-flex justify-content-between align-items-center mb-2 py-1">
+            <div class="d-flex align-items-center gap-2">
+              <span>↔️</span>
+              <span class="fw-bold" style="font-size: 0.82rem;">Full Width Page</span>
+            </div>
+            <div class="form-check form-switch m-0">
+              <input class="form-check-input notion-fullpage-switch" type="checkbox" role="switch" style="cursor: pointer;">
+            </div>
+          </div>
+
+          <!-- DARK MODE TOGGLE SWITCH -->
+          <div class="d-flex justify-content-between align-items-center py-1">
+            <div class="d-flex align-items-center gap-2">
+              <span class="theme-icon">🌙</span>
+              <span class="fw-bold" style="font-size: 0.82rem;">Dark Mode</span>
+            </div>
+            <div class="form-check form-switch m-0">
+              <input class="form-check-input notion-dark-switch" type="checkbox" role="switch" style="cursor: pointer;">
+            </div>
+          </div>
+
+        </div>
+      </div>
     </div>
   </div>
 </nav>
 
-<!-- PROFILE HERO -->
-<section class="hero-standalone page-section bg-white-theme" style="padding-bottom: 2rem;">
-  <div class="text-center-wrapper">
-    <h1 class="title-centered">User Profile & Account</h1>
-    <p class="subtitle">MANAGE YOUR AEROSPACE DEVELOPER PROFILE, AVATAR, AND SECURITY CREDENTIALS.</p>
-  </div>
-</section>
-
-<section class="page-section bg-gray-theme" style="padding-top: 2rem;">
+<section class="page-section bg-gray-theme" style="padding-top: calc(var(--nav-height) + 1.5rem); padding-bottom: 3rem;">
   <div class="container-centered">
     
     <!-- YOUTUBE-STYLE SKELETON SHIMMER INITIAL BUFFER FOR PROFILE -->
@@ -83,61 +128,93 @@
       </button>
     </div>
 
-    <!-- 2. LOGGED-IN PROFILE DISPLAY & EDIT FORM -->
+    <!-- 2. LOGGED-IN PROFILE DISPLAY & EDIT FORM (2-COLUMN INDEPENDENT SCROLL LAYOUT) -->
     <div id="profile-logged-in-state" class="profile-card-container d-none">
       
-      <!-- LEFT: AVATAR DISPLAY & QUICK INFO -->
-      <div class="profile-left-box">
-        <div class="avatar-preview-wrap">
-          <img id="profile-dp-img" src="" alt="Profile Picture DP">
-        </div>
-        <h3 id="profile-display-name"></h3>
-        <p id="profile-display-role" class="profile-role-badge"></p>
-        <span id="profile-display-email" class="subtle-text"></span>
+      <!-- LEFT SIDEBAR COLUMN: STICKY DP AVATAR & USER METADATA -->
+      <div class="profile-left-col">
+        <div class="profile-left-box">
+          <div class="avatar-preview-wrap">
+            <img id="profile-dp-img" src="" alt="Profile Picture DP">
+          </div>
+          <h3 id="profile-display-name"></h3>
+          <p id="profile-display-role" class="profile-role-badge"></p>
+          <span id="profile-display-email" class="subtle-text"></span>
 
-        <hr style="width: 100%; border-color: var(--border-color); margin: 1.5rem 0;">
+          <!-- ASSIGNED PROJECT TAGS BOX -->
+          <div class="w-100 mt-3 pt-3 border-top border-theme">
+            <div class="mono-text subtle-text mb-2 text-center" style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase;">Assigned Project Systems</div>
+            <div id="profile-project-tags-list" class="d-flex flex-wrap gap-1.5 justify-content-center">
+              <span class="skeleton-box" style="height: 20px; width: 100px; display: inline-block;"></span>
+            </div>
+          </div>
 
-        <div class="auth-provider-tag">
-          <span>🔒 Google Authenticated</span>
+          <hr style="width: 100%; border-color: var(--border-color); margin: 1.2rem 0 1rem 0;">
+
+          <div class="auth-provider-tag">
+            <span>🔒 Google Authenticated</span>
+          </div>
         </div>
       </div>
 
-      <!-- RIGHT: PROFILE EDIT FORM -->
-      <div class="profile-right-box">
-        <h3 style="font-size: 1.3rem; margin-bottom: 1.5rem;">Edit Profile Details</h3>
+      <!-- RIGHT MAIN CONTENT COLUMN: EDIT PROFILE FORM + ASSOCIATED PROJECTS SECTION -->
+      <div class="profile-right-col d-flex flex-column gap-4">
+        
+        <!-- TOP: EDIT PROFILE FORM CARD -->
+        <div class="profile-right-box">
+          <h3 style="font-size: 1.3rem; margin-bottom: 1.5rem;">Edit Profile Details</h3>
 
-        <form id="profile-edit-form" class="contact-form" style="padding: 0;">
-          
-          <div>
-            <label class="form-label-mono">Full Name</label>
-            <input type="text" id="input-name" required>
+          <form id="profile-edit-form" class="contact-form" style="padding: 0;">
+            
+            <div>
+              <label class="form-label-mono">Full Name</label>
+              <input type="text" id="input-name" required>
+            </div>
+
+            <div>
+              <label class="form-label-mono">Email Address (Google Account)</label>
+              <input type="email" id="input-email" readonly style="opacity: 0.7; cursor: not-allowed;">
+            </div>
+
+            <div>
+              <label class="form-label-mono">Profile Picture DP URL</label>
+              <input type="url" id="input-photo">
+            </div>
+
+            <div>
+              <label class="form-label-mono">Bio / Aerospace Specialty</label>
+              <textarea id="input-bio" rows="3" placeholder="Add your aerospace specialty or rocket project bio..."></textarea>
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+              <button type="submit" class="primary-btn" style="flex: 1;">Save Profile Changes</button>
+              <button type="button" id="btn-logout" class="repo-action-btn" style="background: rgba(239, 68, 68, 0.1); color: #ef4444 !important; border-color: rgba(239, 68, 68, 0.3);">Sign Out</button>
+            </div>
+
+            <div id="save-alert" class="alert alert-success mt-3 d-none" role="alert">
+              ✓ Profile changes saved successfully!
+            </div>
+
+          </form>
+        </div>
+
+        <!-- BOTTOM: USER CREATED & CONTRIBUTED PROJECTS SECTION (NOTION + GITHUB STYLE) -->
+        <div id="profile-user-projects-section" class="doc-section-card m-0" style="max-width: 100%;">
+          <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div>
+              <h3 class="doc-section-heading mb-1" style="font-size: 1.25rem;">🚀 Associated Rocket Projects</h3>
+              <p class="subtle-text m-0" style="font-size: 0.82rem;">Projects authored, lead-engineered, or contributed to by this developer (GitHub & Notion style):</p>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <span class="badge bg-primary mono-text" id="profile-projects-count" style="font-size: 0.78rem;">0 Projects</span>
+            </div>
           </div>
 
-          <div>
-            <label class="form-label-mono">Email Address (Google Account)</label>
-            <input type="email" id="input-email" readonly style="opacity: 0.7; cursor: not-allowed;">
+          <div id="profile-user-projects-grid" class="row g-3">
+            <!-- Dynamically rendered GitHub / Notion style project cards -->
           </div>
+        </div>
 
-          <div>
-            <label class="form-label-mono">Profile Picture DP URL</label>
-            <input type="url" id="input-photo">
-          </div>
-
-          <div>
-            <label class="form-label-mono">Bio / Aerospace Specialty</label>
-            <textarea id="input-bio" rows="3" placeholder="Add your aerospace specialty or rocket project bio..."></textarea>
-          </div>
-
-          <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-            <button type="submit" class="primary-btn" style="flex: 1;">Save Profile Changes</button>
-            <button type="button" id="btn-logout" class="repo-action-btn" style="background: rgba(239, 68, 68, 0.1); color: #ef4444 !important; border-color: rgba(239, 68, 68, 0.3);">Sign Out</button>
-          </div>
-
-          <div id="save-alert" class="alert alert-success mt-3 d-none" role="alert">
-            ✓ Profile changes saved successfully!
-          </div>
-
-        </form>
       </div>
 
     </div>
@@ -180,7 +257,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const bio = rtdbData?.bio || user.bio || '';
       const assignedRole = rtdbData?.teamRole || (user.email && user.email.toLowerCase().trim() === 'mbatwc@gmail.com' ? 'SUPER ADMIN' : 'CORE MEMBER');
 
-      document.getElementById('profile-dp-img').src = photoURL;
+      const defaultAvatar = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80';
+      document.getElementById('profile-dp-img').src = photoURL || defaultAvatar;
       document.getElementById('profile-display-name').textContent = displayName;
       document.getElementById('profile-display-email').textContent = user.email;
 
@@ -203,6 +281,142 @@ document.addEventListener('DOMContentLoaded', () => {
         color = '#60a5fa';
         border = 'rgba(59, 130, 246, 0.35)';
         icon = '⚡';
+      }
+
+      roleBadge.innerHTML = `<span class="notion-role-pill" style="background: ${bg}; color: ${color}; border: 1px solid ${border}; font-size: 0.82rem; padding: 0.3rem 0.85rem;"><span>${icon}</span>${roleUpper} ${isAdmin ? '<span class="badge bg-danger text-white ms-1" style="font-size:0.65rem;">ADMIN</span>' : ''}</span>`;
+      roleBadge.style.background = 'transparent';
+      roleBadge.style.padding = '0';
+      
+      document.getElementById('input-name').value = displayName;
+      document.getElementById('input-email').value = user.email;
+      document.getElementById('input-photo').value = photoURL;
+      document.getElementById('input-bio').value = bio;
+
+      // Render User Associated Projects (GitHub & Notion Style)
+      const userProjectsSec = document.getElementById('profile-user-projects-section');
+      const userProjectsGrid = document.getElementById('profile-user-projects-grid');
+      const userProjectsCount = document.getElementById('profile-projects-count');
+
+      if (userProjectsSec && userProjectsGrid && auth) {
+        userProjectsSec.classList.remove('d-none');
+        
+        const dbProjects = await auth.fetchAllCustomProjectsFromRTDB();
+        const changelogs = await auth.fetchChangelog(200);
+
+        const uEmail = (user.email || '').toLowerCase().trim();
+        const uName = (displayName || '').toLowerCase().trim();
+
+        // Strict project matching: Only show projects where user is explicit author or contributor
+        let matchedProjects = (dbProjects && Array.isArray(dbProjects)) ? dbProjects.filter(p => {
+          const pAuthor = (p.author || '').toLowerCase().trim();
+          const pAuthorEmail = (p.authorEmail || '').toLowerCase().trim();
+
+          const isAuthor = (pAuthorEmail && pAuthorEmail === uEmail) || (pAuthor && pAuthor === uName);
+          
+          const isDirectContrib = Array.isArray(p.contributors) && p.contributors.some(c => 
+            (c.email && c.email.toLowerCase().trim() === uEmail) || 
+            (c.name && c.name.toLowerCase().trim() === uName)
+          );
+
+          const isAuditContrib = changelogs.some(c => 
+            (c.projectId === p.id || c.projectTitle === p.title) && 
+            ((c.editedBy && c.editedBy.toLowerCase().trim() === uEmail) || 
+             (c.editorName && c.editorName.toLowerCase().trim() === uName))
+          );
+
+          return isAuthor || isDirectContrib || isAuditContrib;
+        }) : [];
+
+        userProjectsCount.textContent = `${matchedProjects.length} Assigned Systems`;
+
+        function getDomainStyle(category) {
+          const cat = (category || 'FLEET').toLowerCase();
+          if (cat.includes('sim') || cat.includes('bench')) {
+            return { bg: 'rgba(59, 130, 246, 0.12)', color: '#60a5fa', border: 'rgba(59, 130, 246, 0.3)', label: 'SIMULATORS' };
+          } else if (cat.includes('sub') || cat.includes('recov') || cat.includes('pyro')) {
+            return { bg: 'rgba(139, 92, 246, 0.12)', color: '#c084fc', border: 'rgba(139, 92, 246, 0.3)', label: 'SUBSYSTEMS' };
+          } else {
+            return { bg: 'rgba(16, 185, 129, 0.12)', color: '#34d399', border: 'rgba(16, 185, 129, 0.3)', label: 'ROCKET FLEET' };
+          }
+        }
+
+        // Render Notion-style system tags in left profile card
+        const profileTagsContainer = document.getElementById('profile-project-tags-list');
+        if (profileTagsContainer) {
+          if (matchedProjects.length === 0) {
+            profileTagsContainer.innerHTML = `<span class="subtle-text mono-text" style="font-size: 0.75rem;">No active project assigned yet</span>`;
+          } else {
+            profileTagsContainer.innerHTML = matchedProjects.map(p => {
+              const pAuthorEmail = (p.authorEmail || '').toLowerCase().trim();
+              const isAuthor = (pAuthorEmail && pAuthorEmail === uEmail) || (p.author && p.author.toLowerCase().trim() === uName);
+              const domStyle = getDomainStyle(p.category || p.domain);
+
+              return `
+                <a href="project-detail.html?id=${p.id}" class="notion-tag-pill text-decoration-none" style="background: ${domStyle.bg}; color: ${domStyle.color}; border: 1px solid ${domStyle.border}; font-size: 0.73rem; font-weight: 600; padding: 0.25rem 0.65rem; border-radius: 20px; display: inline-flex; align-items: center; gap: 0.35rem; transition: transform 0.15s ease;" title="${p.title}">
+                  <span>${isAuthor ? '👑' : '⚡'}</span>
+                  <span class="text-truncate" style="max-width: 140px;">${p.title}</span>
+                  <span style="font-size: 0.6rem; opacity: 0.85; text-transform: uppercase; font-family: var(--font-mono);">${isAuthor ? 'LEAD' : 'MEMBER'}</span>
+                </a>
+              `;
+            }).join('');
+          }
+        }
+
+        if (matchedProjects.length === 0) {
+          userProjectsGrid.innerHTML = `
+            <div class="col-12 text-center py-4 subtle-text style-box p-4" style="background: var(--bg-card); border-radius: 12px;">
+              <span style="font-size: 1.5rem;">📦</span>
+              <p class="m-0 mt-2" style="font-size: 0.85rem;">No explicit project assignments or author records found for this user account in RTDB.</p>
+            </div>
+          `;
+        } else {
+          userProjectsGrid.innerHTML = matchedProjects.map(p => {
+            const pAuthorEmail = (p.authorEmail || '').toLowerCase().trim();
+            const isAuthor = (pAuthorEmail && pAuthorEmail === uEmail) || (p.author && p.author.toLowerCase().trim() === uName);
+            const domStyle = getDomainStyle(p.category || p.domain);
+
+            const roleTag = isAuthor ? 'LEAD AUTHOR' : 'CONTRIBUTOR';
+            const roleBg = isAuthor ? 'rgba(16, 185, 129, 0.15)' : 'rgba(59, 130, 246, 0.15)';
+            const roleColor = isAuthor ? '#34d399' : '#60a5fa';
+            const roleBorder = isAuthor ? 'rgba(16, 185, 129, 0.35)' : 'rgba(59, 130, 246, 0.35)';
+            const roleIcon = isAuthor ? '👑' : '⚡';
+
+            const projectUrl = `project-detail.html?id=${p.id}`;
+
+            const defaultSketch = 'https://images.unsplash.com/photo-1517976487492-5750f3195933?w=800&auto=format&fit=crop&q=80';
+            const thumbnailImg = p.sketchImg || defaultSketch;
+
+            return `
+              <div class="col-md-6 col-lg-4">
+                <div class="project-card style-box h-100 p-3.5 d-flex flex-column justify-content-between" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 14px;">
+                  <div>
+                    <div class="card-sketch-wrap mb-2.5 overflow-hidden" style="height: 140px; border-radius: 10px;">
+                      <img src="${thumbnailImg}" alt="${p.title}" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-1">
+                      <span class="badge mono-text" style="background: ${domStyle.bg}; color: ${domStyle.color}; border: 1px solid ${domStyle.border}; font-size: 0.65rem;">${domStyle.label}</span>
+                      <span class="notion-role-pill" style="background: ${roleBg}; color: ${roleColor}; border: 1px solid ${roleBorder}; font-size: 0.68rem; padding: 0.15rem 0.55rem;"><span>${roleIcon}</span>${roleTag}</span>
+                    </div>
+
+                    <h4 class="fw-bold mb-1" style="font-size: 1.05rem; font-family: var(--font-display);">
+                      <a href="${projectUrl}" class="text-decoration-none text-theme hover-blue">📦 ${p.title}</a>
+                    </h4>
+
+                    <p class="subtle-text mb-3" style="font-size: 0.82rem; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                      ${p.subtitle || p.description || 'Rocket engineering & telemetry documentation page.'}
+                    </p>
+                  </div>
+
+                  <div class="pt-2 border-top border-theme d-flex justify-content-between align-items-center mono-text" style="font-size: 0.72rem;">
+                    <span class="subtle-text">🏷️ ${p.version || 'v1.0'}</span>
+                    <a href="${projectUrl}" class="fw-bold text-primary text-decoration-none">View System →</a>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
       } else if (roleUpper.includes('PROPULSION') || roleUpper.includes('SOLID') || roleUpper.includes('LIQUID')) {
         bg = 'rgba(139, 92, 246, 0.15)';
         color = '#c084fc';

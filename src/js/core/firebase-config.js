@@ -323,16 +323,33 @@ class ActualAuthManager {
         const snapshot = await get(projRef);
         let versionStr = 'v1.0';
 
+        let existingHistory = [];
         if (snapshot.exists()) {
           const oldData = snapshot.val();
           const oldV = parseFloat((oldData.version || 'v1.0').replace('v', '')) || 1.0;
           versionStr = `v${(oldV + 0.1).toFixed(1)}`;
+          if (oldData.history) {
+            existingHistory = Array.isArray(oldData.history) ? oldData.history : Object.values(oldData.history);
+          }
         }
+
+        const historySnapshot = {
+          version: versionStr,
+          commitMessage: commitMessage,
+          editedAt: new Date().toISOString(),
+          editedBy: this.currentUser ? this.currentUser.email : EXCLUSIVE_ADMIN_EMAIL,
+          editorName: this.currentUser ? this.currentUser.name : 'Admin',
+          editorPhoto: this.currentUser ? this.currentUser.photoURL : '',
+          snapshotData: projectData
+        };
+
+        existingHistory.push(historySnapshot);
 
         const payload = {
           ...projectData,
           version: versionStr,
           lastCommitMessage: commitMessage,
+          history: existingHistory,
           updatedAt: new Date().toISOString(),
           updatedBy: this.currentUser ? this.currentUser.email : EXCLUSIVE_ADMIN_EMAIL
         };
@@ -436,6 +453,41 @@ class ActualAuthManager {
   }
 
   /**
+   * Saves published site page content (about, join, project, roadmap) to RTDB (site_content/{pageKey}).
+   */
+  async saveSitePageContent(pageKey, contentData) {
+    if (db && pageKey && contentData) {
+      try {
+        const payload = {
+          ...contentData,
+          updatedAt: new Date().toISOString(),
+          updatedBy: (this.currentUser ? this.currentUser.email : 'admin')
+        };
+        await set(dbRef(db, `site_content/${pageKey}`), payload);
+        return true;
+      } catch (err) {
+        console.error("Error saving site page content to RTDB:", err);
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Fetches published site page content (about or join) from RTDB (site_content/{pageKey}).
+   */
+  async fetchSitePageContent(pageKey) {
+    if (db && pageKey) {
+      try {
+        const snapshot = await get(dbRef(db, `site_content/${pageKey}`));
+        if (snapshot.exists()) return snapshot.val();
+      } catch (err) {
+        console.warn("RTDB Fetch Site Content Error:", err);
+      }
+    }
+    return null;
+  }
+
+  /**
    * Fetches audit log changelogs from RTDB (newest first).
    */
   async fetchChangelog(limit = 100) {
@@ -458,7 +510,7 @@ class ActualAuthManager {
   /**
    * Updates navbar UI controls & theme state.
    */
-  updateNavUI() {
+  async updateNavUI() {
     const authContainer = document.getElementById('auth-nav-widget');
     if (!authContainer) return;
 
@@ -469,8 +521,45 @@ class ActualAuthManager {
     if (user) {
       const adminUrl = (window.resolvePageURL ? window.resolvePageURL('admin.html') : 'admin.html');
       const profileUrl = (window.resolvePageURL ? window.resolvePageURL('profile.html') : 'profile.html');
+      
+      const notifs = await this.fetchNotifications();
+      const unreadCount = notifs.filter(n => !n.read).length;
+
+      const notifBellHTML = `
+        <div class="dropdown notif-nav-dropdown me-1 position-relative">
+          <button class="btn btn-sm btn-outline-secondary position-relative d-flex align-items-center justify-content-center" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" title="Notification Center" style="border-radius: 8px; border-color: var(--border-color); font-size: 0.9rem; background: var(--bg-card); color: var(--text-dark); padding: 0.35rem 0.55rem;">
+            🔔
+            ${unreadCount > 0 ? `<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.62rem; padding: 0.2rem 0.4rem;">${unreadCount}</span>` : ''}
+          </button>
+          <div class="dropdown-menu dropdown-menu-end p-0 shadow-lg style-box" style="width: 320px; max-height: 440px; overflow-y: auto; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 14px; font-size: 0.85rem;">
+            <div class="p-2.5 px-3 border-bottom d-flex justify-content-between align-items-center" style="background: var(--bg-tree-bg);">
+              <span class="fw-bold mono-text" style="color: var(--text-dark); font-size: 0.85rem;">🔔 Notifications</span>
+              ${notifs.length > 0 ? `<span class="badge mono-text" style="background: rgba(59, 130, 246, 0.18); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.35); font-size: 0.72rem; border-radius: 12px; padding: 3px 8px;">${notifs.length} Total</span>` : ''}
+            </div>
+            <div class="notif-list-container p-2.5">
+              ${notifs.length === 0 ? `
+                <div class="text-center p-4 subtle-text">
+                  <span style="font-size: 1.4rem;">🔕</span>
+                  <p class="m-0 mt-1 mono-text" style="font-size: 0.78rem;">No notifications yet</p>
+                </div>
+              ` : notifs.slice(0, 10).map(n => `
+                <div class="p-2.5 mb-2 rounded style-box" style="background: ${n.read ? 'rgba(0,0,0,0.15)' : 'rgba(59, 130, 246, 0.12)'}; border: 1px solid ${n.read ? 'var(--border-color)' : 'rgba(59, 130, 246, 0.35)'}; border-radius: 10px;">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="fw-bold mono-text" style="color: #60a5fa; font-size: 0.8rem;">${n.title || 'Live Notification'}</span>
+                    <span class="mono-text" style="color: var(--text-muted); font-size: 0.68rem;">${n.timestamp ? new Date(n.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}</span>
+                  </div>
+                  <p class="m-0" style="color: var(--text-dark); font-size: 0.8rem; line-height: 1.4;">${n.message || n.senderName || ''}</p>
+                  ${n.senderEmail ? `<span class="mono-text d-block mt-1.5" style="font-size: 0.72rem; color: #38bdf8;">✉️ ${n.senderEmail}</span>` : ''}
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+
       authHTML = `
         <div class="d-flex align-items-center gap-2 me-md-2 position-relative">
+          ${notifBellHTML}
           ${isAdmin ? `<a href="${adminUrl}" class="nav-auth-btn" style="background: rgba(16, 185, 129, 0.15); color: #10b981 !important; border: 1px solid #10b981; padding: 4px 10px; border-radius: 6px; text-decoration: none; font-size: 0.8rem; font-weight: 700;">⚙️ Admin</a>` : ''}
           <a href="${profileUrl}" class="d-flex align-items-center text-decoration-none">
             <img src="${user.photoURL}" class="avatar-circle" title="${user.name} (${isAdmin ? 'Admin' : 'Member'})" alt="${user.name}">

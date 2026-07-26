@@ -52,75 +52,133 @@
         </li>
       </ul>
       <div id="auth-nav-widget" class="d-flex align-items-center ms-md-3"></div>
-      <button class="theme-toggle-btn" type="button"><span>🌙</span> Dark</button>
+      
+      <!-- NOTION-STYLE PAGE SETTINGS DROPDOWN -->
+      <div class="dropdown notion-settings-dropdown ms-md-2">
+        <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center justify-content-center mono-text notion-dots-btn" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" title="Page Style & Settings" style="border-radius: 8px; font-size: 1.1rem; padding: 0.25rem 0.6rem; min-width: 36px;">
+          •••
+        </button>
+        <div class="dropdown-menu dropdown-menu-end p-3 style-box shadow-lg" style="min-width: 280px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; font-size: 0.85rem;">
+          
+          <!-- FONT FAMILY SELECTOR (SANS, SERIF, MONO) -->
+          <div class="mb-3">
+            <div class="mono-text subtle-text mb-1" style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase;">Font Style</div>
+            <div class="btn-group w-100 notion-font-group" role="group">
+              <button type="button" class="btn btn-sm btn-outline-primary notion-font-btn active" data-font="sans" style="font-family: var(--font-display);">Aa Sans</button>
+              <button type="button" class="btn btn-sm btn-outline-primary notion-font-btn" data-font="serif" style="font-family: 'Georgia', serif;">Aa Serif</button>
+              <button type="button" class="btn btn-sm btn-outline-primary notion-font-btn" data-font="mono" style="font-family: var(--font-mono);">Aa Mono</button>
+            </div>
+          </div>
+
+          <!-- FONT SIZE SELECTOR (SMALL, MEDIUM, LARGE) -->
+          <div class="mb-3">
+            <div class="mono-text subtle-text mb-1" style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase;">Font Size</div>
+            <div class="btn-group w-100 notion-size-group" role="group">
+              <button type="button" class="btn btn-sm btn-outline-secondary notion-size-btn" data-size="small" style="font-size: 0.75rem;">Small</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary notion-size-btn active" data-size="medium" style="font-size: 0.82rem;">Default</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary notion-size-btn" data-size="large" style="font-size: 0.9rem;">Large</button>
+            </div>
+          </div>
+
+          <hr class="my-2" style="border-color: var(--border-color); opacity: 0.4;">
+
+          <!-- FULL PAGE WIDTH TOGGLE SWITCH -->
+          <div class="d-flex justify-content-between align-items-center mb-2 py-1">
+            <div class="d-flex align-items-center gap-2">
+              <span>↔️</span>
+              <span class="fw-bold" style="font-size: 0.82rem;">Full Width Page</span>
+            </div>
+            <div class="form-check form-switch m-0">
+              <input class="form-check-input notion-fullpage-switch" type="checkbox" role="switch" style="cursor: pointer;">
+            </div>
+          </div>
+
+          <!-- DARK MODE TOGGLE SWITCH -->
+          <div class="d-flex justify-content-between align-items-center py-1">
+            <div class="d-flex align-items-center gap-2">
+              <span class="theme-icon">🌙</span>
+              <span class="fw-bold" style="font-size: 0.82rem;">Dark Mode</span>
+            </div>
+            <div class="form-check form-switch m-0">
+              <input class="form-check-input notion-dark-switch" type="checkbox" role="switch" style="cursor: pointer;">
+            </div>
+          </div>
+
+        </div>
+      </div>
     </div>
   </div>
 </nav>
 
-<!-- ================= HERO ================= -->
-<section class="hero-standalone page-section bg-white-theme">
-  <div class="text-center-wrapper">
-    <h1 class="title-centered">About Roketry & Team</h1>
-    <p class="subtitle">MEET THE FOUNDERS, ENGINEERS, AND CONTRIBUTORS BUILDING OPEN AEROSPACE.</p>
-  </div>
-</section>
+<!-- ================= SCROLL SNAP CONTAINER ================= -->
+<div class="snap-container">
 
-<!-- ================= TEAM SECTION ================= -->
-<section class="page-section bg-gray-theme">
-  <div class="container-centered">
-    
-    <div class="text-center-wrapper mb-4">
-      <h2 class="about-title">Leadership & Core Engineers</h2>
-      <p class="about-desc">
-        Roketry is powered by dedicated aerospace developers, propulsion engineers, and community contributors building open aerospace.
-      </p>
-
-      <!-- ADMIN ONLY TEAM MANAGEMENT ACTION BUTTON -->
-      <div id="admin-team-toolbar" class="mt-3 d-none">
-        <button type="button" class="primary-btn" data-bs-toggle="modal" data-bs-target="#teamMemberModal" style="padding: 0.6rem 1.4rem; font-size: 0.9rem;">
-          ➕ Assign Team Role & Add Member
-        </button>
-      </div>
+  <!-- ================= HERO ================= -->
+  <section class="snap hero-standalone page-section bg-white-theme">
+    <div class="text-center-wrapper">
+      <h1 class="title-centered">About Roketry & Team</h1>
+      <p class="subtitle">MEET THE FOUNDERS, ENGINEERS, AND CONTRIBUTORS BUILDING OPEN AEROSPACE.</p>
     </div>
+  </section>
 
-    <!-- DYNAMIC TEAM CARDS GRID -->
-    <div id="team-cards-container" class="team-grid">
-      <!-- Loading Skeleton -->
-      <div class="project-card team-card">
-        <div>
-          <span class="team-role">LOADING TEAM...</span>
-          <h3>Fetching Core Engineers</h3>
-          <p>Connecting to Firebase Realtime Database...</p>
+  <!-- ================= TEAM SECTION ================= -->
+  <section class="snap page-section bg-gray-theme">
+    <div class="container-centered">
+      
+      <div class="text-center-wrapper mb-4">
+        <h2 class="about-title">Leadership & Core Engineers</h2>
+        <p class="about-desc">
+          Roketry is powered by dedicated aerospace developers, propulsion engineers, and community contributors building open aerospace.
+        </p>
+
+        <!-- ADMIN ONLY TEAM MANAGEMENT ACTION BUTTON -->
+        <div id="admin-team-toolbar" class="mt-3 d-none">
+          <button type="button" class="primary-btn" data-bs-toggle="modal" data-bs-target="#teamMemberModal" style="padding: 0.6rem 1.4rem; font-size: 0.9rem;">
+            ➕ Assign Team Role & Add Member
+          </button>
+        </div>
+      </div>
+
+      <!-- DYNAMIC TEAM CARDS GRID -->
+      <div id="team-cards-container" class="team-grid">
+        <!-- Loading Skeleton -->
+        <div class="project-card team-card">
+          <div>
+            <span class="team-role">LOADING TEAM...</span>
+            <h3>Fetching Core Engineers</h3>
+            <p>Connecting to Firebase Realtime Database...</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= MISSION & VALUES ================= -->
+  <section class="snap page-section bg-white-theme">
+    <div class="about-layout">
+      <div class="about-text">
+        <h2 class="about-title">Our Mission</h2>
+        <p class="about-desc">
+          We build open aerospace hardware and software. By sharing CAD files, telemetry logs, static test data, and flight analytics, we enable students and researchers worldwide to learn hands-on rocketry safely and effectively.
+        </p>
+      </div>
+
+      <div class="about-stats">
+        <div class="stat">
+          <span class="stat-number">100%</span>
+          <span class="stat-label">Open Source</span>
+        </div>
+
+        <div class="stat">
+          <span class="stat-number">30+</span>
+          <span class="stat-label">Contributors</span>
         </div>
       </div>
     </div>
+  </section>
 
-  </div>
-</section>
-
-<!-- ================= MISSION & VALUES ================= -->
-<section class="page-section bg-white-theme">
-  <div class="about-layout">
-    <div class="about-text">
-      <h2 class="about-title">Our Mission</h2>
-      <p class="about-desc">
-        We build open aerospace hardware and software. By sharing CAD files, telemetry logs, static test data, and flight analytics, we enable students and researchers worldwide to learn hands-on rocketry safely and effectively.
-      </p>
-    </div>
-
-    <div class="about-stats">
-      <div class="stat">
-        <span class="stat-number">100%</span>
-        <span class="stat-label">Open Source</span>
-      </div>
-
-      <div class="stat">
-        <span class="stat-number">30+</span>
-        <span class="stat-label">Contributors</span>
-      </div>
-    </div>
-  </div>
-</section>
+</div>
 
 <!-- ================= ADMIN TEAM MEMBER & ROLE MODAL ================= -->
 <div class="modal fade" id="teamMemberModal" tabindex="-1" aria-labelledby="teamMemberModalTitle" aria-hidden="true">
@@ -303,21 +361,26 @@ document.addEventListener('DOMContentLoaded', () => {
       const isMemberAdmin = m.email && m.email.toLowerCase().trim() === 'mbatwc@gmail.com';
       const roleHTML = getNotionRoleBadgeHTML(m.role || 'CORE CONTRIBUTOR');
 
+      const defaultAvatar = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80';
+      const avatarSrc = m.photoURL || defaultAvatar;
+
       html += `
-        <div class="project-card team-card" style="position: relative;">
-          ${m.photoURL ? `<div class="mb-3 text-center"><img src="${m.photoURL}" alt="${m.name}" style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-blue);"></div>` : ''}
-          <div>
-            <div class="d-flex justify-content-between align-items-center mb-2">
+        <div class="project-card team-card">
+          <div class="team-avatar-wrap">
+            <img src="${avatarSrc}" alt="${m.name}">
+          </div>
+          <div class="w-100 text-center">
+            <div class="d-flex justify-content-center align-items-center gap-1 mb-2 flex-wrap">
               ${roleHTML}
               ${isMemberAdmin ? `<span class="badge bg-danger text-white ms-1" style="font-size: 0.65rem;">👑 ADMIN</span>` : ''}
             </div>
-            <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 0.4rem;">${m.name}</h3>
-            <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 0.75rem;">${m.bio || 'Aerospace engineering contributor.'}</p>
-            ${m.email ? `<span class="subtle-text" style="font-size: 0.75rem;">✉️ ${m.email}</span>` : ''}
+            <h3 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 0.4rem; color: var(--text-dark);">${m.name}</h3>
+            <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 0.75rem; text-align: center;">${m.bio || 'Aerospace engineering contributor.'}</p>
+            ${m.email ? `<span class="subtle-text d-block text-center" style="font-size: 0.75rem;">✉️ ${m.email}</span>` : ''}
           </div>
 
           ${isAdmin ? `
-            <div class="d-flex gap-2 mt-3 pt-2 border-top border-theme">
+            <div class="d-flex justify-content-center gap-2 mt-3 pt-2 w-100 border-top border-theme">
               <button type="button" class="repo-action-btn btn-edit-team" data-id="${m.id}" style="font-size: 0.75rem; padding: 0.25rem 0.6rem;">✏️ Edit</button>
               <button type="button" class="repo-action-btn btn-delete-team" data-id="${m.id}" style="font-size: 0.75rem; padding: 0.25rem 0.6rem; color: #ef4444 !important; border-color: rgba(239, 68, 68, 0.3);">🗑️ Remove</button>
             </div>

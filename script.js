@@ -3,14 +3,23 @@
    ========================================================================== */
 
 (function () {
-  // 1. Determine & apply theme immediately to avoid unstyled flash
-  const savedTheme = localStorage.getItem('roketry-theme');
-  const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const initialTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+  // 1. Immediately apply saved Notion settings (default to dark mode)
+  const savedTheme = localStorage.getItem('roketry-theme') || 'dark';
+  const savedFont = localStorage.getItem('notion_font') || 'sans';
+  const savedSize = localStorage.getItem('notion_size') || 'medium';
+  const savedFullPage = localStorage.getItem('notion_fullpage') === 'true';
 
-  document.documentElement.setAttribute('data-theme', initialTheme);
+  document.documentElement.setAttribute('data-theme', savedTheme);
+  document.documentElement.setAttribute('data-font', savedFont);
+  document.documentElement.setAttribute('data-size', savedSize);
+  if (savedFullPage) {
+    document.documentElement.setAttribute('data-full-page', 'true');
+  } else {
+    document.documentElement.removeAttribute('data-full-page');
+  }
+})();
 
-  /**
+/**
  * Global Page URL Resolver
  * Resolves relative URLs seamlessly whether executing from root index.html or src/pages/
  */
@@ -32,28 +41,158 @@ window.resolvePageURL = function(path) {
   return isInSrcPages ? cleanPath : `src/pages/${cleanPath}`;
 };
 
-document.addEventListener('DOMContentLoaded', () => {
-    // 2. Theme Toggle Buttons
-    const toggleBtns = document.querySelectorAll('.theme-toggle-btn');
+/**
+ * Global Aerospace Domain Category Color & Styling System
+ */
+window.getDomainCategoryStyle = function(category) {
+  const cat = (category || 'fleet').toLowerCase().trim();
 
-    function updateBtnUI(isDark) {
+  if (cat.includes('sim') || cat.includes('bench')) {
+    return {
+      key: 'simulators',
+      label: 'SIMULATORS',
+      icon: '⚡',
+      bg: 'rgba(59, 130, 246, 0.14)',
+      color: '#60a5fa',
+      border: 'rgba(59, 130, 246, 0.35)'
+    };
+  } else if (cat.includes('sub') || cat.includes('recov') || cat.includes('eject') || cat.includes('pyro')) {
+    return {
+      key: 'subsystems',
+      label: 'SUBSYSTEMS',
+      icon: '🛠️',
+      bg: 'rgba(139, 92, 246, 0.14)',
+      color: '#c084fc',
+      border: 'rgba(139, 92, 246, 0.35)'
+    };
+  } else if (cat.includes('avion') || cat.includes('telem') || cat.includes('computer')) {
+    return {
+      key: 'avionics',
+      label: 'AVIONICS',
+      icon: '📡',
+      bg: 'rgba(6, 182, 212, 0.14)',
+      color: '#22d3ee',
+      border: 'rgba(6, 182, 212, 0.35)'
+    };
+  } else if (cat.includes('propul') || cat.includes('motor') || cat.includes('combust') || cat.includes('solid') || cat.includes('liquid')) {
+    return {
+      key: 'propulsion',
+      label: 'PROPULSION',
+      icon: '🔥',
+      bg: 'rgba(245, 158, 11, 0.14)',
+      color: '#fbbf24',
+      border: 'rgba(245, 158, 11, 0.35)'
+    };
+  } else if (cat.includes('payl') || cat.includes('instrument') || cat.includes('satell')) {
+    return {
+      key: 'payload',
+      label: 'PAYLOAD',
+      icon: '🧪',
+      bg: 'rgba(236, 72, 153, 0.14)',
+      color: '#f472b6',
+      border: 'rgba(236, 72, 153, 0.35)'
+    };
+  } else {
+    return {
+      key: 'fleet',
+      label: (cat && cat !== 'fleet') ? cat.toUpperCase() : 'ROCKET FLEET',
+      icon: '🚀',
+      bg: 'rgba(16, 185, 129, 0.14)',
+      color: '#34d399',
+      border: 'rgba(16, 185, 129, 0.35)'
+    };
+  }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    // 2. Notion-Style Page Settings UI Handler
+    function syncNotionUI() {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const isFullPage = document.documentElement.getAttribute('data-full-page') === 'true';
+      const currentFont = document.documentElement.getAttribute('data-font') || 'sans';
+      const currentSize = document.documentElement.getAttribute('data-size') || 'medium';
+
       document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
         btn.innerHTML = isDark ? '<span>☀️</span> Light' : '<span>🌙</span> Dark';
-        btn.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+      });
+
+      document.querySelectorAll('.notion-dark-switch').forEach(sw => {
+        sw.checked = isDark;
+      });
+
+      document.querySelectorAll('.notion-fullpage-switch').forEach(sw => {
+        sw.checked = isFullPage;
+      });
+
+      document.querySelectorAll('.notion-font-btn').forEach(btn => {
+        const fontVal = btn.getAttribute('data-font');
+        if (fontVal === currentFont) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
+      document.querySelectorAll('.notion-size-btn').forEach(btn => {
+        const sizeVal = btn.getAttribute('data-size');
+        if (sizeVal === currentSize) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
       });
     }
 
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    updateBtnUI(currentTheme === 'dark');
+    syncNotionUI();
+
+    document.addEventListener('change', (e) => {
+      if (e.target.classList.contains('notion-dark-switch')) {
+        const newTheme = e.target.checked ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('roketry-theme', newTheme);
+        syncNotionUI();
+      } else if (e.target.classList.contains('notion-fullpage-switch')) {
+        const isFull = e.target.checked;
+        if (isFull) {
+          document.documentElement.setAttribute('data-full-page', 'true');
+          localStorage.setItem('notion_fullpage', 'true');
+        } else {
+          document.documentElement.removeAttribute('data-full-page');
+          localStorage.setItem('notion_fullpage', 'false');
+        }
+        syncNotionUI();
+      }
+    });
 
     document.addEventListener('click', (e) => {
-      const btn = e.target.closest('.theme-toggle-btn');
-      if (btn) {
+      const insideNotionMenu = e.target.closest('.notion-settings-dropdown .dropdown-menu');
+      if (insideNotionMenu) {
+        e.stopPropagation();
+      }
+
+      const fontBtn = e.target.closest('.notion-font-btn');
+      if (fontBtn) {
+        const fontVal = fontBtn.getAttribute('data-font');
+        document.documentElement.setAttribute('data-font', fontVal);
+        localStorage.setItem('notion_font', fontVal);
+        syncNotionUI();
+      }
+
+      const sizeBtn = e.target.closest('.notion-size-btn');
+      if (sizeBtn) {
+        const sizeVal = sizeBtn.getAttribute('data-size');
+        document.documentElement.setAttribute('data-size', sizeVal);
+        localStorage.setItem('notion_size', sizeVal);
+        syncNotionUI();
+      }
+
+      const legacyThemeBtn = e.target.closest('.theme-toggle-btn');
+      if (legacyThemeBtn) {
         const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
         const newTheme = isDark ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', newTheme);
         localStorage.setItem('roketry-theme', newTheme);
-        updateBtnUI(newTheme === 'dark');
+        syncNotionUI();
       }
     });
 
@@ -101,7 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const keywords = (card.getAttribute('data-keywords') || '').toLowerCase();
         const textContent = card.textContent.toLowerCase();
 
-        const matchesCategory = activeFilter === 'all' || category === activeFilter;
+        const matchesCategory = activeFilter === 'all' || category === activeFilter || category.includes(activeFilter);
         const matchesSearch = !searchQuery || keywords.includes(searchQuery) || textContent.includes(searchQuery);
 
         if (matchesCategory && matchesSearch) {
@@ -163,6 +302,7 @@ document.addEventListener('DOMContentLoaded', () => {
             projectsContainer.innerHTML = ''; // Clear skeleton buffer once fetched!
             
             allDbProjects.forEach(cp => {
+              const domStyle = window.getDomainCategoryStyle(cp.category || cp.badge);
               const card = document.createElement('div');
               card.className = 'project-card';
               card.setAttribute('data-id', cp.id);
@@ -175,7 +315,9 @@ document.addEventListener('DOMContentLoaded', () => {
                   <div class="card-sketch-wrap">
                     <img src="${cp.sketchImg || 'https://images.unsplash.com/photo-1517976487492-5750f3195933?w=800&auto=format&fit=crop&q=80'}" alt="${cp.title}">
                   </div>
-                  <span class="project-badge">${(cp.badge || 'ROCKET FLEET').toUpperCase()}</span>
+                  <span class="project-badge" style="background: ${domStyle.bg}; color: ${domStyle.color}; border: 1px solid ${domStyle.border}; font-size: 0.68rem; font-weight: 700; padding: 0.2rem 0.65rem; border-radius: 20px; display: inline-flex; align-items: center; gap: 0.3rem;">
+                    <span>${domStyle.icon}</span> ${domStyle.label}
+                  </span>
                   <h3>${cp.title}</h3>
                   <p>${cp.subtitle || 'Technical rocket documentation page.'}</p>
                 </div>
@@ -388,12 +530,86 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const renderDocData = (dataToRender) => {
         if (!dataToRender) return;
+
+        if (dataToRender.isHistoricalPreview) {
+          const targetVersion = dataToRender.version || 'v1.0';
+          const adminUrl = window.resolvePageURL ? window.resolvePageURL(`admin.html?openLogs=${projectId}`) : `admin.html?openLogs=${projectId}`;
+
+          let heroBanner = document.getElementById('historical-preview-banner');
+          if (!heroBanner) {
+            heroBanner = document.createElement('div');
+            heroBanner.id = 'historical-preview-banner';
+            heroBanner.className = 'alert alert-warning text-center mono-text fw-bold mb-4 shadow-sm style-box d-flex align-items-center justify-content-between flex-wrap gap-2';
+            heroBanner.style.background = 'rgba(245, 158, 11, 0.18)';
+            heroBanner.style.borderColor = 'rgba(245, 158, 11, 0.45)';
+            heroBanner.style.color = '#fbbf24';
+            heroBanner.style.fontSize = '0.85rem';
+            heroBanner.style.borderRadius = '12px';
+            heroBanner.style.padding = '0.75rem 1.25rem';
+
+            heroBanner.innerHTML = `
+              <div class="d-flex align-items-center gap-2">
+                <span style="font-size: 1.1rem;">📜</span>
+                <span>Previewing Historical Version <strong>${targetVersion}</strong> (Read-Only Snapshot)</span>
+              </div>
+              <div class="d-flex align-items-center gap-2 flex-wrap ms-auto">
+                <a href="${adminUrl}" class="btn btn-sm btn-outline-light" style="font-size: 0.75rem; padding: 4px 12px; border-radius: 6px;">📜 Back to Version Logs</a>
+                <button type="button" id="btn-restore-preview-version" class="btn btn-sm btn-warning fw-bold text-dark" style="font-size: 0.75rem; padding: 4px 12px; border-radius: 6px;">🔄 Restore Version ${targetVersion}</button>
+                <a href="${window.resolvePageURL ? window.resolvePageURL(`project-detail.html?id=${projectId}`) : `project-detail.html?id=${projectId}`}" class="btn btn-sm btn-outline-warning" style="font-size: 0.75rem; padding: 4px 12px; border-radius: 6px;">Latest Version →</a>
+              </div>
+            `;
+
+            const docContainer = document.querySelector('.doc-container') || document.querySelector('.container-centered') || document.querySelector('.doc-header');
+            if (docContainer && docContainer.parentNode) {
+              docContainer.parentNode.insertBefore(heroBanner, docContainer);
+            }
+
+            setTimeout(() => {
+              const restoreBtn = document.getElementById('btn-restore-preview-version');
+              if (restoreBtn) {
+                restoreBtn.addEventListener('click', async () => {
+                  if (confirm(`🔄 Are you sure you want to restore "${dataToRender.title || projectId}" to version ${targetVersion}? Current project data will be updated to this snapshot.`)) {
+                    restoreBtn.disabled = true;
+                    restoreBtn.textContent = 'Restoring...';
+
+                    if (window.authManager) {
+                      const restoredMsg = `Restored system snapshot to version ${targetVersion}`;
+                      const result = await window.authManager.saveCustomProjectToRTDB(restoredMsg, {
+                        ...dataToRender,
+                        id: projectId
+                      });
+                      if (result) {
+                        alert(`🎉 Successfully restored "${dataToRender.title || projectId}" to version ${targetVersion}!`);
+                        window.location.href = window.resolvePageURL ? window.resolvePageURL(`project-detail.html?id=${projectId}`) : `project-detail.html?id=${projectId}`;
+                      } else {
+                        alert('Failed to restore version snapshot.');
+                        restoreBtn.disabled = false;
+                      }
+                    }
+                  }
+                });
+              }
+            }, 100);
+          }
+        }
+
         document.getElementById('doc-title').textContent = dataToRender.title;
         document.getElementById('doc-subtitle').textContent = dataToRender.subtitle;
         document.getElementById('doc-badge').textContent = dataToRender.badge || 'PROJECT';
         document.getElementById('doc-id').textContent = dataToRender.docId || 'DOC-CUSTOM-01';
         document.getElementById('doc-overview-p1').textContent = dataToRender.p1;
         document.getElementById('doc-overview-p2').textContent = dataToRender.p2 || '';
+        const domStyle = window.getDomainCategoryStyle(dataToRender.category || dataToRender.badge);
+        const docCategory = document.getElementById('doc-category');
+
+        if (docCategory) {
+          docCategory.innerHTML = `<span>${domStyle.icon}</span> ${domStyle.label}`;
+          docCategory.style.background = domStyle.bg;
+          docCategory.style.color = domStyle.color;
+          docCategory.style.border = `1px solid ${domStyle.border}`;
+          docCategory.style.padding = '0.2rem 0.75rem';
+          docCategory.style.borderRadius = '20px';
+        }
 
         const sketchImg = document.getElementById('doc-sketch-img');
         if (sketchImg && dataToRender.sketchImg) {
@@ -412,12 +628,64 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const metaDomain = document.getElementById('doc-meta-domain');
         if (metaDomain) {
-          metaDomain.textContent = dataToRender.category ? dataToRender.category.toUpperCase() : (dataToRender.badge || 'AEROSPACE');
+          metaDomain.innerHTML = `<span class="badge" style="background: ${domStyle.bg}; color: ${domStyle.color}; border: 1px solid ${domStyle.border}; font-size: 0.72rem; font-weight: 700;">${domStyle.icon} ${domStyle.label}</span>`;
         }
 
         const metaVerification = document.getElementById('doc-meta-verification');
         if (metaVerification) {
           metaVerification.textContent = dataToRender.verification || 'Field Verified';
+        }
+
+        // Render Authors & Team Members Widget in Sidebar
+        const teamListContainer = document.getElementById('doc-team-members-list');
+        if (teamListContainer) {
+          let teamHTML = '';
+          const authorName = (dataToRender.authors && dataToRender.authors.length > 0 && dataToRender.authors[0].name) ? dataToRender.authors[0].name : (dataToRender.author || 'Aman Choudhary');
+          const authorEmail = (dataToRender.authors && dataToRender.authors.length > 0 && dataToRender.authors[0].email) ? dataToRender.authors[0].email : (dataToRender.authorEmail || 'mbatwc@gmail.com');
+          const authorPhoto = (dataToRender.authors && dataToRender.authors.length > 0 && dataToRender.authors[0].photoURL) ? dataToRender.authors[0].photoURL : (dataToRender.authorPhoto || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80');
+
+          teamHTML += `
+            <div class="d-flex align-items-center gap-2 p-2 rounded style-box" style="background: var(--bg-tree-bg); border: 1px solid var(--border-color);">
+              <img src="${authorPhoto}" class="avatar-circle" style="width: 36px; height: 36px; object-fit: cover;" alt="${authorName}">
+              <div style="overflow: hidden; flex: 1;">
+                <div class="d-flex align-items-center gap-1 flex-wrap mb-0.5">
+                  <span class="fw-bold text-truncate" style="font-size: 0.82rem; color: var(--text-dark);">${authorName}</span>
+                  <span class="notion-role-pill" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.35); font-size: 0.62rem; padding: 0.1rem 0.45rem;">👑 LEAD AUTHOR</span>
+                </div>
+                ${authorEmail ? `<span class="subtle-text mono-text d-block text-truncate" style="font-size: 0.7rem;">✉️ ${authorEmail}</span>` : ''}
+              </div>
+            </div>
+          `;
+
+          let contribList = [];
+          if (Array.isArray(dataToRender.contributors)) {
+            contribList = dataToRender.contributors;
+          } else if (dataToRender.contributors && typeof dataToRender.contributors === 'object') {
+            contribList = Object.values(dataToRender.contributors);
+          }
+
+          if (contribList.length > 0) {
+            contribList.forEach(c => {
+              const cName = c.name || c.email || 'Contributor';
+              const cRole = (c.role || 'MEMBER').toUpperCase();
+              const cPhoto = c.photoURL || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80';
+
+              teamHTML += `
+                <div class="d-flex align-items-center gap-2 p-2 rounded style-box" style="background: var(--bg-tree-bg); border: 1px solid var(--border-color);">
+                  <img src="${cPhoto}" class="avatar-circle" style="width: 32px; height: 32px; object-fit: cover;" alt="${cName}">
+                  <div style="overflow: hidden; flex: 1;">
+                    <div class="d-flex align-items-center gap-1 flex-wrap mb-0.5">
+                      <span class="fw-bold text-truncate" style="font-size: 0.8rem; color: var(--text-dark);">${cName}</span>
+                      <span class="notion-role-pill" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.35); font-size: 0.62rem; padding: 0.1rem 0.45rem;">⚡ ${cRole}</span>
+                    </div>
+                    ${c.email ? `<span class="subtle-text mono-text d-block text-truncate" style="font-size: 0.68rem;">✉️ ${c.email}</span>` : ''}
+                  </div>
+                </div>
+              `;
+            });
+          }
+
+          teamListContainer.innerHTML = teamHTML;
         }
 
         // Render Revision History in Sidebar
@@ -868,7 +1136,30 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }
 
-        const finalData = customData || docDatabase[projectId] || docDatabase['model1'];
+        let finalData = customData || docDatabase[projectId] || docDatabase['model1'];
+
+        // Version Preview Handler: Intercept URL parameter 'v' to render historical snapshot data
+        const targetVersion = urlParams.get('v');
+        if (targetVersion && finalData) {
+          let matchedHistoryItem = null;
+          if (Array.isArray(finalData.history)) {
+            matchedHistoryItem = finalData.history.find(h => h.version === targetVersion);
+          } else if (finalData.history && typeof finalData.history === 'object') {
+            matchedHistoryItem = Object.values(finalData.history).find(h => h.version === targetVersion);
+          }
+
+          if (matchedHistoryItem && matchedHistoryItem.snapshotData) {
+            finalData = {
+              ...matchedHistoryItem.snapshotData,
+              version: targetVersion,
+              isHistoricalPreview: true
+            };
+          } else {
+            finalData.version = targetVersion;
+            finalData.isHistoricalPreview = true;
+          }
+        }
+
         setTimeout(() => {
           renderDocData(finalData);
         }, 300);
@@ -990,6 +1281,460 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
+    /* ==========================================================================
+       UNIVERSAL IN-CONTEXT EDITING, NOTION-STYLE BLOCK BUILDER & AUTO-SAVE SYNC
+       ========================================================================== */
+    let pageKey = 'home';
+    if (window.location.pathname.includes('about.html')) pageKey = 'about';
+    else if (window.location.pathname.includes('join.html')) pageKey = 'join';
+    else if (window.location.pathname.includes('project.html') && !window.location.pathname.includes('project-detail.html')) pageKey = 'project';
+    else if (window.location.pathname.includes('roadmap.html')) pageKey = 'roadmap';
+
+    let autoSaveTimeout = null;
+
+    // 1. Auto-Save Page Updates Live to Firebase RTDB
+    const autoSaveSitePage = async () => {
+      if (!window.authManager || !window.authManager.isAdmin()) return;
+      
+      clearTimeout(autoSaveTimeout);
+      autoSaveTimeout = setTimeout(async () => {
+        const heroT = document.querySelector('.title-centered') || document.querySelector('.title');
+        const heroSub = document.querySelector('.subtitle');
+
+        const payload = {
+          heroTitle: heroT ? heroT.textContent.trim() : '',
+          heroSubtitle: heroSub ? heroSub.textContent.trim() : '',
+          snapSections: []
+        };
+
+        // Collect custom snap sections & internal components
+        document.querySelectorAll('.custom-snap-section').forEach(sec => {
+          const titleEl = sec.querySelector('.custom-section-heading');
+          const subEl = sec.querySelector('.custom-section-text');
+
+          const comps = [];
+          sec.querySelectorAll('.custom-block-wrapper').forEach(block => {
+            const headingEl = block.querySelector('.custom-section-heading');
+            const paraEl = block.querySelector('.custom-section-text');
+            const listEl = block.querySelector('.custom-bullet-list');
+            const toggleEl = block.querySelector('.custom-toggle-box');
+            const cardEl = block.querySelector('.project-card');
+
+            if (headingEl) comps.push({ type: 'heading', content: headingEl.textContent.trim() });
+            else if (paraEl && !cardEl) comps.push({ type: 'paragraph', content: paraEl.textContent.trim() });
+            else if (listEl) {
+              const items = [];
+              listEl.querySelectorAll('.custom-list-item').forEach(li => items.push(li.textContent.trim()));
+              comps.push({ type: 'list', items });
+            } else if (toggleEl) {
+              const tTitle = toggleEl.querySelector('.custom-toggle-title');
+              const tContent = toggleEl.querySelector('.custom-toggle-content');
+              comps.push({
+                type: 'toggle',
+                title: tTitle ? tTitle.textContent.trim().replace(/^▶\s*/, '') : '',
+                content: tContent ? tContent.textContent.trim() : ''
+              });
+            } else if (cardEl) {
+              const cTitle = cardEl.querySelector('h4');
+              const cDesc = cardEl.querySelector('p');
+              comps.push({
+                type: 'card',
+                title: cTitle ? cTitle.textContent.trim() : 'Technical Module',
+                desc: cDesc ? cDesc.textContent.trim() : ''
+              });
+            }
+          });
+
+          payload.snapSections.push({
+            title: titleEl ? titleEl.textContent.trim() : '🚀 New Aerospace System Section',
+            subtitle: subEl ? subEl.textContent.trim() : '',
+            components: comps
+          });
+        });
+
+        const indicator = document.getElementById('auto-save-status');
+        if (indicator) {
+          indicator.textContent = '☁️ Auto-Saving Live...';
+          indicator.style.color = '#fbbf24';
+        }
+
+        const success = await window.authManager.saveSitePageContent(pageKey, payload);
+        if (indicator) {
+          if (success) {
+            indicator.textContent = '✓ Live Auto-Saved for All Users';
+            indicator.style.color = '#34d399';
+          } else {
+            indicator.textContent = '⚠️ Auto-Save Failed';
+            indicator.style.color = '#ef4444';
+          }
+        }
+      }, 500);
+    };
+
+    // 2. Direct In-Place ContentEditable Double-Click Handler (No Alert Prompts!)
+    const makeElementEditable = (el) => {
+      if (!el || el.dataset.editableBound) return;
+      el.dataset.editableBound = 'true';
+      el.style.cursor = 'pointer';
+      el.title = 'Double-click to type & edit in-place';
+      el.addEventListener('dblclick', (e) => {
+        if (!window.authManager || !window.authManager.isAdmin()) return;
+        e.stopPropagation();
+        el.contentEditable = 'true';
+        el.focus();
+        el.style.outline = '2px dashed #60a5fa';
+        el.style.borderRadius = '4px';
+        el.style.padding = '2px 4px';
+        el.style.background = 'rgba(59, 130, 246, 0.12)';
+
+        try {
+          const range = document.createRange();
+          range.selectNodeContents(el);
+          const sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+        } catch (err) {}
+      });
+
+      el.addEventListener('blur', () => {
+        el.contentEditable = 'false';
+        el.style.outline = 'none';
+        el.style.padding = '';
+        el.style.background = '';
+        autoSaveSitePage();
+      });
+
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          el.blur();
+        }
+      });
+    };
+
+    // 3. Dynamic Page Data Sync from Firebase RTDB & Glowing Text Unblur
+    const initSiteContentSync = async () => {
+      const heroT = document.querySelector('.title-centered') || document.querySelector('.title');
+      const heroSub = document.querySelector('.subtitle');
+
+      // Inject Aerospace Glowing Blur Orb spinner during RTDB fetch
+      let orbLoader = document.getElementById('aerospace-blur-orb-loader');
+      if (!orbLoader && heroT) {
+        orbLoader = document.createElement('div');
+        orbLoader.id = 'aerospace-blur-orb-loader';
+        orbLoader.className = 'aerospace-blur-orb my-3 mx-auto';
+        heroT.parentNode.insertBefore(orbLoader, heroT);
+      }
+
+      const pageData = await window.authManager.fetchSitePageContent(pageKey);
+
+      // Remove orb loader after fetch completes
+      if (orbLoader) orbLoader.remove();
+
+      if (pageData) {
+        if (pageData.heroTitle && heroT) {
+          heroT.innerHTML = pageData.heroTitle.replace(/\n/g, '<br>');
+        }
+        if (pageData.heroSubtitle && heroSub) {
+          heroSub.textContent = pageData.heroSubtitle;
+        }
+
+        // Render Published Custom Snap Sections & Internal Components
+        if (pageData.snapSections && Array.isArray(pageData.snapSections) && pageData.snapSections.length > 0) {
+          const snapContainer = document.querySelector('.snap-container') || document.body;
+          pageData.snapSections.forEach(secData => {
+            const sec = document.createElement('section');
+            sec.className = 'snap page-section custom-snap-section d-flex flex-column align-items-center justify-content-center p-4 min-vh-100 position-relative';
+            sec.style.background = 'radial-gradient(circle at 50% 50%, rgba(30, 41, 59, 0.5) 0%, rgba(11, 15, 25, 0.98) 100%)';
+
+            let compsHTML = '';
+            if (secData.components && Array.isArray(secData.components)) {
+              compsHTML = secData.components.map(b => {
+                let inner = '';
+                if (b.type === 'heading') inner = `<h3 class="doc-section-heading custom-block custom-section-heading m-0" style="font-size: 1.35rem; font-weight: 800;">${b.content}</h3>`;
+                else if (b.type === 'paragraph') inner = `<p class="subtle-text custom-block custom-section-text m-0" style="font-size: 0.92rem; line-height: 1.6;">${b.content}</p>`;
+                else if (b.type === 'list') {
+                  const items = Array.isArray(b.items) ? b.items : [b.content];
+                  inner = `<ul class="custom-block custom-bullet-list style-box p-3 m-0 w-100" style="list-style-type: square; background: var(--bg-card); border-radius: 10px;">${items.map(it => `<li class="custom-list-item mb-1" style="font-size: 0.88rem;">${it}</li>`).join('')}</ul>`;
+                } else if (b.type === 'toggle') {
+                  inner = `<details class="custom-block custom-toggle-box style-box p-3 m-0 w-100" style="background: var(--bg-card); border-radius: 10px; border: 1px solid var(--border-color);"><summary class="fw-bold mono-text custom-toggle-title" style="cursor: pointer; color: #60a5fa; font-size: 0.9rem;">▶ ${b.title || 'Click to Toggle Details'}</summary><p class="mt-2 subtle-text custom-toggle-content m-0" style="font-size: 0.88rem;">${b.content || ''}</p></details>`;
+                } else if (b.type === 'card') {
+                  inner = `<div class="project-card style-box p-3.5 w-100" style="border-radius: 12px; background: var(--bg-card);"><div style="font-size: 1.8rem; margin-bottom: 0.5rem;">📡</div><h4 class="custom-block custom-section-heading" style="font-size: 1.1rem; font-weight: 700;">${b.title}</h4><p class="subtle-text custom-block custom-section-text m-0" style="font-size: 0.85rem;">${b.desc}</p></div>`;
+                }
+
+                return `
+                  <div class="custom-block-wrapper style-box p-3 mb-2 position-relative d-flex align-items-center gap-2" draggable="true" style="border-radius: 10px; border: 1px dashed rgba(59, 130, 246, 0.35);">
+                    <span class="drag-handle mono-text" style="cursor: grab; color: #60a5fa; font-size: 1.1rem; padding: 0 4px;" title="Drag up/down to reorder block">⋮⋮</span>
+                    <div class="flex-grow-1 custom-block-inner">${inner}</div>
+                    <button type="button" class="btn btn-sm btn-outline-danger btn-delete-block" title="Delete Block" style="font-size: 0.72rem; padding: 2px 8px; border-radius: 6px;">🗑️</button>
+                  </div>
+                `;
+              }).join('');
+            }
+
+            sec.innerHTML = `
+              <div class="container-centered text-center">
+                <h2 class="title-centered custom-section-heading text-evolved-visible" style="font-size: 2.2rem; font-weight: 800; font-family: var(--font-display);">${secData.title || '🚀 New Aerospace System Section'}</h2>
+                <p class="subtitle custom-section-text text-evolved-visible" style="font-size: 0.95rem; margin-top: 0.5rem;">${secData.subtitle || ''}</p>
+                <div class="in-section-components-container container-centered d-flex flex-column gap-3 my-3 w-100">${compsHTML}</div>
+              </div>
+            `;
+
+            snapContainer.appendChild(sec);
+          });
+        }
+      } else {
+        // Upload initial default page content to Firebase RTDB for all users
+        autoSaveSitePage();
+      }
+
+      // Smoothly evolve text from blurred orb state into crisp visible text
+      setTimeout(() => {
+        document.querySelectorAll('.title, .title-centered, .subtitle, .about-title, .about-desc, .projects-title, .projects-desc, .doc-section-heading, .stat-box').forEach(el => {
+          el.classList.remove('text-fetching-hidden');
+          el.classList.add('text-evolved-visible');
+        });
+      }, 50);
+
+      // Re-bind editable handlers for loaded content
+      document.querySelectorAll('.title, .title-centered, .subtitle, .about-title, .about-desc, .projects-title, .projects-desc, .doc-section-heading, .project-card h3, .project-card p, .custom-section-heading, .custom-section-text, .custom-list-item, .custom-toggle-title, .custom-toggle-content').forEach(makeElementEditable);
+    };
+
+    // Execute immediately without flash delay
+    if (document.readyState === 'complete') {
+      initSiteContentSync();
+    } else {
+      window.addEventListener('DOMContentLoaded', initSiteContentSync);
+    }
+
+    // 4. Admin Page & Snap Section Builder Engine Initialization
+    const initPageBuilderEngine = () => {
+      const snapContainer = document.querySelector('.snap-container') || document.body;
+
+      // Bottom-of-Page Admin Toolbar Section (Snaps cleanly at page end)
+      let bottomAdminBar = document.getElementById('site-content-bottom-bar');
+      if (!bottomAdminBar) {
+        bottomAdminBar = document.createElement('div');
+        bottomAdminBar.id = 'site-content-bottom-bar';
+        bottomAdminBar.className = 'snap section-builder-bar-wrap d-flex justify-content-center align-items-center p-4 position-relative w-100';
+        bottomAdminBar.style.minHeight = '140px';
+
+        bottomAdminBar.innerHTML = `
+          <div class="alert alert-info d-flex justify-content-between align-items-center flex-wrap gap-3 shadow-lg mono-text style-box p-3.5 w-100 position-relative" style="max-width: 1000px; background: rgba(15, 23, 42, 0.94); border: 1.5px solid #3b82f6; border-radius: 16px; box-shadow: 0 0 25px rgba(59, 130, 246, 0.25);">
+            <div class="d-flex align-items-center gap-2">
+              <span style="font-size: 1.3rem;">✨</span>
+              <span style="color: #60a5fa; font-size: 0.88rem;"><strong>Page Builder (${pageKey.toUpperCase()}):</strong> Click button to add a new snap section to the bottom of this page.</span>
+            </div>
+            <div class="d-flex align-items-center gap-3 ms-auto flex-wrap">
+              <span id="auto-save-status" class="fw-bold" style="color: #34d399; font-size: 0.78rem;">✓ Live Auto-Save Active</span>
+              <button type="button" id="btn-add-new-snap-section" class="btn btn-primary fw-bold px-4 py-2.5" style="border-radius: 10px; font-size: 0.88rem; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); border: none; box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); cursor: pointer;">
+                🚀 ➕ Add New Section
+              </button>
+            </div>
+          </div>
+        `;
+
+        snapContainer.appendChild(bottomAdminBar);
+
+        // Directly attach click handler for adding full snap sections
+        const addSnapBtn = bottomAdminBar.querySelector('#btn-add-new-snap-section');
+        if (addSnapBtn) {
+          addSnapBtn.addEventListener('click', () => {
+            const newSnapSec = document.createElement('section');
+            newSnapSec.className = 'snap page-section custom-snap-section d-flex flex-column align-items-center justify-content-center p-4 min-vh-100 position-relative';
+            newSnapSec.style.background = 'radial-gradient(circle at 50% 50%, rgba(30, 41, 59, 0.5) 0%, rgba(11, 15, 25, 0.98) 100%)';
+
+            newSnapSec.innerHTML = `
+              <div class="container-centered text-center">
+                <h2 class="title-centered custom-section-heading text-evolved-visible" style="font-size: 2.2rem; font-weight: 800; font-family: var(--font-display);">🚀 New Aerospace System Section</h2>
+                <p class="subtitle custom-section-text text-evolved-visible" style="font-size: 0.95rem; margin-top: 0.5rem;">Double-click text to edit in-place. Click button below to add section components.</p>
+              </div>
+            `;
+
+            bottomAdminBar.parentNode.insertBefore(newSnapSec, bottomAdminBar);
+            attachInSectionToolbars();
+            newSnapSec.querySelectorAll('.custom-section-heading, .custom-section-text').forEach(makeElementEditable);
+            autoSaveSitePage();
+
+            newSnapSec.scrollIntoView({ behavior: 'smooth' });
+          });
+        }
+      }
+
+      // Attach In-Section Component Toolbar to Every Section
+      const attachInSectionToolbars = () => {
+        document.querySelectorAll('section.snap, .page-section').forEach((section) => {
+          if (section.querySelector('.in-section-admin-bar')) return;
+
+          let compWrap = section.querySelector('.in-section-components-container');
+          if (!compWrap) {
+            compWrap = document.createElement('div');
+            compWrap.className = 'in-section-components-container container-centered d-flex flex-column gap-3 my-3 w-100';
+            section.appendChild(compWrap);
+          }
+
+          const isCustomSec = section.classList.contains('custom-snap-section');
+          const deleteBtnHTML = isCustomSec ? `
+            <button type="button" class="btn btn-sm btn-outline-danger btn-delete-custom-section fw-bold" title="Delete This Entire Snap Section" style="font-size: 0.8rem; padding: 6px 14px; border-radius: 8px; background: rgba(239,68,68,0.15); border-color: #ef4444; color: #fca5a5;">
+              🗑️ Delete Section
+            </button>
+          ` : '';
+
+          const inSecBar = document.createElement('div');
+          inSecBar.className = 'in-section-admin-bar d-flex justify-content-center align-items-center gap-2 mt-3 mb-2 mono-text position-relative';
+          inSecBar.style.zIndex = '100';
+          inSecBar.innerHTML = `
+            <div class="position-relative d-flex align-items-center gap-2">
+              <button type="button" class="btn btn-sm btn-outline-primary btn-add-component-to-sec fw-bold" style="font-size: 0.8rem; padding: 6px 14px; border-radius: 8px; background: rgba(59,130,246,0.18); border-color: #60a5fa; color: #60a5fa;">
+                ➕ Add Component to Section
+              </button>
+              ${deleteBtnHTML}
+              <div class="comp-picker-menu shadow-lg p-2 style-box border-theme position-absolute" style="display: none; bottom: 42px; left: 50%; transform: translateX(-50%); z-index: 9999; background: #141c2e; border: 1px solid #38bdf8; border-radius: 12px; min-width: 250px;">
+                <div class="px-2 py-1 subtle-text mono-text fw-bold border-bottom mb-1" style="font-size: 0.72rem; color: #94a3b8;">SELECT COMPONENT TYPE</div>
+                <button type="button" class="dropdown-item btn-add-comp d-flex align-items-center gap-2 p-2 rounded" data-type="heading" style="color: #f8fafc; font-size: 0.85rem; cursor: pointer; background: transparent; border: none; width: 100%; text-align: left;">
+                  <span>📝</span> <span>Section Heading (H3)</span>
+                </button>
+                <button type="button" class="dropdown-item btn-add-comp d-flex align-items-center gap-2 p-2 rounded" data-type="paragraph" style="color: #f8fafc; font-size: 0.85rem; cursor: pointer; background: transparent; border: none; width: 100%; text-align: left;">
+                  <span>📄</span> <span>Text Paragraph</span>
+                </button>
+                <button type="button" class="dropdown-item btn-add-comp d-flex align-items-center gap-2 p-2 rounded" data-type="list" style="color: #f8fafc; font-size: 0.85rem; cursor: pointer; background: transparent; border: none; width: 100%; text-align: left;">
+                  <span>▪️</span> <span>Bullet List</span>
+                </button>
+                <button type="button" class="dropdown-item btn-add-comp d-flex align-items-center gap-2 p-2 rounded" data-type="toggle" style="color: #f8fafc; font-size: 0.85rem; cursor: pointer; background: transparent; border: none; width: 100%; text-align: left;">
+                  <span>▶</span> <span>Toggle Accordion (Collapsible)</span>
+                </button>
+                <button type="button" class="dropdown-item btn-add-comp d-flex align-items-center gap-2 p-2 rounded" data-type="card" style="color: #f8fafc; font-size: 0.85rem; cursor: pointer; background: transparent; border: none; width: 100%; text-align: left;">
+                  <span>🎯</span> <span>Feature Card Box</span>
+                </button>
+              </div>
+            </div>
+          `;
+
+          section.appendChild(inSecBar);
+
+          // Delete Section Click Handler
+          const delSecBtn = inSecBar.querySelector('.btn-delete-custom-section');
+          if (delSecBtn) {
+            delSecBtn.addEventListener('click', () => {
+              section.remove();
+              autoSaveSitePage();
+            });
+          }
+
+          // Component Menu Direct Display Toggle
+          const addCompBtn = inSecBar.querySelector('.btn-add-component-to-sec');
+          const compMenu = inSecBar.querySelector('.comp-picker-menu');
+
+          if (addCompBtn && compMenu) {
+            addCompBtn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              const isShown = compMenu.style.display === 'block';
+              document.querySelectorAll('.comp-picker-menu').forEach(m => m.style.display = 'none');
+              compMenu.style.display = isShown ? 'none' : 'block';
+            });
+
+            document.addEventListener('click', (e) => {
+              if (compMenu && !compMenu.contains(e.target) && e.target !== addCompBtn) {
+                compMenu.style.display = 'none';
+              }
+            });
+
+            compMenu.querySelectorAll('.btn-add-comp').forEach(btn => {
+              btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const compType = btn.getAttribute('data-type');
+                compMenu.style.display = 'none';
+
+                const blockWrap = document.createElement('div');
+                blockWrap.className = 'custom-block-wrapper style-box p-3 mb-2 position-relative d-flex align-items-center gap-2';
+                blockWrap.draggable = true;
+                blockWrap.style.borderRadius = '10px';
+                blockWrap.style.border = '1px dashed rgba(59, 130, 246, 0.45)';
+                blockWrap.style.background = 'rgba(20, 28, 46, 0.75)';
+
+                let innerHTML = '';
+                if (compType === 'heading') {
+                  innerHTML = `<h3 class="doc-section-heading custom-block custom-section-heading m-0" style="font-size: 1.35rem; font-weight: 800; color: var(--text-dark);">🚀 New System Section Heading</h3>`;
+                } else if (compType === 'paragraph') {
+                  innerHTML = `<p class="subtle-text custom-block custom-section-text m-0" style="font-size: 0.92rem; line-height: 1.6;">Double-click to edit this technical description paragraph block...</p>`;
+                } else if (compType === 'list') {
+                  innerHTML = `
+                    <ul class="custom-block custom-bullet-list style-box p-3 m-0 w-100" style="list-style-type: square; background: var(--bg-card); border-radius: 10px;">
+                      <li class="custom-list-item mb-1" style="font-size: 0.88rem;">Bullet item 1 - Double click to edit</li>
+                      <li class="custom-list-item mb-1" style="font-size: 0.88rem;">Bullet item 2 - Double click to edit</li>
+                    </ul>
+                  `;
+                } else if (compType === 'toggle') {
+                  innerHTML = `
+                    <details class="custom-block custom-toggle-box style-box p-3 m-0 w-100" style="background: var(--bg-card); border-radius: 10px; border: 1px solid var(--border-color);">
+                      <summary class="fw-bold mono-text custom-toggle-title" style="cursor: pointer; color: #60a5fa; font-size: 0.9rem;">▶ Double click to edit toggle header</summary>
+                      <p class="mt-2 subtle-text custom-toggle-content m-0" style="font-size: 0.88rem; line-height: 1.5;">Double click to edit collapsible detail text...</p>
+                    </details>
+                  `;
+                } else if (compType === 'card') {
+                  innerHTML = `
+                    <div class="project-card style-box p-3.5 w-100" style="border-radius: 12px; background: var(--bg-card);">
+                      <div style="font-size: 1.8rem; margin-bottom: 0.5rem;">📡</div>
+                      <h4 class="custom-block custom-section-heading" style="font-size: 1.1rem; font-weight: 700; color: var(--text-dark);">New Technical Module</h4>
+                      <p class="subtle-text custom-block custom-section-text m-0" style="font-size: 0.85rem;">Double-click to edit feature card details...</p>
+                    </div>
+                  `;
+                }
+
+                blockWrap.innerHTML = `
+                  <span class="drag-handle mono-text" style="cursor: grab; color: #60a5fa; font-size: 1.1rem; padding: 0 4px;" title="Drag up/down to reorder block">⋮⋮</span>
+                  <div class="flex-grow-1 custom-block-inner">${innerHTML}</div>
+                  <button type="button" class="btn btn-sm btn-outline-danger btn-delete-block" title="Delete Block" style="font-size: 0.72rem; padding: 2px 8px; border-radius: 6px;">🗑️</button>
+                `;
+
+                compWrap.appendChild(blockWrap);
+
+                // Delete button handler
+                const delBtn = blockWrap.querySelector('.btn-delete-block');
+                if (delBtn) {
+                  delBtn.addEventListener('click', () => {
+                    blockWrap.remove();
+                    autoSaveSitePage();
+                  });
+                }
+
+                // Drag and Drop Notion Reordering
+                blockWrap.addEventListener('dragstart', (evt) => {
+                  blockWrap.classList.add('dragging');
+                  evt.dataTransfer.effectAllowed = 'move';
+                });
+
+                blockWrap.addEventListener('dragend', () => {
+                  blockWrap.classList.remove('dragging');
+                  autoSaveSitePage();
+                });
+
+                compWrap.addEventListener('dragover', (evt) => {
+                  evt.preventDefault();
+                  const draggingItem = compWrap.querySelector('.dragging');
+                  const siblings = [...compWrap.querySelectorAll('.custom-block-wrapper:not(.dragging)')];
+                  const nextSibling = siblings.find(sibling => {
+                    return evt.clientY <= sibling.getBoundingClientRect().top + sibling.offsetHeight / 2;
+                  });
+                  compWrap.insertBefore(draggingItem, nextSibling);
+                });
+
+                blockWrap.querySelectorAll('.custom-section-heading, .custom-section-text, .custom-list-item, .custom-toggle-title, .custom-toggle-content, h4, p').forEach(makeElementEditable);
+
+                autoSaveSitePage();
+              });
+            });
+          }
+        });
+      };
+
+      attachInSectionToolbars();
+
+      // Bind in-place double click editing for all current text elements
+      document.querySelectorAll('.title-centered, .subtitle, .about-title, .about-desc, .projects-title, .projects-desc, .doc-section-heading, .project-card h3, .project-card p, .custom-section-heading, .custom-section-text, .custom-list-item, .custom-toggle-title, .custom-toggle-content').forEach(makeElementEditable);
+    };
+
+    setTimeout(initPageBuilderEngine, 250);
+
   });
-})();
 

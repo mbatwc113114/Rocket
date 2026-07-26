@@ -134,13 +134,69 @@
         <li class="nav-item"><a class="nav-link" href="join.html">Join</a></li>
       </ul>
       <div id="auth-nav-widget" class="d-flex align-items-center ms-md-3"></div>
-      <button class="theme-toggle-btn" type="button"><span>🌙</span> Dark</button>
+      
+      <!-- NOTION-STYLE PAGE SETTINGS DROPDOWN -->
+      <div class="dropdown notion-settings-dropdown ms-md-2">
+        <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center justify-content-center mono-text notion-dots-btn" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" title="Page Style & Settings" style="border-radius: 8px; font-size: 1.1rem; padding: 0.25rem 0.6rem; min-width: 36px;">
+          •••
+        </button>
+        <div class="dropdown-menu dropdown-menu-end p-3 style-box shadow-lg" style="min-width: 280px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; font-size: 0.85rem;">
+          
+          <!-- FONT FAMILY SELECTOR (SANS, SERIF, MONO) -->
+          <div class="mb-3">
+            <div class="mono-text subtle-text mb-1" style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase;">Font Style</div>
+            <div class="btn-group w-100 notion-font-group" role="group">
+              <button type="button" class="btn btn-sm btn-outline-primary notion-font-btn active" data-font="sans" style="font-family: var(--font-display);">Aa Sans</button>
+              <button type="button" class="btn btn-sm btn-outline-primary notion-font-btn" data-font="serif" style="font-family: 'Georgia', serif;">Aa Serif</button>
+              <button type="button" class="btn btn-sm btn-outline-primary notion-font-btn" data-font="mono" style="font-family: var(--font-mono);">Aa Mono</button>
+            </div>
+          </div>
+
+          <!-- FONT SIZE SELECTOR (SMALL, MEDIUM, LARGE) -->
+          <div class="mb-3">
+            <div class="mono-text subtle-text mb-1" style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase;">Font Size</div>
+            <div class="btn-group w-100 notion-size-group" role="group">
+              <button type="button" class="btn btn-sm btn-outline-secondary notion-size-btn" data-size="small" style="font-size: 0.75rem;">Small</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary notion-size-btn active" data-size="medium" style="font-size: 0.82rem;">Default</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary notion-size-btn" data-size="large" style="font-size: 0.9rem;">Large</button>
+            </div>
+          </div>
+
+          <hr class="my-2" style="border-color: var(--border-color); opacity: 0.4;">
+
+          <!-- FULL PAGE WIDTH TOGGLE SWITCH -->
+          <div class="d-flex justify-content-between align-items-center mb-2 py-1">
+            <div class="d-flex align-items-center gap-2">
+              <span>↔️</span>
+              <span class="fw-bold" style="font-size: 0.82rem;">Full Width Page</span>
+            </div>
+            <div class="form-check form-switch m-0">
+              <input class="form-check-input notion-fullpage-switch" type="checkbox" role="switch" style="cursor: pointer;">
+            </div>
+          </div>
+
+          <!-- DARK MODE TOGGLE SWITCH -->
+          <div class="d-flex justify-content-between align-items-center py-1">
+            <div class="d-flex align-items-center gap-2">
+              <span class="theme-icon">🌙</span>
+              <span class="fw-bold" style="font-size: 0.82rem;">Dark Mode</span>
+            </div>
+            <div class="form-check form-switch m-0">
+              <input class="form-check-input notion-dark-switch" type="checkbox" role="switch" style="cursor: pointer;">
+            </div>
+          </div>
+
+        </div>
+      </div>
     </div>
   </div>
 </nav>
 
+<!-- ================= SCROLL SNAP CONTAINER ================= -->
+<div class="snap-container">
+
 <!-- ================= MAIN ROADMAP TREE CONTENT ================= -->
-<main class="page-section bg-gray-theme" style="padding-top: 2rem; padding-bottom: 5rem;">
+<main class="snap page-section bg-gray-theme" style="padding-top: 2rem; padding-bottom: 5rem;">
   <div class="container-centered">
     
     <!-- HEADER TITLE BANNER -->
@@ -235,8 +291,9 @@
 
     </div>
 
-  </div>
 </main>
+
+</div>
 
 <!-- ADD / EDIT BRANCH MODAL (FOR ADMINS) -->
 <div class="modal fade" id="branchModal" tabindex="-1" aria-hidden="true">

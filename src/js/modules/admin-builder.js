@@ -66,13 +66,15 @@ export async function renderAdminCatalog() {
     customProjects = await window.authManager.fetchAllCustomProjectsFromRTDB();
   }
 
+  const DEFAULT_SKETCH_ONLINE = 'https://images.unsplash.com/photo-1517976487492-5750f3195933?w=800&auto=format&fit=crop&q=80';
+
   const defaultProjects = [
-    { id: 'model1', title: 'Rocket Model-I', category: 'fleet', badge: 'ROCKET FLEET', version: 'v1.0', sketchImg: 'sketch_srm.png' },
-    { id: 'model2', title: 'Rocket Model-II', category: 'fleet', badge: 'ROCKET FLEET', version: 'v1.0', sketchImg: 'sketch_airframe.png' },
-    { id: 'model3', title: 'Rocket Model-III', category: 'fleet', badge: 'ROCKET FLEET', version: 'v1.0', sketchImg: 'sketch_liquid.png' },
-    { id: 'simulator', title: 'Ground Electric Simulator', category: 'simulators', badge: 'SIMULATORS', version: 'v1.0', sketchImg: 'sketch_avionics.png' },
-    { id: 'teststand', title: 'Solid Motor Test Stand', category: 'subsystems', badge: 'FACILITIES', version: 'v1.0', sketchImg: 'sketch_srm.png' },
-    { id: 'recovery', title: 'Dual Pyro Recovery Stack', category: 'subsystems', badge: 'SUBSYSTEMS', version: 'v1.0', sketchImg: 'sketch_airframe.png' }
+    { id: 'model1', title: 'Rocket Model-I', category: 'fleet', badge: 'ROCKET FLEET', version: 'v1.0', sketchImg: DEFAULT_SKETCH_ONLINE },
+    { id: 'model2', title: 'Rocket Model-II', category: 'fleet', badge: 'ROCKET FLEET', version: 'v1.0', sketchImg: 'https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?w=800&auto=format&fit=crop&q=80' },
+    { id: 'model3', title: 'Rocket Model-III', category: 'fleet', badge: 'ROCKET FLEET', version: 'v1.0', sketchImg: 'https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?w=800&auto=format&fit=crop&q=80' },
+    { id: 'simulator', title: 'Ground Electric Simulator', category: 'simulators', badge: 'SIMULATORS', version: 'v1.0', sketchImg: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=80' },
+    { id: 'teststand', title: 'Solid Motor Test Stand', category: 'subsystems', badge: 'FACILITIES', version: 'v1.0', sketchImg: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&auto=format&fit=crop&q=80' },
+    { id: 'recovery', title: 'Dual Pyro Recovery Stack', category: 'subsystems', badge: 'SUBSYSTEMS', version: 'v1.0', sketchImg: 'https://images.unsplash.com/photo-1508614589041-895b88991e3e?w=800&auto=format&fit=crop&q=80' }
   ];
 
   const projectMap = new Map();
@@ -84,7 +86,7 @@ export async function renderAdminCatalog() {
       category: cp.category || 'fleet',
       badge: cp.badge || 'PROJECT',
       version: cp.version || 'v1.0',
-      sketchImg: getValidImageURL(cp.sketchImg, 'sketch_srm.png')
+      sketchImg: getValidImageURL(cp.sketchImg, DEFAULT_SKETCH_ONLINE)
     });
   });
 
@@ -93,7 +95,7 @@ export async function renderAdminCatalog() {
   grid.innerHTML = allProjects.map(p => `
     <div class="project-card style-box">
       <div class="card-sketch-wrap">
-        <img src="${getValidImageURL(p.sketchImg, 'sketch_srm.png')}" alt="${p.title}">
+        <img src="${getValidImageURL(p.sketchImg, DEFAULT_SKETCH_ONLINE)}" alt="${p.title}">
       </div>
       <div class="d-flex align-items-center justify-content-between mt-2">
         <span class="profile-role-badge" style="background: rgba(59, 130, 246, 0.15); color: #3b82f6;">${p.badge}</span>

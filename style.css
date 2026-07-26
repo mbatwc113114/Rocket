@@ -6,11 +6,12 @@
  * legacy design tokens and theme rules.
  */
 
-/* ================= ROOT VARIABLES ================= */
+/* ================= ROOT VARIABLES & UNIVERSAL TYPOGRAPHY ================= */
 :root {
   /* Fonts */
-  --font-display: 'Space Grotesk', system-ui, -apple-system, sans-serif;
-  --font-mono: 'Space Mono', monospace;
+  --font-display: 'Space Grotesk', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-body: 'Space Grotesk', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Space Mono', 'Courier New', monospace;
 
   /* Layout & Spacing */
   --nav-height: 76px;
@@ -35,6 +36,47 @@
   /* Transitions */
   --transition-fast: 0.2s ease;
   --transition-normal: 0.25s ease;
+}
+
+/* FUTURISTIC AEROSPACE BLUR ORB & EVOLVING TEXT ANIMATION */
+@keyframes orbPulseSpin {
+  0% { transform: scale(0.85) rotate(0deg); opacity: 0.5; filter: blur(6px); box-shadow: 0 0 15px rgba(59, 130, 246, 0.6); }
+  50% { transform: scale(1.3) rotate(180deg); opacity: 0.95; filter: blur(12px); box-shadow: 0 0 32px rgba(56, 189, 248, 0.95); }
+  100% { transform: scale(0.85) rotate(360deg); opacity: 0.5; filter: blur(6px); box-shadow: 0 0 15px rgba(59, 130, 246, 0.6); }
+}
+
+.aerospace-blur-orb {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #60a5fa 0%, #3b82f6 50%, rgba(56, 189, 248, 0) 100%);
+  animation: orbPulseSpin 1.4s infinite cubic-bezier(0.4, 0, 0.2, 1);
+  margin: 0.5rem auto;
+}
+
+.title-centered,
+.subtitle,
+.about-title,
+.about-desc,
+.projects-title,
+.projects-desc {
+  opacity: 0;
+  visibility: hidden;
+  filter: blur(14px) translateY(12px);
+}
+
+.text-fetching-hidden {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  filter: blur(14px) translateY(12px) !important;
+}
+
+.text-evolved-visible {
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: blur(0px) translateY(0px) !important;
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 /* ================= CENTERED CONTAINER UTILITY ================= */
@@ -2402,7 +2444,7 @@ select option {
 }
 
 [data-theme="light"] .skeleton-box {
-  background-color: rgba(0, 0, 0, 0.08);
+  background-color: #cbd5e1 !important;
 }
 
 .skeleton-box::after {
@@ -2415,8 +2457,8 @@ select option {
   background-image: linear-gradient(
     90deg,
     rgba(255, 255, 255, 0) 0,
-    rgba(255, 255, 255, 0.15) 20%,
-    rgba(255, 255, 255, 0.35) 60%,
+    rgba(255, 255, 255, 0.25) 20%,
+    rgba(255, 255, 255, 0.5) 60%,
     rgba(255, 255, 255, 0)
   );
   animation: yt-shimmer 1.5s infinite;
@@ -2426,11 +2468,10 @@ select option {
 [data-theme="light"] .skeleton-box::after {
   background-image: linear-gradient(
     90deg,
-    rgba(0, 0, 0, 0) 0,
-    rgba(0, 0, 0, 0.06) 20%,
-    rgba(0, 0, 0, 0.15) 60%,
-    rgba(0, 0, 0, 0)
-  );
+    rgba(203, 213, 225, 0) 0,
+    rgba(255, 255, 255, 0.85) 50%,
+    rgba(203, 213, 225, 0) 100%
+  ) !important;
 }
 
 @keyframes yt-shimmer {
@@ -2858,4 +2899,328 @@ div.selected-node {
 g.connector-group.selected-node path {
   stroke-width: 4.5px !important;
   filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.8));
+}
+
+/* ================= USER PROFILE PAGE STYLES ================= */
+.profile-card-container {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 2rem;
+  max-width: 1180px;
+  margin: 0 auto;
+  align-items: start;
+  width: 100%;
+}
+
+.profile-left-col {
+  position: sticky;
+  top: calc(var(--nav-height) + 1.5rem);
+  max-height: calc(100vh - var(--nav-height) - 3rem);
+  overflow-y: auto;
+}
+
+@media (max-width: 992px) {
+  .profile-card-container {
+    grid-template-columns: 1fr;
+  }
+  .profile-left-col {
+    position: static;
+    max-height: none;
+    overflow-y: visible;
+  }
+}
+
+.profile-left-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 2.2rem 1.8rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+}
+
+.avatar-preview-wrap {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 4px solid #3b82f6;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.25);
+  background: var(--bg-tree-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-preview-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-left-box h3 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.35rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-dark);
+}
+
+.profile-role-badge {
+  margin-bottom: 0.5rem;
+}
+
+.profile-right-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 2.2rem 2.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+}
+
+.profile-right-box h3 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  color: var(--text-dark);
+}
+
+.contact-form div {
+  margin-bottom: 1.25rem;
+}
+
+.contact-form label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.contact-form input[type="text"],
+.contact-form input[type="email"],
+.contact-form input[type="url"],
+.contact-form textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--bg-tree-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-dark);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  transition: border-color var(--transition-fast);
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.auth-provider-tag {
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  display: inline-block;
+}
+
+/* Mobile Responsiveness for Profile Card */
+@media (max-width: 868px) {
+  .profile-card-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .profile-right-box {
+    padding: 1.5rem;
+  }
+}
+
+/* ================= NOTION PAGE SETTINGS SYSTEM ================= */
+
+/* 1. Font Family Options (Sans, Serif, Mono) */
+[data-font="sans"] {
+  --font-body: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  --font-display: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+}
+
+[data-font="serif"] {
+  --font-body: 'Georgia', 'Merriweather', 'Times New Roman', serif;
+  --font-display: 'Georgia', 'Merriweather', 'Times New Roman', serif;
+}
+
+[data-font="mono"] {
+  --font-body: 'Space Mono', 'Courier New', monospace;
+  --font-display: 'Space Mono', 'Courier New', monospace;
+}
+
+body {
+  font-family: var(--font-body, 'Space Grotesk', sans-serif) !important;
+}
+
+/* 2. Font Size Options (Small, Medium/Default, Large) */
+[data-size="small"] {
+  font-size: 14px !important;
+}
+
+[data-size="medium"] {
+  font-size: 16px !important;
+}
+
+[data-size="large"] {
+  font-size: 18px !important;
+}
+
+[data-size="small"] h1 { font-size: 1.8rem !important; }
+[data-size="large"] h1 { font-size: 2.6rem !important; }
+
+/* 3. Full Width Page Layout Toggle */
+[data-full-page="true"] .container-centered,
+[data-full-page="true"] .container,
+[data-full-page="true"] .container-fluid,
+[data-full-page="true"] .repo-detail-layout,
+[data-full-page="true"] .doc-main-article {
+  max-width: 98% !important;
+  width: 98% !important;
+}
+
+/* Notion Settings Dropdown UI */
+.notion-settings-dropdown .dropdown-menu {
+  border: 1px solid var(--border-color) !important;
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.25) !important;
+}
+
+.notion-font-btn.active,
+.notion-size-btn.active {
+  background-color: #3b82f6 !important;
+  color: #ffffff !important;
+  border-color: #3b82f6 !important;
+}
+
+.notion-dots-btn::after {
+  display: none !important;
+}
+
+.notion-dots-btn {
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+/* ================= ABOUT PAGE TEAM GRID & CARDS ================= */
+.team-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.team-card {
+  width: 100%;
+  max-width: 320px !important;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 2.2rem 1.8rem;
+  text-align: center !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center !important;
+  justify-content: space-between;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.team-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+}
+
+.team-avatar-wrap {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3.5px solid #3b82f6;
+  margin: 0 auto 1.2rem auto;
+  box-shadow: 0 8px 22px rgba(59, 130, 246, 0.28);
+  background: var(--bg-tree-bg);
+  flex-shrink: 0;
+}
+
+@media (min-width: 992px) {
+  .team-avatar-wrap {
+    width: 135px;
+    height: 135px;
+  }
+}
+
+.team-avatar-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ================= GLOBAL UI POLISH & MICRO-ANIMATIONS ================= */
+.project-card, .doc-section-card, .repo-box, .style-box {
+  transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.22s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.22s ease;
+}
+
+.project-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.22) !important;
+  border-color: rgba(59, 130, 246, 0.45) !important;
+}
+
+.card-sketch-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+
+.project-card:hover .card-sketch-wrap img {
+  transform: scale(1.04);
+}
+
+/* ================= SCROLL SNAP SYSTEM (HOME, ABOUT, JOIN) ================= */
+.snap-container {
+  height: 100vh;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+}
+
+section.snap, .snap-section {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .snap-container {
+    height: auto;
+    overflow-y: visible;
+    scroll-snap-type: none;
+  }
+  section.snap, .snap-section {
+    min-height: auto;
+    scroll-snap-align: none;
+  }
 }
