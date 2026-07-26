@@ -179,6 +179,69 @@ class ActualAuthManager {
   }
 
   /**
+   * Signs out current user and clears session storage.
+   */
+  async signOut() {
+    return this.logout();
+  }
+
+  async logout() {
+    try {
+      if (auth) {
+        await auth.signOut();
+      }
+    } catch (err) {
+      console.warn("Firebase Auth SignOut Warning:", err);
+    }
+    this.currentUser = null;
+    localStorage.removeItem('roketry-user');
+    this.updateNavUI();
+    window.location.href = (window.resolvePageURL ? window.resolvePageURL('index.html') : '../../index.html');
+  }
+
+  /**
+   * Updates user profile fields in Firebase Auth & RTDB.
+   * @param {Object} data - Profile data updates { name, photoURL, bio }
+   */
+  async updateProfileData(data) {
+    if (!this.currentUser) return false;
+
+    const uid = this.currentUser.uid;
+    const updated = {
+      ...this.currentUser,
+      name: data.name || this.currentUser.name,
+      photoURL: data.photoURL || this.currentUser.photoURL,
+      bio: data.bio || this.currentUser.bio,
+      updatedAt: new Date().toISOString()
+    };
+
+    this.currentUser = updated;
+    localStorage.setItem('roketry-user', JSON.stringify(updated));
+
+    if (auth && auth.currentUser) {
+      try {
+        await updateProfile(auth.currentUser, {
+          displayName: updated.name,
+          photoURL: updated.photoURL
+        });
+      } catch (err) {
+        console.warn("Update Auth Profile Error:", err);
+      }
+    }
+
+    if (db && uid) {
+      try {
+        await update(dbRef(db, `users/${uid}`), updated);
+      } catch (err) {
+        console.warn("Update RTDB User Profile Error:", err);
+      }
+    }
+
+    this.updateNavUI();
+    return true;
+  }
+
+  /**
    * Fetches profile node from RTDB (users/{uid}).
    */
   async fetchRTDBProfile(uid) {
