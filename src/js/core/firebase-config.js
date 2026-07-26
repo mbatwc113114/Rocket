@@ -25,8 +25,15 @@ import {
   update, 
   child,
   push,
+  remove,
   onValue
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { 
+  getStorage, 
+  ref as storageRef, 
+  uploadBytes, 
+  getDownloadURL 
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
 // Exclusive Super Admin Email Configuration
 const EXCLUSIVE_ADMIN_EMAIL = "mbatwc@gmail.com";
@@ -44,11 +51,12 @@ const firebaseConfig = {
 };
 
 // Initialize Core Firebase Services
-let app, auth, db, googleProvider;
+let app, auth, db, storage, googleProvider;
 try {
   app = initializeApp(firebaseConfig);
   auth = getAuth(app);
   db = getDatabase(app, firebaseConfig.databaseURL);
+  storage = getStorage(app);
   googleProvider = new GoogleAuthProvider();
   googleProvider.addScope('https://www.googleapis.com/auth/drive.file');
   googleProvider.setCustomParameters({ prompt: 'select_account' });
@@ -482,7 +490,199 @@ class ActualAuthManager {
       loginBtn.addEventListener('click', () => this.signInWithGoogle());
     }
   }
+
+  /**
+   * Fetches all core team members from RTDB.
+   * Defaults to pre-configured aerospace leads if RTDB is empty.
+   */
+  async fetchTeamMembers() {
+    if (db) {
+      try {
+        const rootRef = dbRef(db);
+        const snapshot = await get(child(rootRef, 'team'));
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          return Object.keys(data).map(key => ({ id: key, ...data[key] }));
+        } else {
+          // Default initial team members if node empty
+          const defaultTeam = [
+            {
+              id: "lead-1",
+              name: "Dr. Alex Vance",
+              email: "mbatwc@gmail.com",
+              role: "LEAD PROPULSION ENGINEER & FOUNDER",
+              bio: "Pioneering liquid bi-propellant combustion chamber optimization and computational fluid dynamic simulations.",
+              photoURL: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80"
+            },
+            {
+              id: "lead-2",
+              name: "Sarah Lin",
+              email: "sarah.lin@roketry.org",
+              role: "AVIONICS & FLIGHT SOFTWARE LEAD",
+              bio: "Architecting real-time telemetry processing pipelines, sensor fusion algorithms, and low-latency flight controls.",
+              photoURL: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80"
+            },
+            {
+              id: "lead-3",
+              name: "Marcus Thorne",
+              email: "marcus.t@roketry.org",
+              role: "STRUCTURES & COMPOSITES LEAD",
+              bio: "Specialized in carbon fiber composite motor casings, aerodynamic fairings, and high-G structural analysis.",
+              photoURL: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80"
+            }
+          ];
+          for (const member of defaultTeam) {
+            await set(dbRef(db, `team/${member.id}`), member);
+          }
+          return defaultTeam;
+        }
+      } catch (err) {
+        console.warn("RTDB Fetch Team Members Error:", err);
+      }
+    }
+    return [];
+  }
+
+  /**
+   * Saves or updates a team member in RTDB.
+   */
+  async saveTeamMember(payload) {
+    if (!this.isAdmin()) {
+      alert("Permission Denied: Admin rights required to modify team members.");
+      return false;
+    }
+    if (db && payload) {
+      try {
+        let memberId = payload.id;
+        if (!memberId) {
+          const newRef = push(dbRef(db, 'team'));
+          memberId = newRef.key;
+        }
+
+        const dataToSave = {
+          id: memberId,
+          uid: payload.uid || '',
+          name: payload.name || '',
+          email: payload.email || '',
+          role: payload.role || 'CORE MEMBER',
+          bio: payload.bio || '',
+          photoURL: payload.photoURL || '',
+          updatedAt: new Date().toISOString()
+        };
+
+        await set(dbRef(db, `team/${memberId}`), dataToSave);
+
+        if (payload.makeAdmin && payload.uid) {
+          await this.updateUserRole(payload.uid, 'admin');
+        }
+
+        return true;
+      } catch (err) {
+        console.error("RTDB Save Team Member Error:", err);
+        return false;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Removes a team member node from RTDB.
+   */
+  async deleteTeamMember(memberId) {
+    if (!this.isAdmin()) {
+      alert("Permission Denied: Admin rights required to delete team members.");
+      return false;
+    }
+    if (db && memberId) {
+      try {
+        await remove(dbRef(db, `team/${memberId}`));
+        return true;
+      } catch (err) {
+        console.error("RTDB Delete Team Member Error:", err);
+        return false;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Removes a custom project from RTDB.
+   */
+  async deleteProjectFromRTDB(projectId, projectTitle) {
+    if (!this.isAdmin()) {
+      alert("Permission Denied: Admin privileges required to delete projects.");
+      return false;
+    }
+    if (db && projectId) {
+      try {
+        await remove(dbRef(db, `projects/${projectId}`));
+        
+        const changelogEntry = {
+          projectId: projectId,
+          projectTitle: projectTitle || projectId,
+          commitMessage: `Deleted project: ${projectTitle || projectId}`,
+          version: 'REMOVED',
+          editedBy: this.currentUser ? this.currentUser.email : EXCLUSIVE_ADMIN_EMAIL,
+          editorName: this.currentUser ? this.currentUser.name : 'Admin',
+          editorPhoto: this.currentUser ? this.currentUser.photoURL : '',
+          editedAt: new Date().toISOString(),
+          changedFields: ['Project Deletion']
+        };
+        await push(dbRef(db, 'changelog'), changelogEntry);
+
+        return true;
+      } catch (err) {
+        console.error("RTDB Delete Project Error:", err);
+        return false;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Uploads an image file to Firebase Storage and returns its download URL.
+   */
+  async uploadImageToFirebaseStorage(file) {
+    if (!storage) {
+      alert("Firebase Storage is not initialized.");
+      return null;
+    }
+    try {
+      const fileName = `uploads/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+      const sRef = storageRef(storage, fileName);
+      const snapshot = await uploadBytes(sRef, file);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      return downloadURL;
+    } catch (err) {
+      console.error("Firebase Storage Upload Error:", err);
+      alert("Upload failed: " + err.message);
+      return null;
+    }
+  }
+
+  /**
+   * Converts Google Drive view/share URLs to direct image URLs.
+   */
+  convertGoogleDriveUrl(url) {
+    if (!url || typeof url !== 'string') return url;
+    let fileId = null;
+
+    const matchFileD = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+    if (matchFileD && matchFileD[1]) {
+      fileId = matchFileD[1];
+    } else {
+      const matchQueryId = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+      if (matchQueryId && matchQueryId[1]) {
+        fileId = matchQueryId[1];
+      }
+    }
+
+    if (fileId) {
+      return `https://lh3.googleusercontent.com/d/${fileId}`;
+    }
+    return url;
+  }
 }
 
 window.authManager = new ActualAuthManager();
-export { firebaseConfig, app, auth, db };
+export { firebaseConfig, app, auth, db, storage };

@@ -453,6 +453,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const subContainer = document.getElementById('doc-subsystem-tags');
         if (subContainer) {
+          subContainer.className = 'd-flex flex-column gap-2 mt-2';
           let subList = [];
           if (Array.isArray(dataToRender.subsystems)) {
             subList = dataToRender.subsystems;
@@ -474,13 +475,13 @@ document.addEventListener('DOMContentLoaded', () => {
             subList = defaultPool.filter(s => s.slug !== projectId);
           }
 
-          const colors = ['blue', 'green', 'purple', 'orange', 'pink'];
+          const colors = ['green', 'orange', 'purple', 'blue', 'pink'];
           subContainer.innerHTML = subList.map((s, idx) => {
             const tagColor = s.color || colors[idx % colors.length];
             const targetUrl = window.resolvePageURL(s.slug ? `project-detail.html?id=${s.slug}` : `project.html`);
             return `
-              <a href="${targetUrl}" class="text-decoration-none">
-                <span class="notion-tag notion-tag-${tagColor}">🧩 ${s.name || s.title}</span>
+              <a href="${targetUrl}" class="text-decoration-none w-100">
+                <span class="notion-tag notion-tag-${tagColor} w-100 p-2 justify-content-start" style="border-radius: 8px; font-size: 0.82rem; font-weight: 700;">🧩 ${s.name || s.title}</span>
               </a>
             `;
           }).join('');
@@ -562,8 +563,63 @@ document.addEventListener('DOMContentLoaded', () => {
                         <pre class="code-block"><code>${b.diagramText}</code></pre>
                       </div>
                     `;
+                  } else if (b.type === 'roadmap') {
+                    const rData = b.roadmapData || { title: 'Architecture Roadmap', branches: [] };
+                    return `
+                      <div class="p-3 style-box mb-3 w-100" style="background: var(--bg-card); border-radius: 12px;">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                          <span class="mono-text fw-bold text-primary" style="font-size: 0.85rem;">🗺️ ${rData.title || 'System Architecture Roadmap'}</span>
+                          <span class="subtle-text mono-text" style="font-size: 0.75rem;">Interactive Mindmap Component</span>
+                        </div>
+                        <div class="mindmap-viewport style-box position-relative overflow-auto" style="min-height: 380px; background: var(--bg-tree-bg); border-radius: 8px;">
+                          <div class="mindmap-canvas-inner position-relative" style="width: 950px; min-height: 420px;">
+                            <div class="d-flex flex-column align-items-center" style="position: relative; z-index: 2; width: 100%; height: 100%;">
+                              <div class="mindmap-root-node mt-2 mb-4" style="font-size: 1.1rem; padding: 0.5rem 1.8rem;">
+                                ${rData.title || 'Development Tree'}
+                              </div>
+                              <div class="d-flex flex-wrap justify-content-center gap-3 w-100 mt-2">
+                                ${(rData.branches || []).map(br => {
+                                  const color = br.color || '#3b82f6';
+                                  const isLink = br.type === 'link' || !!br.slug;
+                                  const linkUrl = br.slug ? window.resolvePageURL(`project-detail.html?id=${br.slug}`) : '#';
+                                  
+                                  const subsHTML = (br.subnodes || []).map(s => `
+                                    <div class="mindmap-subnode-wrapper d-flex align-items-center gap-1 p-1 mt-2 style-box" style="background: var(--bg-card); border-radius: 14px; border: 1px solid ${color}; font-size: 0.76rem; font-weight: 700;">
+                                      <span>🚀</span> ${s.title}
+                                    </div>
+                                  `).join('');
+
+                                  if (isLink) {
+                                    return `
+                                      <div class="mindmap-main-branch-box" data-color="${color}" style="position: relative; width: auto; min-width: 190px;">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                          <span class="badge" style="background: ${color}; color: #fff; font-size: 0.65rem;">${br.tag || 'LINKED PROJECT'}</span>
+                                        </div>
+                                        <h4 style="font-size: 0.95rem; font-weight: 800; margin: 0.2rem 0;"><a href="${linkUrl}" class="text-decoration-none text-reset">🚀 ${br.title}</a></h4>
+                                        <a href="${linkUrl}" class="repo-action-btn primary-btn mt-2 d-inline-block" style="font-size: 0.72rem; padding: 0.25rem 0.6rem;">Explore Project →</a>
+                                        ${subsHTML}
+                                      </div>
+                                    `;
+                                  } else {
+                                    return `
+                                      <div class="mindmap-main-branch-box" data-color="${color}" style="position: relative; width: auto; min-width: 190px; background: var(--bg-card); border-color: ${color};">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                          <span class="badge" style="background: ${color}; color: #fff; font-size: 0.65rem;">${br.tag || 'TEXT FIELD'}</span>
+                                        </div>
+                                        <h4 style="font-size: 0.95rem; font-weight: 800; margin: 0.2rem 0; color: var(--text-dark);">📝 ${br.title}</h4>
+                                        ${subsHTML}
+                                      </div>
+                                    `;
+                                  }
+                                }).join('')}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    `;
                   } else {
-                    return `<p>${b.content}</p>`;
+                    return `<p>${b.content || ''}</p>`;
                   }
                 }).join('') + `</div>`;
               }

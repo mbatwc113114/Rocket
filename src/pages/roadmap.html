@@ -152,13 +152,16 @@
       </p>
 
       <!-- ADMIN CONTROLS BAR (Shown for Admins) -->
-      <div id="roadmap-admin-bar" class="d-none mt-3 p-3 style-box d-flex justify-content-between align-items-center flex-wrap gap-2" style="max-width: 860px; margin: 0 auto; background: var(--bg-card); border-radius: 12px;">
-        <span class="mono-text fw-bold text-success" style="font-size: 0.86rem;">⚙️ Admin Canvas Mode: Click shape to select • Drag shape body to move • Press Backspace / Delete to remove shape</span>
-        <div class="d-flex align-items-center gap-2">
+      <div id="roadmap-admin-bar" class="d-none mt-3 p-3 style-box d-flex justify-content-between align-items-center flex-wrap gap-2" style="max-width: 920px; margin: 0 auto; background: var(--bg-card); border-radius: 12px; border: 1.5px solid rgba(16, 185, 129, 0.4);">
+        <span class="mono-text fw-bold text-success" style="font-size: 0.86rem;">⚙️ Admin Canvas Mode: Edit map layout & click Publish to sync for all users</span>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button type="button" id="btn-publish-roadmap" class="primary-btn" style="font-size: 0.82rem; padding: 0.45rem 1.1rem; background: #10b981 !important; border-color: #10b981 !important;" title="Save updated map layout to Firebase Realtime Database and push live to all active users">
+            ☁️ Upload & Sync Map for All Users
+          </button>
           <button type="button" id="btn-reset-layout" class="repo-action-btn" style="font-size: 0.82rem; padding: 0.45rem 0.9rem;" title="Reset default node positions">
             🔄 Reset Layout
           </button>
-          <button type="button" id="btn-add-main-branch" class="primary-btn" style="font-size: 0.82rem; padding: 0.45rem 1.1rem;">
+          <button type="button" id="btn-add-main-branch" class="repo-action-btn" style="font-size: 0.82rem; padding: 0.45rem 1.1rem; background: rgba(59, 130, 246, 0.15); color: #60a5fa !important; border: 1px solid rgba(59, 130, 246, 0.35);">
             ➕ Add System Branch
           </button>
         </div>
@@ -166,15 +169,15 @@
     </div>
 
     <!-- ZOOM & CANVAS TOOLBAR (Visible to all users) -->
-    <div id="mindmap-zoom-toolbar" class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 p-2 px-3 style-box" style="background: var(--bg-card); border-radius: 12px; max-width: 900px; margin: 0 auto;">
+    <div id="mindmap-zoom-toolbar" class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 p-2 px-3 style-box" style="background: var(--bg-card); border-radius: 12px; max-width: 920px; margin: 0 auto;">
       <div class="d-flex align-items-center gap-2">
         <span class="mono-text fw-bold" style="font-size: 0.85rem; color: var(--text-dark);">🎨 Mindmap Controls:</span>
         <button type="button" id="btn-zoom-in" class="repo-action-btn" style="padding: 0.35rem 0.8rem; font-size: 0.8rem;" title="Zoom In (+10%)">🔍+ In</button>
         <button type="button" id="btn-zoom-out" class="repo-action-btn" style="padding: 0.35rem 0.8rem; font-size: 0.8rem;" title="Zoom Out (-10%)">🔍- Out</button>
-        <button type="button" id="btn-zoom-reset" class="repo-action-btn" style="padding: 0.35rem 0.8rem; font-size: 0.8rem;" title="Reset Zoom & Center">🎯 Center & Fit</button>
+        <button type="button" id="btn-zoom-reset" class="repo-action-btn" style="padding: 0.35rem 0.8rem; font-size: 0.8rem; background: rgba(59, 130, 246, 0.15); color: #60a5fa !important; border: 1px solid rgba(59, 130, 246, 0.35);" title="Center & Fit all nodes into view (Press Space)">🎯 Center & Fit (Space)</button>
         <span id="zoom-badge" class="badge bg-secondary mono-text" style="font-size: 0.78rem;">100%</span>
       </div>
-      <span class="subtle-text mono-text" style="font-size: 0.75rem;">Scroll or Drag to Explore</span>
+      <span class="subtle-text mono-text" style="font-size: 0.75rem;">Scroll/Drag to Explore • Press <kbd style="background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.35); padding: 1px 6px; border-radius: 4px; color: #60a5fa;">Space</kbd> to Fit All</span>
     </div>
 
     <!-- ORGANIC MINDMAP VIEWPORT CONTAINER -->
@@ -715,6 +718,19 @@ function renderMindmapNodes(tree) {
   if (!container) return;
 
   const isAdmin = window.authManager && window.authManager.isAdmin();
+  let allProjectsList = [
+    { id: 'teststand', title: 'Solid Motor Static Test Stand' },
+    { id: 'model1', title: 'Avionics Telemetry Board' },
+    { id: 'model2', title: 'Flight Controller Firmware' }
+  ];
+
+  if (window.authManager) {
+    window.authManager.fetchAllCustomProjectsFromRTDB().then(dbProjs => {
+      if (dbProjs && Array.isArray(dbProjs) && dbProjs.length > 0) {
+        allProjectsList = dbProjs;
+      }
+    });
+  }
 
   let html = '';
 
@@ -728,12 +744,24 @@ function renderMindmapNodes(tree) {
 
     // 1. Main Branch Box
     html += `
-      <div class="mindmap-main-branch-box ${isAdmin ? 'admin-editable' : ''}" data-id="${b.id}" data-color="${color}" style="${customPos}">
+      <div class="mindmap-main-branch-box ${isAdmin ? 'admin-editable' : ''}" data-id="${b.id}" data-color="${color}" style="${customPos}" ${isAdmin ? '' : `ondblclick="window.location.href='${linkUrl}'"`}>
         <div class="d-flex justify-content-between align-items-center mb-1">
-          <span class="badge" style="background: ${color}; color: #ffffff; font-size: 0.65rem; letter-spacing: 0.08em;">${b.tag || 'SYSTEM'}</span>
+          <span class="badge" style="background: ${color}; color: #ffffff; font-size: 0.65rem; letter-spacing: 0.08em; cursor: pointer;">${b.tag || 'SYSTEM'}</span>
+          ${isAdmin ? `<button type="button" class="btn-del-icon btn-del-branch border-0 bg-transparent p-0" data-branch="${b.id}" title="Remove Branch"><span class="trash-icon" style="font-size: 0.8rem;">🗑️</span></button>` : ''}
         </div>
-        <h4 style="font-size: 1.05rem; font-weight: 800; margin: 0.2rem 0 0.4rem 0;"><a href="${isAdmin ? 'javascript:void(0);' : linkUrl}" class="text-decoration-none text-reset" ${isAdmin ? `ondblclick="window.location.href='${linkUrl}'"` : ''}>${b.title}</a></h4>
+        <h4 style="font-size: 1.05rem; font-weight: 800; margin: 0.2rem 0 0.4rem 0;"><a href="${isAdmin ? 'javascript:void(0);' : linkUrl}" class="text-decoration-none text-reset">${b.title}</a></h4>
         
+        ${isAdmin ? `
+          <div class="mt-2 pt-1 border-top style-box p-1" style="background: rgba(0,0,0,0.18); border-radius: 6px;" ondblclick="event.stopPropagation();">
+            <span class="subtle-text mono-text d-block mb-1" style="font-size: 0.68rem;">🔗 Link Existing Project:</span>
+            <select class="form-select form-select-sm cmp-project-select mono-text" style="font-size: 0.72rem; padding: 0.2rem 0.4rem;">
+              ${allProjectsList.map(p => `
+                <option value="${p.id}" ${(b.slug || 'teststand') === p.id ? 'selected' : ''}>🚀 ${p.title} (${p.id})</option>
+              `).join('')}
+            </select>
+          </div>
+        ` : ''}
+
         <div class="d-flex justify-content-center gap-1 mt-2">
           <a href="${linkUrl}" class="repo-action-btn primary-btn" style="font-size: 0.72rem; padding: 0.25rem 0.6rem;">Explore →</a>
           ${isAdmin ? `<button type="button" class="repo-action-btn btn-add-subnode" data-branch="${b.id}" style="font-size: 0.72rem; padding: 0.25rem 0.5rem;" title="Add Sub-Branch">➕ Sub</button>` : ''}
@@ -756,10 +784,11 @@ function renderMindmapNodes(tree) {
         : '';
 
       html += `
-        <div class="d-flex align-items-center gap-1 mindmap-subnode-wrapper ${isAdmin ? 'admin-editable' : ''}" data-subid="${s.id}" data-branchid="${b.id}" data-url="${subUrl}" style="${subPos}">
-          <a href="${isAdmin ? 'javascript:void(0);' : subUrl}" class="mindmap-subnode-item" ${isAdmin ? `ondblclick="window.location.href='${subUrl}'"` : ''}>
+        <div class="d-flex align-items-center gap-1 mindmap-subnode-wrapper ${isAdmin ? 'admin-editable' : ''}" data-subid="${s.id}" data-branchid="${b.id}" data-url="${subUrl}" style="${subPos}" ${isAdmin ? '' : `ondblclick="window.location.href='${subUrl}'"`}>
+          <a href="${isAdmin ? 'javascript:void(0);' : subUrl}" class="mindmap-subnode-item">
             <span>🚀</span> ${s.title}
           </a>
+          ${isAdmin ? `<button type="button" class="btn-del-icon btn-del-sub border-0 bg-transparent p-0 ms-1" data-branch="${b.id}" data-sub="${s.id}" title="Remove Sub-node"><span class="trash-icon" style="font-size: 0.75rem;">🗑️</span></button>` : ''}
           ${isAdmin ? `
             <div class="box-snap-dot side-top" data-side="top"></div>
             <div class="box-snap-dot side-bottom" data-side="bottom"></div>
@@ -773,12 +802,85 @@ function renderMindmapNodes(tree) {
 
   container.innerHTML = html;
 
-  // Bind Admin Events & Draggable Engine to ALL Boxes (Main Branches & Subnodes)
+  // Helper: Direct Inline Text Editing on Double Click (No Prompts!)
+  const bindInlineEditRoadmap = (el, onSave) => {
+    el.title = 'Double-click to edit text inline';
+    el.addEventListener('dblclick', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      el.contentEditable = 'true';
+      el.focus();
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    });
+
+    el.addEventListener('blur', async () => {
+      el.contentEditable = 'false';
+      if (onSave) {
+        await onSave(el.textContent.trim());
+      }
+    });
+
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        el.blur();
+      }
+    });
+  };
+
+  // Bind Admin Events, Draggable Engine & Double-Click Inline Editing to ALL Boxes
   if (isAdmin) {
+    // Root Node Inline Editing
+    const rootTitleEl = document.getElementById('mindmap-root-title');
+    if (rootTitleEl) {
+      bindInlineEditRoadmap(rootTitleEl, async (val) => {
+        currentTreeData.title = val || 'System Architecture Roadmap';
+        await saveTreeToRTDB(false);
+      });
+    }
+
     container.querySelectorAll('.mindmap-main-branch-box').forEach(box => {
       const branchId = box.getAttribute('data-id');
+      const branch = (currentTreeData.branches || []).find(b => b.id === branchId);
+
+      // Inline edit branch title
+      const titleEl = box.querySelector('h4 a') || box.querySelector('h4');
+      if (titleEl && branch) {
+        bindInlineEditRoadmap(titleEl, async (val) => {
+          branch.title = val || 'Branch Node';
+          await saveTreeToRTDB(false);
+        });
+      }
+
+      // Inline edit branch tag badge
+      const tagEl = box.querySelector('.badge');
+      if (tagEl && branch) {
+        bindInlineEditRoadmap(tagEl, async (val) => {
+          branch.tag = (val || 'SYSTEM').toUpperCase();
+          await saveTreeToRTDB(false);
+        });
+      }
+
+      // Existing project selector dropdown change event
+      const projSelect = box.querySelector('.cmp-project-select');
+      if (projSelect && branch) {
+        projSelect.addEventListener('change', async () => {
+          const chosenId = projSelect.value;
+          const chosenProj = allProjectsList.find(p => p.id === chosenId);
+          branch.slug = chosenId;
+          if (chosenProj && chosenProj.title) {
+            branch.title = chosenProj.title;
+          }
+          renderMindmapNodes(currentTreeData);
+          await saveTreeToRTDB(false);
+        });
+      }
+
       makeBoxDraggable(box, { branchId }, async (x, y) => {
-        const branch = currentTreeData.branches.find(b => b.id === branchId);
         if (branch) {
           branch.x = Math.round(x);
           branch.y = Math.round(y);
@@ -790,20 +892,28 @@ function renderMindmapNodes(tree) {
     container.querySelectorAll('.mindmap-subnode-wrapper').forEach(subWrap => {
       const branchId = subWrap.getAttribute('data-branchid');
       const subId = subWrap.getAttribute('data-subid');
+      const branch = (currentTreeData.branches || []).find(b => b.id === branchId);
+      const sub = branch && branch.subnodes ? branch.subnodes.find(s => s.id === subId) : null;
+
+      // Inline edit sub-node title
+      const subTitleItem = subWrap.querySelector('.mindmap-subnode-item');
+      if (subTitleItem && sub) {
+        bindInlineEditRoadmap(subTitleItem, async (val) => {
+          sub.title = val ? val.replace('🚀', '').trim() : 'Sub-Node';
+          await saveTreeToRTDB(false);
+        });
+      }
+
       makeBoxDraggable(subWrap, { branchId, subId }, async (x, y) => {
-        const branch = currentTreeData.branches.find(b => b.id === branchId);
-        if (branch && branch.subnodes) {
-          const sub = branch.subnodes.find(s => s.id === subId);
-          if (sub) {
-            sub.x = Math.round(x);
-            sub.y = Math.round(y);
-            await saveTreeToRTDB(false);
-          }
+        if (sub) {
+          sub.x = Math.round(x);
+          sub.y = Math.round(y);
+          await saveTreeToRTDB(false);
         }
       });
     });
 
-    // 3. Setup Resize Observer for real-time line updating
+    // Setup Resize Observer for real-time line updating
     if (window.ResizeObserver) {
       const resizer = new ResizeObserver(() => renderOrganicConnectorLines());
       container.querySelectorAll('.mindmap-main-branch-box, .mindmap-subnode-wrapper').forEach(el => {
@@ -811,35 +921,49 @@ function renderMindmapNodes(tree) {
       });
     }
 
+    // Instant Add Sub-Node Handler (ZERO MODALS!)
     container.querySelectorAll('.btn-add-subnode').forEach(btn => {
-      btn.addEventListener('click', () => {
-        editingParentBranchId = btn.getAttribute('data-branch');
-        document.getElementById('branchModalTitle').textContent = '➕ Add Sub-Branch Node';
-        document.getElementById('modal-branch-title').value = '';
-        document.getElementById('modal-branch-tag').value = '';
-        const modal = new bootstrap.Modal(document.getElementById('branchModal'));
-        modal.show();
-      });
-    });
-
-    container.querySelectorAll('.btn-del-branch').forEach(btn => {
-      btn.addEventListener('click', async () => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
         const branchId = btn.getAttribute('data-branch');
-        if (confirm("Delete this system branch and all sub-nodes from roadmap tree?")) {
-          currentTreeData.branches = currentTreeData.branches.filter(b => b.id !== branchId);
-          await saveTreeToRTDB();
+        const branch = (currentTreeData.branches || []).find(b => b.id === branchId);
+        if (branch) {
+          if (!branch.subnodes) branch.subnodes = [];
+          const subCount = branch.subnodes.length;
+          branch.subnodes.push({
+            id: `s_${Date.now()}_${subCount}`,
+            title: `Sub-System ${subCount + 1}`,
+            slug: '',
+            tag: 'SUBNODE',
+            x: (branch.x || 200) + 20,
+            y: (branch.y || 200) + 115 + (subCount * 45)
+          });
+          renderMindmapNodes(currentTreeData);
+          await saveTreeToRTDB(false);
         }
       });
     });
 
+    // Delete Branch Handler (Instant, Zero Modals!)
+    container.querySelectorAll('.btn-del-branch').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const branchId = btn.getAttribute('data-branch');
+        currentTreeData.branches = currentTreeData.branches.filter(b => b.id !== branchId);
+        await saveTreeToRTDB(true);
+      });
+    });
+
+    // Delete Sub-Node Handler (Instant, Zero Modals!)
     container.querySelectorAll('.btn-del-sub').forEach(btn => {
-      btn.addEventListener('click', async () => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
         const branchId = btn.getAttribute('data-branch');
         const subId = btn.getAttribute('data-sub');
         const branch = currentTreeData.branches.find(b => b.id === branchId);
         if (branch) {
           branch.subnodes = branch.subnodes.filter(s => s.id !== subId);
-          await saveTreeToRTDB();
+          await saveTreeToRTDB(true);
         }
       });
     });
@@ -870,7 +994,19 @@ function makeBoxDraggable(element, nodeData, onDragEnd) {
   let hasDragged = false;
 
   element.addEventListener('pointerdown', (e) => {
-    if (e.target.closest('.primary-btn') || e.target.closest('.btn-add-subnode') || e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') {
+    if (
+      e.target.closest('.primary-btn') || 
+      e.target.closest('.btn-add-subnode') || 
+      e.target.closest('.cmp-project-select') || 
+      e.target.closest('.btn-del-icon') || 
+      e.target.closest('select') || 
+      e.target.closest('option') ||
+      e.target.tagName === 'INPUT' || 
+      e.target.tagName === 'SELECT' || 
+      e.target.tagName === 'OPTION' ||
+      e.target.tagName === 'BUTTON' || 
+      e.target.isContentEditable
+    ) {
       return;
     }
     e.preventDefault();
@@ -908,8 +1044,8 @@ function makeBoxDraggable(element, nodeData, onDragEnd) {
       const dx = mouseCanvasX - startCanvasMouseX;
       const dy = mouseCanvasY - startCanvasMouseY;
 
-      const currentLeft = Math.max(10, Math.round(initialLeft + dx));
-      const currentTop = Math.max(10, Math.round(initialTop + dy));
+      const currentLeft = Math.round(initialLeft + dx);
+      const currentTop = Math.round(initialTop + dy);
 
       if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
         hasDragged = true;
@@ -919,6 +1055,7 @@ function makeBoxDraggable(element, nodeData, onDragEnd) {
       element.style.top = currentTop + 'px';
 
       renderOrganicConnectorLines();
+      adjustCanvasDimensions();
     };
 
     const onPointerUp = () => {
@@ -1015,11 +1152,23 @@ async function initRoadmapTree() {
 
   if (window.authManager && window.authManager.db) {
     try {
-      const { ref, get, child } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
+      const { ref, get, child, onValue } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js");
+      const treeRef = ref(window.authManager.db, 'roadmapTree');
+      
+      // Fetch initial snapshot
       const snap = await get(child(ref(window.authManager.db), 'roadmapTree'));
       if (snap.exists()) {
         currentTreeData = snap.val();
       }
+
+      // Real-time synchronization: listen for admin live updates across all connected users
+      onValue(treeRef, (snapshot) => {
+        if (snapshot.exists()) {
+          currentTreeData = snapshot.val();
+          applyTapRootLayout(currentTreeData);
+          renderMindmapNodes(currentTreeData);
+        }
+      });
     } catch (e) {
       console.warn("RTDB fetch tree error", e);
     }
@@ -1093,6 +1242,59 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // MATLAB-STYLE FIT & CENTER ENGINE (SPACEBAR / BUTTON)
+  window.fitAndCenterMap = function() {
+    const viewport = document.getElementById('mindmap-viewport');
+    const canvasInner = document.getElementById('mindmap-canvas-inner');
+    if (!viewport || !canvasInner) return;
+
+    const boxes = document.querySelectorAll('#root-node-box, .mindmap-main-branch-box, .mindmap-subnode-wrapper');
+    if (boxes.length === 0) return;
+
+    let minX = Infinity, minY = Infinity;
+    let maxX = -Infinity, maxY = -Infinity;
+
+    boxes.forEach(box => {
+      const left = box.offsetLeft;
+      const top = box.offsetTop;
+      const right = left + box.offsetWidth;
+      const bottom = top + box.offsetHeight;
+
+      if (left < minX) minX = left;
+      if (top < minY) minY = top;
+      if (right > maxX) maxX = right;
+      if (bottom > maxY) maxY = bottom;
+    });
+
+    const contentW = maxX - minX;
+    const contentH = maxY - minY;
+    if (contentW <= 0 || contentH <= 0) return;
+
+    const viewportW = viewport.clientWidth;
+    const viewportH = viewport.clientHeight;
+
+    const padding = 160;
+    const scaleX = viewportW / (contentW + padding);
+    const scaleY = viewportH / (contentH + padding);
+
+    let idealZoom = Math.min(scaleX, scaleY);
+    idealZoom = Math.min(1.4, Math.max(0.45, idealZoom));
+
+    updateZoom(idealZoom);
+
+    const centerX = minX + contentW / 2;
+    const centerY = minY + contentH / 2;
+
+    const targetScrollLeft = (centerX * idealZoom) - (viewportW / 2);
+    const targetScrollTop = (centerY * idealZoom) - (viewportH / 2);
+
+    viewport.scrollTo({
+      left: Math.max(0, targetScrollLeft),
+      top: Math.max(0, targetScrollTop),
+      behavior: 'smooth'
+    });
+  };
+
   const btnZoomIn = document.getElementById('btn-zoom-in');
   const btnZoomOut = document.getElementById('btn-zoom-out');
   const btnZoomReset = document.getElementById('btn-zoom-reset');
@@ -1100,12 +1302,37 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnZoomIn) btnZoomIn.addEventListener('click', () => updateZoom(currentZoom + 0.1));
   if (btnZoomOut) btnZoomOut.addEventListener('click', () => updateZoom(currentZoom - 0.1));
   if (btnZoomReset) {
-    btnZoomReset.addEventListener('click', () => {
-      updateZoom(1.0);
-      const viewport = document.getElementById('mindmap-viewport');
-      if (viewport) {
-        viewport.scrollLeft = (viewport.scrollWidth - viewport.clientWidth) / 2;
-        viewport.scrollTop = 0;
+    btnZoomReset.addEventListener('click', () => fitAndCenterMap());
+  }
+
+  // SPACEBAR SHORTCUT: FIT & CENTER ALL NODES LIKE MATLAB
+  document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' || e.key === ' ') {
+      const activeEl = document.activeElement;
+      const activeTag = activeEl ? activeEl.tagName : '';
+      if (activeTag === 'INPUT' || activeTag === 'TEXTAREA' || (activeEl && activeEl.isContentEditable) || (activeEl && activeEl.closest && activeEl.closest('.modal'))) {
+        return;
+      }
+      e.preventDefault();
+      fitAndCenterMap();
+    }
+  });
+
+  const btnPublishRoadmap = document.getElementById('btn-publish-roadmap');
+  if (btnPublishRoadmap) {
+    btnPublishRoadmap.addEventListener('click', async () => {
+      if (!window.authManager || !window.authManager.isAdmin()) {
+        alert("Permission Denied: Only Admins can publish the Roadmap layout.");
+        return;
+      }
+      btnPublishRoadmap.disabled = true;
+      btnPublishRoadmap.innerHTML = '⏳ Uploading Map...';
+      const success = await saveTreeToRTDB(true);
+      btnPublishRoadmap.disabled = false;
+      btnPublishRoadmap.innerHTML = '☁️ Upload & Sync Map for All Users';
+
+      if (success) {
+        alert("✅ Live Roadmap layout uploaded to Firebase RTDB and synced in real-time for all users!");
       }
     });
   }
@@ -1137,17 +1364,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const addMainBtn = document.getElementById('btn-add-main-branch');
   if (addMainBtn) {
-    addMainBtn.addEventListener('click', () => {
+    addMainBtn.addEventListener('click', async () => {
       if (!window.authManager || !window.authManager.isAdmin()) {
         alert("Permission Denied: Only Admins can modify the roadmap tree.");
         return;
       }
-      editingParentBranchId = null;
-      document.getElementById('branchModalTitle').textContent = '➕ Add Main System Branch';
-      document.getElementById('modal-branch-title').value = '';
-      document.getElementById('modal-branch-tag').value = '';
-      const modal = new bootstrap.Modal(document.getElementById('branchModal'));
-      modal.show();
+      const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
+      const count = (currentTreeData.branches || []).length;
+      const newBranch = {
+        id: `b_${Date.now()}`,
+        type: 'link',
+        title: `System Branch ${count + 1}`,
+        tag: 'SUBSYSTEM',
+        slug: 'teststand',
+        color: colors[count % colors.length],
+        x: 180 + (count * 60) % 500,
+        y: 180 + Math.floor(count / 2) * 120,
+        subnodes: []
+      };
+      if (!currentTreeData.branches) currentTreeData.branches = [];
+      currentTreeData.branches.push(newBranch);
+      renderMindmapNodes(currentTreeData);
+      await saveTreeToRTDB(false);
     });
   }
 
@@ -1202,8 +1440,68 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // DYNAMIC CANVAS AUTO-EXPANSION ENGINE
+  window.adjustCanvasDimensions = function() {
+    const canvasInner = document.getElementById('mindmap-canvas-inner');
+    if (!canvasInner) return;
+
+    let maxX = 1200;
+    let maxY = 900;
+
+    const boxes = document.querySelectorAll('#root-node-box, .mindmap-main-branch-box, .mindmap-subnode-wrapper');
+    boxes.forEach(box => {
+      const r = box.offsetLeft + box.offsetWidth;
+      const b = box.offsetTop + box.offsetHeight;
+      if (r > maxX) maxX = r;
+      if (b > maxY) maxY = b;
+    });
+
+    canvasInner.style.width = (maxX + 400) + 'px';
+    canvasInner.style.minHeight = (maxY + 400) + 'px';
+  };
+
+  // INFINITE CANVAS PANNING ENGINE
+  let isPanningCanvas = false;
+  let panStartX = 0, panStartY = 0;
+  let scrollLeftStart = 0, scrollTopStart = 0;
+
+  const viewport = document.getElementById('mindmap-viewport');
+  if (viewport) {
+    viewport.style.cursor = 'grab';
+
+    viewport.addEventListener('pointerdown', (e) => {
+      if (e.target.closest('#root-node-box') || e.target.closest('.mindmap-main-branch-box') || e.target.closest('.mindmap-subnode-wrapper') || e.target.closest('circle') || e.target.closest('button') || e.target.closest('.style-box') || e.target.closest('a')) {
+        return;
+      }
+      isPanningCanvas = true;
+      viewport.style.cursor = 'grabbing';
+      panStartX = e.clientX;
+      panStartY = e.clientY;
+      scrollLeftStart = viewport.scrollLeft;
+      scrollTopStart = viewport.scrollTop;
+    });
+
+    document.addEventListener('pointermove', (e) => {
+      if (!isPanningCanvas || !viewport) return;
+      const dx = e.clientX - panStartX;
+      const dy = e.clientY - panStartY;
+      viewport.scrollLeft = scrollLeftStart - dx;
+      viewport.scrollTop = scrollTopStart - dy;
+    });
+
+    document.addEventListener('pointerup', () => {
+      if (isPanningCanvas && viewport) {
+        isPanningCanvas = false;
+        viewport.style.cursor = 'grab';
+      }
+    });
+  }
+
   // Redraw SVG connector lines on window resize
-  window.addEventListener('resize', renderOrganicConnectorLines);
+  window.addEventListener('resize', () => {
+    renderOrganicConnectorLines();
+    adjustCanvasDimensions();
+  });
 });
 </script>
 

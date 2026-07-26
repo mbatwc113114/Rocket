@@ -30,14 +30,25 @@ export function getValidImageURL(url, fallbackURL) {
  */
 export function createSubsystemTagElement(name, slug, color = 'blue') {
   const item = document.createElement('div');
-  item.className = 'subsystem-item d-flex justify-content-between align-items-center mb-1 p-1 style-box';
-  item.style.fontSize = '0.8rem';
+  const validColors = ['blue', 'green', 'purple', 'orange', 'pink', 'red'];
+  const tagColor = validColors.includes(color) ? color : 'blue';
+
+  item.className = `subsystem-item notion-tag notion-tag-${tagColor} w-100 d-flex justify-content-between align-items-center mb-2 p-2`;
+  item.style.borderRadius = '8px';
+  item.style.fontSize = '0.82rem';
+  item.style.fontWeight = '700';
   item.dataset.title = name;
   item.dataset.url = slug;
-  item.dataset.color = color;
+  item.dataset.color = tagColor;
   item.innerHTML = `
-    <span>🚀 ${name} (${slug})</span>
-    <button type="button" class="btn-del-icon btn-del-subsystem" aria-label="Remove" title="Remove Link"><span class="trash-icon">🗑️</span></button>
+    <span class="d-flex align-items-center gap-2 text-truncate me-2">
+      <span style="font-size: 0.9rem;">🧩</span>
+      <span>${name}</span>
+      ${slug ? `<span style="opacity: 0.65; font-size: 0.72rem; font-family: var(--font-mono, monospace);">(${slug})</span>` : ''}
+    </span>
+    <button type="button" class="btn-del-icon btn-del-subsystem btn-remove-tag border-0 bg-transparent p-0" aria-label="Remove" title="Remove Link">
+      <span class="trash-icon">🗑️</span>
+    </button>
   `;
   item.querySelector('.btn-del-subsystem').addEventListener('click', () => item.remove());
   return item;

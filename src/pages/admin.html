@@ -429,10 +429,16 @@
               <h4>🧩 Sub Systems</h4>
               <p class="subtle-text mb-2" style="font-size: 0.78rem;">Link sub-systems and connected rocket projects:</p>
               
-              <div id="ed-subsystems-list" class="mb-2">
-                <div class="subsystem-item d-flex justify-content-between align-items-center mb-1 p-1 style-box" style="font-size: 0.8rem;" data-title="Rocket Model-II" data-url="model2" data-color="blue">
-                  <span>🚀 Rocket Model-II (model2)</span>
-                  <button type="button" class="btn-del-icon btn-del-subsystem" aria-label="Remove" title="Remove Link"><span class="trash-icon">🗑️</span></button>
+              <div id="ed-subsystems-list" class="d-flex flex-column gap-2 mb-2">
+                <div class="subsystem-item notion-tag notion-tag-blue w-100 d-flex justify-content-between align-items-center p-2" style="border-radius: 8px; font-size: 0.82rem; font-weight: 700;" data-title="Rocket Model-II" data-url="model2" data-color="blue">
+                  <span class="d-flex align-items-center gap-2 text-truncate me-2">
+                    <span style="font-size: 0.9rem;">🧩</span>
+                    <span>Rocket Model-II</span>
+                    <span style="opacity: 0.65; font-size: 0.72rem; font-family: var(--font-mono, monospace);">(model2)</span>
+                  </span>
+                  <button type="button" class="btn-del-icon btn-del-subsystem btn-remove-tag border-0 bg-transparent p-0" aria-label="Remove" title="Remove Link">
+                    <span class="trash-icon">🗑️</span>
+                  </button>
                 </div>
               </div>
 
@@ -796,6 +802,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <button type="button" class="repo-action-btn btn-add-cmp-code" style="font-size: 0.75rem;">💻 Code Script</button>
           <button type="button" class="repo-action-btn btn-add-cmp-diagram" style="font-size: 0.75rem;">📐 ASCII Flow</button>
           <button type="button" class="repo-action-btn btn-add-cmp-specs" style="font-size: 0.75rem;">📊 Specs Table</button>
+          <button type="button" class="repo-action-btn btn-add-cmp-roadmap" style="font-size: 0.75rem; background: rgba(59, 130, 246, 0.15); color: #60a5fa !important; border: 1px solid rgba(59, 130, 246, 0.35);">🗺️ Mindmap Roadmap</button>
         </div>
       </div>
     `;
@@ -827,6 +834,7 @@ document.addEventListener('DOMContentLoaded', () => {
     card.querySelector('.btn-add-cmp-code').addEventListener('click', () => addComponentBlock(compGrid, 'code'));
     card.querySelector('.btn-add-cmp-diagram').addEventListener('click', () => addComponentBlock(compGrid, 'diagram'));
     card.querySelector('.btn-add-cmp-specs').addEventListener('click', () => addComponentBlock(compGrid, 'specs'));
+    card.querySelector('.btn-add-cmp-roadmap').addEventListener('click', () => addComponentBlock(compGrid, 'roadmap'));
 
     sectionsContainer.appendChild(card);
     updateAutoTOC();
@@ -900,10 +908,627 @@ void setup() { Serial.begin(115200); }</textarea>
           </tbody>
         </table>
       `;
+    } else if (type === 'roadmap') {
+      const defaultData = compCard._roadmapData || {
+        title: "System Architecture Roadmap",
+        branches: [
+          { id: `b_link_${Date.now()}_1`, type: "link", title: "Solid Motor Static Test Stand", tag: "PROPULSION", slug: "teststand", color: "#f59e0b", x: 140, y: 140 },
+          { id: `b_text_${Date.now()}_2`, type: "text", title: "Avionics Telemetry Board v2.1", tag: "EMBEDDED", color: "#10b981", x: 520, y: 140 }
+        ]
+      };
+      compCard._roadmapData = defaultData;
+
+      innerHTML += `
+        <div class="embedded-roadmap-builder style-box p-3" style="background: var(--bg-tree-bg); border-radius: 8px;">
+          <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+            <span class="mono-text fw-bold text-primary" style="font-size: 0.84rem;">🗺️ Architecture Roadmap Canvas</span>
+            <div class="d-flex gap-1 align-items-center flex-wrap">
+              <button type="button" class="repo-action-btn btn-cmp-add-textbox" style="font-size: 0.75rem; padding: 0.25rem 0.6rem;">➕ Text Field Box</button>
+              <button type="button" class="repo-action-btn btn-cmp-add-linkbox" style="font-size: 0.75rem; padding: 0.25rem 0.6rem; background: rgba(16, 185, 129, 0.15); color: #34d399 !important; border: 1px solid rgba(16, 185, 129, 0.35);">🔗 Project Link Box</button>
+            </div>
+          </div>
+
+          <div class="roadmap-cmp-viewport position-relative overflow-auto style-box" style="min-height: 400px; background: var(--bg-card); border-radius: 8px;">
+            <div class="roadmap-cmp-canvas-inner position-relative" style="width: 950px; min-height: 440px;">
+              <svg class="roadmap-cmp-svg position-absolute top-0 start-0 w-100 h-100" style="pointer-events: none; z-index: 1;"></svg>
+              <div class="roadmap-cmp-nodes-wrap" style="position: relative; z-index: 2; width: 100%; height: 100%;">
+                <div class="mindmap-root-node roadmap-cmp-root-title style-box p-2 px-4 text-center fw-bold" style="position: absolute; left: 340px; top: 20px; font-size: 1.1rem; background: var(--bg-card); border: 2px solid var(--primary-color); border-radius: 12px; cursor: move; z-index: 6;" title="Drag root box to move | Double-click to edit title text">
+                  ${defaultData.title || 'System Architecture Roadmap'}
+                </div>
+                <div class="roadmap-cmp-branches-list" style="position: relative; width: 100%; height: 100%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
     }
 
     compCard.innerHTML = innerHTML;
     compCard.querySelector('.btn-del-cmp').addEventListener('click', () => compCard.remove());
+
+    // Embedded Roadmap Canvas Interactive Engine Initialization
+    if (type === 'roadmap') {
+      const initCmpRoadmap = () => {
+        const branchesContainer = compCard.querySelector('.roadmap-cmp-branches-list');
+        const rootTitleEl = compCard.querySelector('.roadmap-cmp-root-title');
+        const btnAddText = compCard.querySelector('.btn-cmp-add-textbox');
+        const btnAddLink = compCard.querySelector('.btn-cmp-add-linkbox');
+        const canvasInner = compCard.querySelector('.roadmap-cmp-canvas-inner');
+        const viewportEl = compCard.querySelector('.roadmap-cmp-viewport');
+
+        if (!compCard._roadmapData) {
+          compCard._roadmapData = {
+            title: "System Architecture Roadmap",
+            rootX: 340,
+            rootY: 20,
+            branches: [
+              {
+                id: `b_link_${Date.now()}_1`,
+                type: "link",
+                title: "Solid Motor Static Test Stand",
+                tag: "PROPULSION",
+                slug: "teststand",
+                color: "#f59e0b",
+                x: 140,
+                y: 130,
+                subnodes: [
+                  { id: `s_${Date.now()}_1`, title: "10kN Load Cell Stack", tag: "HARDWARE", x: 160, y: 240 }
+                ]
+              },
+              {
+                id: `b_text_${Date.now()}_2`,
+                type: "text",
+                title: "Avionics Telemetry Board v2.1",
+                tag: "EMBEDDED",
+                color: "#10b981",
+                x: 520,
+                y: 130,
+                subnodes: []
+              }
+            ]
+          };
+        }
+
+        let existingProjectsList = [
+          { id: 'teststand', title: 'Solid Motor Static Test Stand' },
+          { id: 'model1', title: 'Avionics Telemetry Board' },
+          { id: 'model2', title: 'Flight Controller Firmware' }
+        ];
+
+        if (window.authManager) {
+          window.authManager.fetchAllCustomProjectsFromRTDB().then(dbProjs => {
+            if (dbProjs && Array.isArray(dbProjs) && dbProjs.length > 0) {
+              existingProjectsList = dbProjs;
+              renderCanvasNodes();
+            }
+          });
+        }
+
+        // Hide Line Handles when clicking empty canvas area
+        if (viewportEl) {
+          viewportEl.addEventListener('pointerdown', (e) => {
+            if (e.target === viewportEl || e.target.classList.contains('roadmap-cmp-canvas-inner') || e.target.classList.contains('roadmap-cmp-svg') || e.target.classList.contains('roadmap-cmp-nodes-wrap') || e.target.classList.contains('roadmap-cmp-branches-list')) {
+              compCard.querySelectorAll('.cmp-line-handles-group').forEach(gh => gh.style.display = 'none');
+            }
+          });
+        }
+
+        // Render SVG Connector Lines with 4-Point Control Handles (Visible ONLY when line is focused)
+        const renderConnectorLines = () => {
+          let svg = compCard.querySelector('.roadmap-cmp-svg');
+          if (!svg && canvasInner) {
+            svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.className = 'roadmap-cmp-svg position-absolute top-0 start-0 w-100 h-100';
+            svg.style.pointerEvents = 'none';
+            svg.style.zIndex = '1';
+            canvasInner.prepend(svg);
+          }
+          if (!svg || !rootTitleEl) return;
+
+          svg.innerHTML = `
+            <defs>
+              <marker id="cmp-arrow-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#3b82f6"/>
+              </marker>
+              <marker id="cmp-arrow-green" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#10b981"/>
+              </marker>
+              <marker id="cmp-arrow-orange" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#f59e0b"/>
+              </marker>
+              <marker id="cmp-arrow-purple" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#8b5cf6"/>
+              </marker>
+            </defs>
+          `;
+
+          const rx = rootTitleEl.offsetLeft + rootTitleEl.offsetWidth / 2;
+          const ry = rootTitleEl.offsetTop + rootTitleEl.offsetHeight;
+
+          // Helper: Find closest snap point among 4 sides (top, bottom, left, right) of a box
+          const getBoxSnapPoint = (fromPt, boxEl) => {
+            const bX = boxEl.offsetLeft;
+            const bY = boxEl.offsetTop;
+            const bW = boxEl.offsetWidth;
+            const bH = boxEl.offsetHeight;
+
+            const sides = [
+              { side: 'top', x: bX + bW / 2, y: bY, cX: bX + bW / 2, cY: bY - 40 },
+              { side: 'bottom', x: bX + bW / 2, y: bY + bH, cX: bX + bW / 2, cY: bY + bH + 40 },
+              { side: 'left', x: bX, y: bY + bH / 2, cX: bX - 40, cY: bY + bH / 2 },
+              { side: 'right', x: bX + bW, y: bY + bH / 2, cX: bX + bW + 40, cY: bY + bH / 2 }
+            ];
+
+            let minDst = Infinity;
+            let bestSide = sides[0];
+            sides.forEach(s => {
+              const dst = Math.hypot(fromPt.x - s.x, fromPt.y - s.y);
+              if (dst < minDst) {
+                minDst = dst;
+                bestSide = s;
+              }
+            });
+            return bestSide;
+          };
+
+          // Helper: Draw 4-point Interactive Drag Handles for Lines (Hidden by default until line clicked)
+          const add4PointHandles = (group, x1, y1, cX1, cY1, cX2, cY2, x2, y2, linePath) => {
+            const handlesGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            handlesGroup.setAttribute('class', 'cmp-line-handles-group');
+            handlesGroup.style.display = 'none';
+
+            const points = [
+              { role: 'start', x: x1, y: y1, fill: '#3b82f6' },
+              { role: 'ctrl1', x: cX1, y: cY1, fill: '#f59e0b' },
+              { role: 'ctrl2', x: cX2, y: cY2, fill: '#f59e0b' },
+              { role: 'end', x: x2, y: y2, fill: '#10b981' }
+            ];
+
+            const h1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            h1.setAttribute('x1', x1); h1.setAttribute('y1', y1);
+            h1.setAttribute('x2', cX1); h1.setAttribute('y2', cY1);
+            h1.setAttribute('stroke', 'rgba(255,255,255,0.4)');
+            h1.setAttribute('stroke-dasharray', '3 3');
+            handlesGroup.appendChild(h1);
+
+            const h2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            h2.setAttribute('x1', x2); h2.setAttribute('y1', y2);
+            h2.setAttribute('x2', cX2); h2.setAttribute('y2', cY2);
+            h2.setAttribute('stroke', 'rgba(255,255,255,0.4)');
+            h2.setAttribute('stroke-dasharray', '3 3');
+            handlesGroup.appendChild(h2);
+
+            points.forEach(pt => {
+              const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+              circle.setAttribute('cx', pt.x);
+              circle.setAttribute('cy', pt.y);
+              circle.setAttribute('r', pt.role.includes('ctrl') ? '5' : '6.5');
+              circle.setAttribute('fill', pt.fill);
+              circle.setAttribute('stroke', '#ffffff');
+              circle.setAttribute('stroke-width', '1.5');
+              circle.style.cursor = 'grab';
+              circle.style.pointerEvents = 'all';
+
+              let isDragPt = false;
+              circle.addEventListener('pointerdown', (pe) => {
+                pe.preventDefault();
+                pe.stopPropagation();
+                isDragPt = true;
+                circle.style.cursor = 'grabbing';
+
+                const onMovePt = (me) => {
+                  if (!isDragPt) return;
+                  const canvasRect = canvasInner.getBoundingClientRect();
+                  const mx = Math.round(me.clientX - canvasRect.left);
+                  const my = Math.round(me.clientY - canvasRect.top);
+
+                  circle.setAttribute('cx', mx);
+                  circle.setAttribute('cy', my);
+
+                  if (pt.role === 'start') { x1 = mx; y1 = my; }
+                  else if (pt.role === 'ctrl1') { cX1 = mx; cY1 = my; }
+                  else if (pt.role === 'ctrl2') { cX2 = mx; cY2 = my; }
+                  else if (pt.role === 'end') { x2 = mx; y2 = my; }
+
+                  h1.setAttribute('x1', x1); h1.setAttribute('y1', y1);
+                  h1.setAttribute('x2', cX1); h1.setAttribute('y2', cY1);
+                  h2.setAttribute('x1', x2); h2.setAttribute('y1', y2);
+                  h2.setAttribute('x2', cX2); h2.setAttribute('y2', cY2);
+
+                  linePath.setAttribute('d', `M ${x1},${y1} C ${cX1},${cY1} ${cX2},${cY2} ${x2},${y2}`);
+                };
+
+                const onUpPt = () => {
+                  if (!isDragPt) return;
+                  isDragPt = false;
+                  circle.style.cursor = 'grab';
+                  document.removeEventListener('pointermove', onMovePt);
+                  document.removeEventListener('pointerup', onUpPt);
+                };
+
+                document.addEventListener('pointermove', onMovePt);
+                document.addEventListener('pointerup', onUpPt);
+              });
+
+              handlesGroup.appendChild(circle);
+            });
+
+            group.appendChild(handlesGroup);
+
+            // Show handles ONLY when line is clicked/focused!
+            linePath.style.pointerEvents = 'stroke';
+            linePath.style.cursor = 'pointer';
+            linePath.addEventListener('pointerdown', (e) => {
+              e.stopPropagation();
+              compCard.querySelectorAll('.cmp-line-handles-group').forEach(gh => gh.style.display = 'none');
+              handlesGroup.style.display = 'block';
+            });
+          };
+
+          // 1. Solid lines from Root Title to Main Boxes (4-Side Snapping)
+          compCard.querySelectorAll('.roadmap-cmp-branch-box').forEach(box => {
+            const color = box.dataset.color || '#3b82f6';
+            const endSnap = getBoxSnapPoint({ x: rx, y: ry }, box);
+            const bx = endSnap.x, by = endSnap.y;
+
+            const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            const cX1 = rx, cY1 = ry + 45;
+            const cX2 = endSnap.cX, cY2 = endSnap.cY;
+            const d = `M ${rx},${ry} C ${cX1},${cY1} ${cX2},${cY2} ${bx},${by}`;
+            path.setAttribute('d', d);
+            path.setAttribute('stroke', color);
+            path.setAttribute('stroke-width', '3');
+            path.setAttribute('fill', 'none');
+            path.setAttribute('stroke-linecap', 'round');
+
+            let colorKey = 'blue';
+            if (color.includes('10b981')) colorKey = 'green';
+            if (color.includes('f59e0b')) colorKey = 'orange';
+            if (color.includes('8b5cf6')) colorKey = 'purple';
+            path.setAttribute('marker-end', `url(#cmp-arrow-${colorKey})`);
+            group.appendChild(path);
+
+            add4PointHandles(group, rx, ry, cX1, cY1, cX2, cY2, bx, by, path);
+            svg.appendChild(group);
+
+            // 2. Dashed lines from Main Box to Sub-Boxes (4-Side Snapping)
+            const parentId = box.dataset.id;
+            compCard.querySelectorAll(`.roadmap-cmp-sub-box[data-parentid="${parentId}"]`).forEach(subBox => {
+              const pSnap = getBoxSnapPoint({ x: subBox.offsetLeft + subBox.offsetWidth / 2, y: subBox.offsetTop }, box);
+              const sSnap = getBoxSnapPoint({ x: pSnap.x, y: pSnap.y }, subBox);
+
+              const subGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+              const subPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+              const startX = pSnap.x, startY = pSnap.y;
+              const endX = sSnap.x, endY = sSnap.y;
+              const scX1 = pSnap.cX, scY1 = pSnap.cY;
+              const scX2 = sSnap.cX, scY2 = sSnap.cY;
+
+              const subD = `M ${startX},${startY} C ${scX1},${scY1} ${scX2},${scY2} ${endX},${endY}`;
+              subPath.setAttribute('d', subD);
+              subPath.setAttribute('stroke', color);
+              subPath.setAttribute('stroke-width', '2');
+              subPath.setAttribute('stroke-dasharray', '5 4');
+              subPath.setAttribute('fill', 'none');
+              subPath.setAttribute('stroke-linecap', 'round');
+              subGroup.appendChild(subPath);
+
+              add4PointHandles(subGroup, startX, startY, scX1, scY1, scX2, scY2, endX, endY, subPath);
+              svg.appendChild(subGroup);
+            });
+          });
+        };
+
+        // Helper: Direct Inline Text Editing on Double Click (No Prompts!)
+        const makeInlineEditable = (el, onSave) => {
+          el.title = 'Double-click to edit text inline';
+          el.addEventListener('dblclick', (e) => {
+            e.stopPropagation();
+            el.contentEditable = 'true';
+            el.focus();
+            const range = document.createRange();
+            range.selectNodeContents(el);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+          });
+
+          el.addEventListener('blur', () => {
+            el.contentEditable = 'false';
+            if (onSave) onSave(el.textContent.trim());
+          });
+
+          el.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              el.blur();
+            }
+          });
+        };
+
+        // Helper: Pointer Drag Engine
+        const makeBoxPointerDraggable = (el, onMove) => {
+          let isDrag = false;
+          let sX = 0, sY = 0;
+          let initL = 0, initT = 0;
+
+          el.addEventListener('pointerdown', (pe) => {
+            if (pe.target.closest('button') || pe.target.closest('select') || pe.target.tagName === 'INPUT' || pe.target.isContentEditable) return;
+            pe.preventDefault();
+            pe.stopPropagation();
+
+            isDrag = true;
+            sX = pe.clientX;
+            sY = pe.clientY;
+            initL = el.offsetLeft;
+            initT = el.offsetTop;
+            el.style.zIndex = '10';
+
+            const onPointerMove = (me) => {
+              if (!isDrag) return;
+              const dx = me.clientX - sX;
+              const dy = me.clientY - sY;
+              const newL = Math.round(initL + dx);
+              const newT = Math.round(initT + dy);
+
+              el.style.position = 'absolute';
+              el.style.left = newL + 'px';
+              el.style.top = newT + 'px';
+
+              onMove(newL, newT);
+            };
+
+            const onPointerUp = () => {
+              if (!isDrag) return;
+              isDrag = false;
+              el.style.zIndex = '5';
+              document.removeEventListener('pointermove', onPointerMove);
+              document.removeEventListener('pointerup', onPointerUp);
+            };
+
+            document.addEventListener('pointermove', onPointerMove);
+            document.addEventListener('pointerup', onPointerUp);
+          });
+        };
+
+        // Make Root Title Node Styled & Draggable Across Canvas
+        if (rootTitleEl) {
+          const rootX = compCard._roadmapData.rootX || 340;
+          const rootY = compCard._roadmapData.rootY || 20;
+          rootTitleEl.style.position = 'absolute';
+          rootTitleEl.style.left = rootX + 'px';
+          rootTitleEl.style.top = rootY + 'px';
+          rootTitleEl.textContent = compCard._roadmapData.title || 'System Architecture Roadmap';
+
+          makeBoxPointerDraggable(rootTitleEl, (x, y) => {
+            compCard._roadmapData.rootX = x;
+            compCard._roadmapData.rootY = y;
+            renderConnectorLines();
+          });
+
+          makeInlineEditable(rootTitleEl, (val) => {
+            compCard._roadmapData.title = val || 'System Architecture Roadmap';
+            renderConnectorLines();
+          });
+        }
+
+        // Render Canvas Nodes
+        const renderCanvasNodes = () => {
+          if (!branchesContainer) return;
+          const data = compCard._roadmapData;
+          let html = '';
+
+          (data.branches || []).forEach(b => {
+            const color = b.color || '#3b82f6';
+            const isLink = b.type === 'link' || !!b.slug;
+            const posStyle = (b.x !== undefined && b.y !== undefined) ? `position: absolute; left: ${b.x}px; top: ${b.y}px;` : 'position: relative;';
+
+            html += `
+              <div class="roadmap-cmp-branch-box mindmap-main-branch-box style-box p-2 mb-2" data-id="${b.id}" data-color="${color}" style="${posStyle} min-width: 220px; max-width: 270px; background: var(--bg-card); cursor: move; z-index: 5;">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <span class="badge cmp-tag-badge" style="background: ${color}; color: #ffffff; font-size: 0.62rem; cursor: pointer;">${b.tag || (isLink ? 'LINKED PROJECT' : 'TEXT FIELD')}</span>
+                  <div class="d-flex align-items-center gap-1">
+                    <button type="button" class="repo-action-btn btn-add-subnode p-0 px-1" data-id="${b.id}" style="font-size: 0.65rem;" title="Add Sub-Box under this box">➕ Sub</button>
+                    <button type="button" class="btn-del-icon btn-del-cmp-branch border-0 bg-transparent p-0" data-id="${b.id}" title="Remove Box"><span class="trash-icon" style="font-size: 0.8rem;">🗑️</span></button>
+                  </div>
+                </div>
+                
+                <h5 class="cmp-branch-title m-0" style="font-size: 0.88rem; font-weight: 800; color: var(--text-dark); cursor: text;">
+                  ${b.title}
+                </h5>
+
+                ${isLink ? `
+                  <div class="mt-2 pt-1 border-top style-box p-1" style="background: rgba(0,0,0,0.18); border-radius: 6px;" ondblclick="event.stopPropagation();">
+                    <span class="subtle-text mono-text d-block mb-1" style="font-size: 0.68rem;">🔗 Select Existing Project:</span>
+                    <select class="form-select form-select-sm cmp-project-select mono-text" style="font-size: 0.72rem; padding: 0.2rem 0.4rem;">
+                      ${existingProjectsList.map(p => `
+                        <option value="${p.id}" ${(b.slug || 'teststand') === p.id ? 'selected' : ''}>🚀 ${p.title} (${p.id})</option>
+                      `).join('')}
+                    </select>
+                    <a href="${window.resolvePageURL(`project-detail.html?id=${b.slug || 'teststand'}`)}" target="_blank" class="repo-action-btn primary-btn mt-1 d-inline-block w-100 text-center" style="font-size: 0.7rem; padding: 0.2rem;" ondblclick="event.stopPropagation();">Open / Redirect 🚀</a>
+                  </div>
+                ` : ''}
+              </div>
+            `;
+
+            // Sub-nodes HTML
+            (b.subnodes || []).forEach(s => {
+              const subPos = (s.x !== undefined && s.y !== undefined) ? `position: absolute; left: ${s.x}px; top: ${s.y}px;` : 'position: relative;';
+              html += `
+                <div class="roadmap-cmp-sub-box mindmap-subnode-wrapper d-flex align-items-center gap-1 p-1 style-box" data-subid="${s.id}" data-parentid="${b.id}" style="${subPos} background: var(--bg-card); border-radius: 16px; border: 1px solid ${color}; z-index: 5; cursor: move;">
+                  <span style="font-size: 0.8rem;">🚀</span>
+                  <span class="cmp-sub-title mono-text fw-bold" style="font-size: 0.78rem; cursor: text;">${s.title}</span>
+                  <button type="button" class="btn-del-icon btn-del-cmp-sub border-0 bg-transparent p-0 ms-1" data-subid="${s.id}" data-parentid="${b.id}" title="Remove Sub-Box"><span class="trash-icon" style="font-size: 0.75rem;">🗑️</span></button>
+                </div>
+              `;
+            });
+          });
+
+          branchesContainer.innerHTML = html;
+
+          // Main Box Events
+          branchesContainer.querySelectorAll('.roadmap-cmp-branch-box').forEach(box => {
+            const bId = box.getAttribute('data-id');
+            const branch = compCard._roadmapData.branches.find(item => item.id === bId);
+
+            // Inline edit title
+            const titleEl = box.querySelector('.cmp-branch-title');
+            if (titleEl && branch) {
+              makeInlineEditable(titleEl, (val) => {
+                branch.title = val || 'Branch Node';
+                renderConnectorLines();
+              });
+            }
+
+            // Inline edit tag badge
+            const tagEl = box.querySelector('.cmp-tag-badge');
+            if (tagEl && branch) {
+              makeInlineEditable(tagEl, (val) => {
+                branch.tag = (val || 'TAG').toUpperCase();
+              });
+            }
+
+            // Existing Project Select Dropdown Change Event
+            const projSelect = box.querySelector('.cmp-project-select');
+            if (projSelect && branch) {
+              projSelect.addEventListener('change', () => {
+                const chosenId = projSelect.value;
+                const chosenProj = existingProjectsList.find(p => p.id === chosenId);
+                branch.slug = chosenId;
+                if (chosenProj && chosenProj.title) {
+                  branch.title = chosenProj.title;
+                }
+                renderCanvasNodes();
+              });
+            }
+
+            // Add Sub-Box button
+            const btnAddSub = box.querySelector('.btn-add-subnode');
+            if (btnAddSub && branch) {
+              btnAddSub.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (!branch.subnodes) branch.subnodes = [];
+                const subCount = branch.subnodes.length;
+                branch.subnodes.push({
+                  id: `sub_${Date.now()}_${subCount}`,
+                  title: `Sub-System ${subCount + 1}`,
+                  tag: 'SUBNODE',
+                  x: (branch.x || box.offsetLeft) + 15,
+                  y: (branch.y || box.offsetTop) + 105 + (subCount * 45)
+                });
+                renderCanvasNodes();
+              });
+            }
+
+            // Delete Main Box
+            box.querySelector('.btn-del-cmp-branch').addEventListener('click', (e) => {
+              e.stopPropagation();
+              compCard._roadmapData.branches = compCard._roadmapData.branches.filter(item => item.id !== bId);
+              renderCanvasNodes();
+            });
+
+            // Drag Box
+            makeBoxPointerDraggable(box, (x, y) => {
+              if (branch) {
+                branch.x = x;
+                branch.y = y;
+              }
+              renderConnectorLines();
+            });
+          });
+
+          // Sub-Box Events
+          branchesContainer.querySelectorAll('.roadmap-cmp-sub-box').forEach(subBox => {
+            const subId = subBox.getAttribute('data-subid');
+            const parentId = subBox.getAttribute('data-parentid');
+            const parentBranch = compCard._roadmapData.branches.find(item => item.id === parentId);
+            const sub = parentBranch ? (parentBranch.subnodes || []).find(s => s.id === subId) : null;
+
+            // Delete Sub Box
+            const delSubBtn = subBox.querySelector('.btn-del-cmp-sub');
+            if (delSubBtn && parentBranch) {
+              delSubBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                parentBranch.subnodes = parentBranch.subnodes.filter(s => s.id !== subId);
+                renderCanvasNodes();
+              });
+            }
+
+            // Inline edit sub title
+            const subTitleEl = subBox.querySelector('.cmp-sub-title');
+            if (subTitleEl && sub) {
+              makeInlineEditable(subTitleEl, (val) => {
+                sub.title = val || 'Sub-Node';
+              });
+            }
+
+            // Drag Sub-Box
+            makeBoxPointerDraggable(subBox, (x, y) => {
+              if (sub) {
+                sub.x = x;
+                sub.y = y;
+              }
+              renderConnectorLines();
+            });
+          });
+
+          setTimeout(renderConnectorLines, 60);
+        };
+
+        // Root Canvas Title Inline Editing
+        if (rootTitleEl) {
+          rootTitleEl.textContent = compCard._roadmapData.title || 'System Architecture Roadmap';
+          makeInlineEditable(rootTitleEl, (val) => {
+            compCard._roadmapData.title = val || 'System Architecture Roadmap';
+            renderConnectorLines();
+          });
+        }
+
+        // Instant Add Text Box (ZERO PROMPTS!)
+        if (btnAddText) {
+          btnAddText.addEventListener('click', () => {
+            const colors = ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899'];
+            const count = compCard._roadmapData.branches.length;
+            compCard._roadmapData.branches.push({
+              id: `b_text_${Date.now()}`,
+              type: 'text',
+              title: `Text Field Box ${count + 1}`,
+              tag: 'NOTES',
+              color: colors[count % colors.length],
+              x: 140 + (count * 60) % 450,
+              y: 130 + Math.floor(count / 2) * 110,
+              subnodes: []
+            });
+            renderCanvasNodes();
+          });
+        }
+
+        // Instant Add Project Link Box (ZERO PROMPTS!)
+        if (btnAddLink) {
+          btnAddLink.addEventListener('click', () => {
+            const colors = ['#3b82f6', '#f59e0b', '#10b981', '#8b5cf6', '#ec4899'];
+            const count = compCard._roadmapData.branches.length;
+            compCard._roadmapData.branches.push({
+              id: `b_link_${Date.now()}`,
+              type: 'link',
+              title: `Project Link ${count + 1}`,
+              slug: 'teststand',
+              tag: 'LINKED PROJECT',
+              color: colors[count % colors.length],
+              x: 140 + (count * 60) % 450,
+              y: 130 + Math.floor(count / 2) * 110,
+              subnodes: []
+            });
+            renderCanvasNodes();
+          });
+        }
+
+        renderCanvasNodes();
+      };
+
+      setTimeout(initCmpRoadmap, 60);
+    }
 
     // Image Upload Handler with Immediate Data URL Fallback
     if (type === 'image') {
@@ -1200,14 +1825,25 @@ void setup() { Serial.begin(115200); }</textarea>
   // HELPER FUNCTION: CREATE SUBSYSTEM TAG ELEMENT WITH DELETE BUTTON
   function createSubsystemTagElement(name, slug, color = 'blue') {
     const item = document.createElement('div');
-    item.className = 'subsystem-item d-flex justify-content-between align-items-center mb-1 p-1 style-box';
-    item.style.fontSize = '0.8rem';
+    const validColors = ['blue', 'green', 'purple', 'orange', 'pink', 'red'];
+    const tagColor = validColors.includes(color) ? color : 'blue';
+
+    item.className = `subsystem-item notion-tag notion-tag-${tagColor} w-100 d-flex justify-content-between align-items-center mb-2 p-2`;
+    item.style.borderRadius = '8px';
+    item.style.fontSize = '0.82rem';
+    item.style.fontWeight = '700';
     item.dataset.title = name;
     item.dataset.url = slug;
-    item.dataset.color = color;
+    item.dataset.color = tagColor;
     item.innerHTML = `
-      <span>🚀 ${name} (${slug})</span>
-      <button type="button" class="btn-del-icon btn-del-subsystem" aria-label="Remove" title="Remove Link"><span class="trash-icon">🗑️</span></button>
+      <span class="d-flex align-items-center gap-2 text-truncate me-2">
+        <span style="font-size: 0.9rem;">🧩</span>
+        <span>${name}</span>
+        ${slug ? `<span style="opacity: 0.65; font-size: 0.72rem; font-family: var(--font-mono, monospace);">(${slug})</span>` : ''}
+      </span>
+      <button type="button" class="btn-del-icon btn-del-subsystem btn-remove-tag border-0 bg-transparent p-0" aria-label="Remove" title="Remove Link">
+        <span class="trash-icon">🗑️</span>
+      </button>
     `;
     item.querySelector('.btn-del-subsystem').addEventListener('click', () => item.remove());
     return item;
@@ -1242,16 +1878,18 @@ void setup() { Serial.begin(115200); }</textarea>
       const relTitle = titleInput.value.trim();
       const relUrl = urlInput.value.trim().toLowerCase();
 
-      if (relTitle && relUrl) {
+      if (relTitle) {
         const list = document.getElementById('ed-subsystems-list');
         if (list) {
-          const el = createSubsystemTagElement(relTitle, relUrl, 'blue');
+          const colors = ['green', 'orange', 'purple', 'blue', 'pink'];
+          const color = colors[list.children.length % colors.length];
+          const el = createSubsystemTagElement(relTitle, relUrl, color);
           list.appendChild(el);
           titleInput.value = '';
           urlInput.value = '';
         }
       } else {
-        alert("Please enter both Sub-System Name and Slug ID.");
+        alert("Please enter a Sub-System Name.");
       }
     });
   }
@@ -1333,6 +1971,11 @@ void setup() { Serial.begin(115200); }</textarea>
           components.push({ type: 'latex', formula: latexInput || '' });
         } else if (compType === 'code' || codeBody) {
           components.push({ type: 'code', filename: codeFileName || 'script.cpp', code: codeBody || '' });
+        } else if (compType === 'specs') {
+          components.push({ type: 'specs', content: 'Specs Table' });
+        } else if (compType === 'roadmap') {
+          const rData = comp._roadmapData || { title: "Architecture Roadmap", branches: [] };
+          components.push({ type: 'roadmap', roadmapData: rData });
         } else if (compType === 'diagram' || diagramBody) {
           components.push({ type: 'diagram', diagramText: diagramBody || '' });
         } else if (compType === 'text' || textBody) {
@@ -1600,6 +2243,10 @@ void setup() { Serial.begin(115200); }</textarea>
               if (lastComp.querySelector('.cmp-diagram-body')) {
                 lastComp.querySelector('.cmp-diagram-body').value = comp.diagramText;
               }
+            } else if (comp.type === 'roadmap' && comp.roadmapData) {
+              lastComp._roadmapData = comp.roadmapData;
+              const rootTitle = lastComp.querySelector('.roadmap-cmp-root-title');
+              if (rootTitle) rootTitle.textContent = comp.roadmapData.title || 'Development Tree';
             }
           });
         }
