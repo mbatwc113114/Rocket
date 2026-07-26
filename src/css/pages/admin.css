@@ -1,0 +1,130 @@
+/**
+ * ============================================================================
+ * ROKETRY AEROSPACE PLATFORM - ADMIN CONSOLE & BUILDER (admin.css)
+ * ============================================================================
+ * Styles for Notion-style modular page builder, section ordering cards, component
+ * block controls, catalog grid, and audit changelog log tables.
+ *
+ * @architecture Admin Page Console Layer
+ */
+
+.repo-detail-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 2rem;
+}
+
+@media (max-width: 992px) {
+  .repo-detail-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.doc-main-article {
+  min-width: 0;
+}
+
+.repo-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.repo-sidebar-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.repo-sidebar-box h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.form-label-mono {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 0.35rem;
+}
+
+.editor-input-title {
+  width: 100%;
+  background: var(--bg-main);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.75rem;
+  color: var(--text-dark);
+  font-family: var(--font-body);
+  transition: border-color var(--transition-fast);
+}
+
+.editor-input-title:focus {
+  outline: none;
+  border-color: var(--brand-primary);
+}
+
+/* Drag Handle */
+.drag-handle {
+  cursor: grab;
+  color: var(--text-subtle);
+  user-select: none;
+  font-size: 1.2rem;
+
+  &:hover {
+    color: var(--brand-primary);
+  }
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+/* Component Grid */
+.section-components-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.section-components-grid.grid-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+@media (max-width: 768px) {
+  .section-components-grid.grid-2col {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Catalog Card Grid */
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.project-card {
+  padding: 1.25rem;
+}
+
+.card-sketch-wrap {
+  width: 100%;
+  height: 180px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--bg-tree-bg);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}

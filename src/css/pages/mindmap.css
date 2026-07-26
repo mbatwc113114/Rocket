@@ -1,0 +1,109 @@
+/**
+ * ============================================================================
+ * ROKETRY AEROSPACE PLATFORM - MINDMAP CANVAS STYLING (mindmap.css)
+ * ============================================================================
+ * Contains rules for scale-invariant vector canvas container, mindmap tree,
+ * organic Bezier connector lines, drag handles, and snap dots.
+ *
+ * @architecture Mindmap Visual Canvas Layer
+ */
+
+#mindmap-viewport {
+  position: relative;
+  width: 100%;
+  height: 720px;
+  overflow: auto;
+  background: var(--bg-main);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+/* 100% Picture-Mode Vector Canvas Container */
+#mindmap-canvas-inner {
+  position: relative;
+  min-width: 1600px;
+  min-height: 1200px;
+  transform-origin: top center;
+  transition: transform 0.15s cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+/* SVG Vector Connector Overlay Layer */
+#mindmap-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* SVG Line Selection Drop Shadow Path Glow */
+g.connector-group.selected-node path {
+  filter: drop-shadow(0 0 6px #3b82f6) drop-shadow(0 0 12px rgba(59, 130, 246, 0.6)) !important;
+  stroke: #2563eb !important;
+}
+
+/* Bezier Control Point Drag Handles */
+circle.line-drag-handle {
+  transition: r 0.15s ease, fill 0.15s ease;
+}
+
+circle.line-drag-handle:hover {
+  r: 8px !important;
+  fill: #f59e0b !important;
+}
+
+/* Root Node Card */
+.mindmap-root-box {
+  position: absolute;
+  z-index: 5;
+  background: var(--bg-card);
+  border: 2px solid var(--brand-primary);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 2rem;
+  box-shadow: var(--shadow-lg);
+  cursor: grab;
+  user-select: none;
+}
+
+.mindmap-root-box.is-dragging {
+  cursor: grabbing !important;
+  box-shadow: 0 12px 24px rgba(59, 130, 246, 0.3) !important;
+}
+
+/* Main Branch Node Cards */
+.mindmap-main-branch-box {
+  position: absolute;
+  z-index: 5;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.5rem;
+  box-shadow: var(--shadow-md);
+  cursor: grab;
+  user-select: none;
+  min-width: 220px;
+}
+
+.mindmap-main-branch-box.is-dragging {
+  cursor: grabbing !important;
+}
+
+/* Sub-node Wrapper Pills */
+.mindmap-subnode-wrapper {
+  position: absolute;
+  z-index: 5;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 0.4rem 1rem;
+  box-shadow: var(--shadow-sm);
+  cursor: grab;
+  user-select: none;
+}
+
+.mindmap-subnode-wrapper.is-dragging {
+  cursor: grabbing !important;
+}

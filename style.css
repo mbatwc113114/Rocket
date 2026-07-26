@@ -1,6 +1,12 @@
-/* ==========================================================================
-   ROKETRY — DESIGN SYSTEM & CONSOLIDATED STYLES
-   ========================================================================== */
+/**
+ * ============================================================================
+ * ROKETRY AEROSPACE PLATFORM - MASTER STYLESHEET (style.css)
+ * ============================================================================
+ * Aggregates modular CSS design primitives from src/css/main.css and preserves
+ * legacy design tokens and theme rules.
+ */
+
+@import './src/css/main.css';
 
 /* ================= ROOT VARIABLES ================= */
 :root {

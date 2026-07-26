@@ -1,0 +1,124 @@
+/**
+ * ============================================================================
+ * ROKETRY AEROSPACE PLATFORM - TECHNICAL DOCS STYLING (docs.css)
+ * ============================================================================
+ * Styles for Notion-style technical document header, specs table, code editor,
+ * ASCII diagrams, and math formulas.
+ *
+ * @architecture Technical Documentation Viewer Layer
+ */
+
+.doc-header-layout {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 2rem;
+  align-items: center;
+}
+
+@media (max-width: 992px) {
+  .doc-header-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.doc-main-title {
+  font-size: 2.25rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
+
+.doc-main-subtitle {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  margin-bottom: 1.5rem;
+}
+
+.doc-sketch-box {
+  width: 100%;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-md);
+
+  img {
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
+  }
+
+  .sketch-caption {
+    display: block;
+    padding: 0.5rem 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    background: var(--bg-tree-bg);
+    border-top: 1px solid var(--border-color);
+  }
+}
+
+/* Specs Table */
+.specs-table-wrapper {
+  overflow-x: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.specs-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+
+  th {
+    background: var(--bg-tree-bg);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    text-align: left;
+  }
+
+  td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text-dark);
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+}
+
+/* Code & ASCII Diagram Blocks */
+.diagram-box, .code-editor-box {
+  background: #0f172a;
+  color: #f8fafc;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin: 1.5rem 0;
+  border: 1px solid var(--border-color);
+}
+
+.diagram-title, .code-header {
+  background: #1e293b;
+  padding: 0.6rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: #94a3b8;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #334155;
+}
+
+.code-block {
+  padding: 1.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  overflow-x: auto;
+  margin: 0;
+}
