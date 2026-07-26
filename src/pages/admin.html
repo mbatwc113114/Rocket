@@ -2569,7 +2569,8 @@ void setup() { Serial.begin(115200); }</textarea>
             const lastComp = compGrid.lastChild;
 
             if (comp.type === 'text' && lastComp.querySelector('.cmp-text-body')) {
-              lastComp.querySelector('.cmp-text-body').value = comp.content || '';
+              const txt = (comp.content && comp.content !== 'undefined') ? comp.content : (comp.text && comp.text !== 'undefined' ? comp.text : '');
+              lastComp.querySelector('.cmp-text-body').value = txt;
             } else if (comp.type === 'image' && comp.imgUrl) {
               const preview = lastComp.querySelector('.cmp-img-preview');
               if (preview) {

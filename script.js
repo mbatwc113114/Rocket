@@ -804,8 +804,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                       </div>
                     `;
+                   } else if (b.type === 'text') {
+                    const txt = (b.content && b.content !== 'undefined' && b.content !== 'null') ? b.content : (b.text && b.text !== 'undefined' ? b.text : '');
+                    return txt ? `<div class="p-3 style-box mb-3 w-100" style="background: var(--bg-card); border-radius: 8px;"><p class="m-0" style="font-size: 0.92rem; line-height: 1.6; color: var(--text-dark);">${txt}</p></div>` : '';
                   } else {
-                    return `<p>${b.content || ''}</p>`;
+                    const txt = (b.content && b.content !== 'undefined' && b.content !== 'null') ? b.content : (b.text && b.text !== 'undefined' ? b.text : '');
+                    return txt ? `<div class="p-3 style-box mb-3 w-100" style="background: var(--bg-card); border-radius: 8px;"><p class="m-0" style="font-size: 0.92rem; line-height: 1.6; color: var(--text-dark);">${txt}</p></div>` : '';
                   }
                 }).join('') + `</div>`;
               }
